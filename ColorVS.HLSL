@@ -28,7 +28,7 @@ PixelInputType ColorVertexShader(VertexInputType input)
 {
     PixelInputType output;
     
-    // 적절한 행렬 계산을 위해 위치 벡터를 4단위로 변경한다.
+    // 트랜스폼 번환 행렬 계산을 위해 위치 벡터를 4단위로 변경한다.
     input.position.w = 1.0f;
     
     // 월드, 뷰, 및 투영 행렬에 대한 정점의 위치를 계산한다.
