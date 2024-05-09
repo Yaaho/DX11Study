@@ -107,6 +107,6 @@
     <Image Include="data\seafloor.dds" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data\Cube.txt" />
+    <Text Include="data\model.txt" />
   </ItemGroup>
 </Project>

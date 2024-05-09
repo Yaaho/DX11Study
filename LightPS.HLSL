@@ -9,7 +9,8 @@ SamplerState SampleType;
 
 cbuffer LightBuffer
 {
-    float4 diffusColor;
+    float4 ambientColor;
+    float4 diffuseColor;
     float3 lightDirection;
     float padding;
 };
@@ -21,7 +22,6 @@ struct PixelInputType
     float3 normal : NORMAL;
 };
 
-
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
     float4 TextureColor;
@@ -32,14 +32,19 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     // 이 텍스쳐 좌표 위치에서 샘플러를 사용하여 텍스쳐에서 픽셀 색깔을 샘플링한다.
     TextureColor = ShaderTexture.Sample(SampleType, input.tex);
     
+    // 픽셀의 색상은 ambientColor(주변광) 값보다 어두워 질 수 없다
+    color = ambientColor;
+    
     // 법선 벡터와 내적을 하기 전 light 벡터의 방향을 반대로 바꾼다.
     lightDir = -lightDirection;
     
     // 뒤집은 lightDirection 벡터와 법선 벡터를 내적하여 빛의 양을 계산한다.
     lightIntensity = saturate(dot(input.normal, lightDir));
     
-    // 빛의 강도와 빛의 색을 곱해 빛의 색상을 결정한다.
-    color = saturate(diffusColor * lightIntensity);
+    color += (diffuseColor * lightIntensity);
+    
+    // 최종 빛의 색상을 채운다.
+    color = saturate(color);
     
     // 빛의 색과 텍스쳐의 색을 곱해서 이 픽셀의 최종 색상을 결정한다.
     color = color * TextureColor;

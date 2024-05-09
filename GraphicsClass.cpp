@@ -57,7 +57,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/Cube.txt", L"data/seafloor.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/model.txt", L"data/seafloor.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
@@ -85,8 +85,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// m_Light 객체 초기화
+	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetDirection(1.0f, 0.0f, 0.0f);
 
 	return true;
 }
@@ -138,7 +139,7 @@ bool GraphicsClass::Frame()
 	static float rotation = 0.0f;
 
 	// 각 프레임의 rotation 변수를 업데이트한다.
-	rotation += (float)XM_PI * 0.01f;
+	rotation += (float)XM_PI * 0.005f;
 	if (rotation > 360.0f)
 	{
 		rotation -= 360.0f;
@@ -170,7 +171,8 @@ bool GraphicsClass::Render(float rotation)
 
 	// 텍스쳐 쉐이더를 사용하여 모델을 렌더링한다.
 	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(),
-		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetDiffuseColor()))
+		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), 
+		m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
 	{
 		return false;
 	}

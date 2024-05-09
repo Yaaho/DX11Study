@@ -27,10 +27,10 @@ void LightShaderClass::Shutdown()
 }
 
 bool LightShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
-	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
+	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
-	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor))
+	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, ambientColor, diffuseColor))
 	{
 		return false;
 	}
@@ -187,6 +187,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	lightBufferDesc.MiscFlags = 0;
 	lightBufferDesc.StructureByteStride = 0;
 
+	// 이 클래스 내에서 정점 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
 	if (FAILED(device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer)))
 	{
 		return false;
@@ -255,7 +256,7 @@ void LightShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 
 bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
+	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor,XMFLOAT4 diffuseColor)
 {
 	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
 	worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -299,6 +300,7 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	LightBufferType* dataptr2 = (LightBufferType*)mappedResource.pData;
 
 	// 조명 변수를 constant 버퍼에 복사한다.
+	dataptr2->ambientColor = ambientColor;
 	dataptr2->diffuseColor = diffuseColor;
 	dataptr2->lightDirection = lightDirection;;
 	dataptr2->padding = 0.0f;
