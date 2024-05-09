@@ -51,6 +51,15 @@
     <ClInclude Include="TextureClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LightShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LightClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -80,14 +89,21 @@
     <ClCompile Include="TextureClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LightShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LightClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="ColorVS.HLSL" />
-    <FxCompile Include="ColorPS.HLSL" />
-    <FxCompile Include="TextureVS.HLSL" />
-    <FxCompile Include="TexturePS.HLSL" />
+    <FxCompile Include="LightVS.HLSL" />
+    <FxCompile Include="LightPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="data\stone01.tga" />
+    <Image Include="data\seafloor.dds" />
   </ItemGroup>
 </Project>

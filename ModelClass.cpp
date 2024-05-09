@@ -15,7 +15,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename)
 {
 	// 정점 및 인덱스 버퍼를 초기화한다.
 	if (!InitializeBuffers(device))
@@ -24,7 +24,7 @@ bool ModelClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCon
 	}
 
 	// 이 모델의 텍스쳐를 로드한다.
-	return LoadTexture(device, deviceContext, textureFilename);
+	return LoadTexture(device, textureFilename);
 }
 
 void ModelClass::Shutdown()
@@ -56,10 +56,10 @@ ID3D11ShaderResourceView* ModelClass::GetTexture()
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
 	// 정점 배열의 정점 수를 설정한다.
-	m_vertexCount = 4;
+	m_vertexCount = 3;
 
 	// 인덱스 배열의 인덱스 수를 설정한다.
-	m_indexCount = 4;
+	m_indexCount = 3;
 
 	// 정점 배열을 만든다.
 	VertexType* vertices = new VertexType[m_vertexCount];
@@ -176,7 +176,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename)
+bool ModelClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	// 텍스쳐 오브젝트를 생성한다.
 	m_Texture = new TextureClass;
@@ -186,7 +186,7 @@ bool ModelClass::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	}
 
 	// 텍스쳐 오브젝트를 초기화한다.
-	return m_Texture->Initialize(device, deviceContext, filename);
+	return m_Texture->Initialize(device, filename);
 }
 
 void ModelClass::ReleaseTexture()
