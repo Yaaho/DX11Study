@@ -88,6 +88,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(1.0f, 0.0f, 0.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(32.0f);
 
 	return true;
 }
@@ -169,10 +171,12 @@ bool GraphicsClass::Render(float rotation)
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비한다.
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	// 텍스쳐 쉐이더를 사용하여 모델을 렌더링한다.
+	// Light 쉐이더를 사용하여 모델을 렌더링한다.
 	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(),
-		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), 
-		m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), 
+		m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
+		m_Light->GetSpecularPower()))
 	{
 		return false;
 	}
