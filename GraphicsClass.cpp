@@ -167,8 +167,13 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame()
+bool GraphicsClass::Frame(int mouseX, int mouseY)
 {
+	if (!m_Text->SetMousePosition(mouseX, mouseY, m_Direct3D->GetDeviceContext()))
+	{
+		return false;
+	}
+
 	// Set the Position of the camera
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
@@ -216,13 +221,13 @@ bool GraphicsClass::Render()
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비한다.
 	// m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	// render the text strings
+	// 텍스트 문자열을 렌더링 한다.
 	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
 	{
 		return false;
 	}
 
-	// turn off alpha blending after rendering the text.
+	// 텍스트를 렌더링 한 후 알파 블렌딩을 해제한다.
 	m_Direct3D->TurnOffAlphaBlending();
 
 	// 모든 2d 렌더링이 완료되었으므로 Z 버퍼를 다시 켠다.

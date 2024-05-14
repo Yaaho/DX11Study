@@ -21,21 +21,21 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 {
     bool result;
 
-    // Store the screen width and height.
+    // 화면 너비와 높이를 저장한다.
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
 
-    // Store the base view matrix.
+    // 기본 뷰 매트릭스를 저장한다.
     m_baseViewMatrix = baseViewMatrix;
 
-    // Create the font object.
+    // 폰트 객체를 생성한다.
     m_Font = new FontClass;
     if (!m_Font)
     {
         return false;
     }
 
-    // Initialize the font object.
+    // 폰트 객체를 초기화 한다.
     result = m_Font->Initialize(device, "data/fontdata.txt", L"data/font.dds");
     if (!result)
     {
@@ -43,14 +43,14 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
         return false;
     }
 
-    // Create the font shader object.
+    // 폰트 셰이더 객체를 생성한다.
     m_FontShader = new FontShaderClass;
     if (!m_FontShader)
     {
         return false;
     }
 
-    // Initialize the font shader object.
+    // 폰트 셰이더 객체를 초기화 한다.
     result = m_FontShader->Initialize(device, hwnd);
     if (!result)
     {
@@ -58,28 +58,28 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
         return false;
     }
 
-    // Initialize the first sentence.
+    // 첫번째 문장을 초기화한다.
     result = InitializeSentence(&m_sentence1, 16, device);
     if (!result)
     {
         return false;
     }
 
-    // Now update the sentence vertex buffer with the new string information.
+    // 문장 정점 버퍼를 새 문자열 정보로 업데이트한다.
     result = UpdateSentence(m_sentence1, "Hello", 100, 100, 1.0f, 1.0f, 1.0f, deviceContext);
     if (!result)
     {
         return false;
     }
 
-    // Initialize the first sentence.
+    // 두 번째 문장을 초기화한다.
     result = InitializeSentence(&m_sentence2, 16, device);
     if (!result)
     {
         return false;
     }
 
-    // Now update the sentence vertex buffer with the new string information.
+    // 문장 정점 버퍼를 새 문자열 정보로 업데이트 한다.
     result = UpdateSentence(m_sentence2, "Goodbye", 100, 200, 1.0f, 1.0f, 0.0f, deviceContext);
     if (!result)
     {
@@ -92,13 +92,13 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 
 void TextClass::Shutdown()
 {
-    // Release the first sentence.
+    // 첫 번째 문장을 반환한다.
     ReleaseSentence(&m_sentence1);
 
-    // Release the second sentence.
+    // 두 번째 문장을 반환한다.
     ReleaseSentence(&m_sentence2);
 
-    // Release the font shader object.
+    // 폰트 셰이더 객체를 반환한다.
     if (m_FontShader)
     {
         m_FontShader->Shutdown();
@@ -106,7 +106,7 @@ void TextClass::Shutdown()
         m_FontShader = 0;
     }
 
-    // Release the font object.
+    // 폰트 객체를 반환한다.
     if (m_Font)
     {
         m_Font->Shutdown();
@@ -123,14 +123,14 @@ bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
     bool result;
 
 
-    // Draw the first sentence.
+    // 첫 번째 문장을 그린다.
     result = RenderSentence(deviceContext, m_sentence1, worldMatrix, orthoMatrix);
     if (!result)
     {
         return false;
     }
 
-    // Draw the second sentence.
+    // 두 번째 문장을 그린다.
     result = RenderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix);
     if (!result)
     {
@@ -143,58 +143,51 @@ bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
 
 bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D11Device* device)
 {
-    VertexType* vertices;
-    unsigned long* indices;
-    D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
-    HRESULT result;
-    int i;
-
-
-    // Create a new sentence object.
+    // 새로운 문장 객체를 만든다.
     *sentence = new SentenceType;
     if (!*sentence)
     {
         return false;
     }
 
-    // Initialize the sentence buffers to null.
+    // 문장 버퍼를 null 로 초기화한다.
     (*sentence)->vertexBuffer = 0;
     (*sentence)->indexBuffer = 0;
 
-    // Set the maximum length of the sentence.
+    // 문장의 최대 길이를 설정한다.
     (*sentence)->maxLength = maxLength;
 
-    // Set the number of vertices in the vertex array.
+    // 정점 배열의 정점 수를 설정한다.
     (*sentence)->vertexCount = 6 * maxLength;
 
-    // Set the number of indexes in the index array.
+    // 인덱스 배열의 인덱스 수를 설정한다.
     (*sentence)->indexCount = (*sentence)->vertexCount;
 
-    // Create the vertex array.
-    vertices = new VertexType[(*sentence)->vertexCount];
+    // 정점 배열을 만든다.
+    VertexType* vertices = new VertexType[(*sentence)->vertexCount];
     if (!vertices)
     {
         return false;
     }
 
-    // Create the index array.
-    indices = new unsigned long[(*sentence)->indexCount];
+    // 인덱스 배열을 만든다.
+    unsigned long* indices = new unsigned long[(*sentence)->indexCount];
     if (!indices)
     {
         return false;
     }
 
-    // Initialize vertex array to zeros at first.
+    // 정점 배열을 0으로 초기화한다.
     memset(vertices, 0, (sizeof(VertexType) * (*sentence)->vertexCount));
 
-    // Initialize the index array.
-    for (i = 0; i < (*sentence)->indexCount; i++)
+    // 인덱스 배열을 0으로 초기화한다.
+    for (int i = 0; i < (*sentence)->indexCount; i++)
     {
         indices[i] = i;
     }
 
-    // Set up the description of the dynamic vertex buffer.
+    // 버텍스 버퍼를 동적 버퍼로 설정한다.
+    D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     vertexBufferDesc.ByteWidth = sizeof(VertexType) * (*sentence)->vertexCount;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -202,19 +195,20 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
     vertexBufferDesc.MiscFlags = 0;
     vertexBufferDesc.StructureByteStride = 0;
 
-    // Give the subresource structure a pointer to the vertex data.
+    // SUBRESOURCE 에 정점 데이터의 포인터를 제공한다.
+    D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices;
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
-    // Create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &(*sentence)->vertexBuffer);
-    if (FAILED(result))
+    // 버텍스 버퍼를 만든다.
+    if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &(*sentence)->vertexBuffer)))
     {
         return false;
     }
 
-    // Set up the description of the static index buffer.
+    // 인덱스 버퍼의 Description 을 설정한다.
+    D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * (*sentence)->indexCount;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -222,23 +216,23 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
     indexBufferDesc.MiscFlags = 0;
     indexBufferDesc.StructureByteStride = 0;
 
-    // Give the subresource structure a pointer to the index data.
+    // SUBRESOURCE 에 인덱스 데이터의 포인터를 제공한다.
+    D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
 
-    // Create the index buffer.
-    result = device->CreateBuffer(&indexBufferDesc, &indexData, &(*sentence)->indexBuffer);
-    if (FAILED(result))
+    // 인덱스 버퍼를 만든다.
+    if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &(*sentence)->indexBuffer)))
     {
         return false;
     }
 
-    // Release the vertex array as it is no longer needed.
+    // 더 이상 필요하지 않은 정점 배열을 해제한다.
     delete[] vertices;
     vertices = 0;
 
-    // Release the index array as it is no longer needed.
+    // 더 이상 필요하지 않은 인덱스 배열을 해제한다.
     delete[] indices;
     indices = 0;
 
@@ -249,62 +243,50 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX, int positionY, float red, float green,
     float blue, ID3D11DeviceContext* deviceContext)
 {
-    int numLetters;
-    VertexType* vertices;
-    float drawX, drawY;
-    HRESULT result;
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    VertexType* verticesPtr;
-
-
-    // Store the color of the sentence.
+    // 문장의 색을 저장한다.
     sentence->red = red;
     sentence->green = green;
     sentence->blue = blue;
 
-    // Get the number of letters in the sentence.
-    numLetters = (int)strlen(text);
-
-    // Check for possible buffer overflow.
-    if (numLetters > sentence->maxLength)
+    // 가능한 버퍼 오버플로우를 확인한다.
+    if ((int)strlen(text) > sentence->maxLength)
     {
         return false;
     }
 
-    // Create the vertex array.
-    vertices = new VertexType[sentence->vertexCount];
+    // 정점 배열을 만든다.
+    VertexType* vertices = new VertexType[sentence->vertexCount];
     if (!vertices)
     {
         return false;
     }
 
-    // Initialize vertex array to zeros at first.
+    // 정점 배열을 0으로 초기화한다.
     memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
 
-    // Calculate the X and Y pixel position on the screen to start drawing to.
-    drawX = (float)(((m_screenWidth / 2) * -1) + positionX);
-    drawY = (float)((m_screenHeight / 2) - positionY);
+    // 그리기를 시작할 화면에서 X 및 Y 픽셀 위치를 계산한다.
+    float drawX = (float)(((m_screenWidth / 2) * -1) + positionX);
+    float drawY = (float)((m_screenHeight / 2) - positionY);
 
-    // Use the font class to build the vertex array from the sentence text and sentence draw location.
+    // 폰트 클래스를 사용하여 문장 텍스트와 문장 그리기 위치에서 정점 배열을 만든다.
     m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 
-    // Lock the vertex buffer so it can be written to.
-    result = deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    if (FAILED(result))
+    // 버텍스 버퍼를 쓸 수 있도록 잠근다.
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    if (FAILED(deviceContext->Map(sentence->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
     {
         return false;
     }
 
-    // Get a pointer to the data in the vertex buffer.
-    verticesPtr = (VertexType*)mappedResource.pData;
-
-    // Copy the data into the vertex buffer.
+    // 정점 버퍼의 데이터를 가리키는 포인터를 얻는다.
+    VertexType* verticesPtr = (VertexType*)mappedResource.pData;
+    
+    // 데이터를 정점 버퍼에 복사한다.
     memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence->vertexCount));
 
-    // Unlock the vertex buffer.
+    // 정점 버퍼의 잠금을 해제한다.
     deviceContext->Unmap(sentence->vertexBuffer, 0);
 
-    // Release the vertex array as it is no longer needed.
     delete[] vertices;
     vertices = 0;
 
@@ -316,21 +298,21 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 {
     if (*sentence)
     {
-        // Release the sentence vertex buffer.
+        // 문장의 버텍스 버퍼를 해제한다.
         if ((*sentence)->vertexBuffer)
         {
             (*sentence)->vertexBuffer->Release();
             (*sentence)->vertexBuffer = 0;
         }
 
-        // Release the sentence index buffer.
+        // 문장의 인덱스 버퍼를 해제한다.
         if ((*sentence)->indexBuffer)
         {
             (*sentence)->indexBuffer->Release();
             (*sentence)->indexBuffer = 0;
         }
 
-        // Release the sentence.
+        // 문장을 해제한다.
         delete* sentence;
         *sentence = 0;
     }
@@ -342,33 +324,60 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, XMMATRIX worldMatrix,
     XMMATRIX orthoMatrix)
 {
-    unsigned int stride, offset;
-    XMFLOAT4 pixelColor;
-    bool result;
+    // 정점 버퍼 간격 및 오프셋을 설정한다.
+    unsigned int stride = sizeof(VertexType);
+    unsigned int offset = 0;
 
-
-    // Set vertex buffer stride and offset.
-    stride = sizeof(VertexType);
-    offset = 0;
-
-    // Set the vertex buffer to active in the input assembler so it can be rendered.
+    // 렌더링 할 수 있도록 입력 어셈블러에서 정저 버퍼를 활성으로 설정한다.
     deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
+    // 렌더링 할 수 있도록 입력 어셈블러에서 인덱스 버퍼를 활성으로 설정한다.
     deviceContext->IASetIndexBuffer(sentence->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+    // 이 정점 버퍼에서 렌더링 되어야 하는 프리미티브 유형을 설정한다. 이 경우에는 삼각형이다.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    // Create a pixel color vector with the input sentence color.
-    pixelColor = XMFLOAT4(sentence->red, sentence->green, sentence->blue, 1.0f);
+    // 입력된 문장 색상으로 픽셀 색상 벡터를 만든다.
+    XMFLOAT4 pixelColor = XMFLOAT4(sentence->red, sentence->green, sentence->blue, 1.0f);
 
-    // Render the text using the font shader.
-    result = m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix,
-        m_Font->GetTexture(), pixelColor);
-    if (!result)
+    // 폰트 셰이더를 사용하여 텍스트를 렌더링한다.
+    if (!m_FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix,
+        m_Font->GetTexture(), pixelColor))
     {
         false;
+    }
+
+    return true;
+}
+
+bool TextClass::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* deviceContext)
+{
+    // mouseX 정수를 문자열 형식으로 변환한다.
+    char tempString[16] = { 0, };
+    _itoa_s(mouseX, tempString, 10);
+
+    // mouseX 문자열을 설정한다.
+    char mouseString[16] = { 0, };
+    strcpy_s(mouseString, "Mouse X: ");
+    strcat_s(mouseString, tempString);
+
+    // 문장 정점 버퍼를 새 문자열 정보로 업데이트한다.
+    if (!UpdateSentence(m_sentence1, mouseString, 20, 20, 1.0f, 1.0f, 1.0f, deviceContext))
+    {
+        return false;
+    }
+
+    // mouseY 정수를 문자열 형식으로 변환한다.
+    _itoa_s(mouseY, tempString, 10);
+
+    // mouseY 문자열을 설정한다.
+    strcpy_s(mouseString, "mouse Y: ");
+    strcat_s(mouseString, tempString);
+
+    // 문장 정저 버퍼를 새 문자열 정보로 업데이트한다.
+    if (!UpdateSentence(m_sentence2, mouseString, 20, 40, 1.0f, 1.0f, 1.0f, deviceContext))
+    {
+        return false;
     }
 
     return true;

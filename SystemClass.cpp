@@ -33,14 +33,16 @@ bool SystemClass::Initialize()
 
 	// m_Input 객체 생성, 사용자의 키보드 입력 처리에 사용됨
 	m_Input = new InputClass;
-	
 	if (!m_Input)
 	{
 		return false;
 	}
 
 	// m_Input 객체 초기화
-	m_Input->Initialize();
+	if (!m_Input->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight))
+	{
+		MessageBox(m_hwnd, L"Could not initialize the input object.", L"Error", MB_OK);
+	}
 
 	// m_Graphics 객체 생성. 그래픽 렌더링을 처리하기 위한 객체
 	m_Graphics = new GraphicsClass;
@@ -66,6 +68,7 @@ void SystemClass::Shutdown()
 	// m_Input 객체 반환
 	if (m_Input)
 	{
+		m_Input->Shutdown();
 		delete m_Input;
 		m_Input = 0;
 	}
@@ -100,50 +103,44 @@ void SystemClass::Run()
 			// 그 외에는 Frame 함수를 처리한다.
 			if (!Frame())
 			{
+				MessageBox(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
 				break;
 			}
+		}
+		
+		// 사용자가 ESC 키를 눌렀는지 확인 후 종료 처리함
+		if (m_Input->IsEscapePressed())
+		{
+			break;
 		}
 	}
 }
 
 bool SystemClass::Frame()
 {
-	// ECS 감지 및 종료 여부를 처리한다.
-	if (m_Input->IsKeyDown(VK_ESCAPE))
+	int mouseX = 0, mouseY = 0;
+
+	// 입력 프레임 처리를 수행한다.
+	if (!m_Input->Frame())
 	{
 		return false;
 	}
 
+	// 입력 객체에서 마우스 위치를 가져온다.
+	m_Input->GetMouseLocation(mouseX, mouseY);
+
 	// 그래픽 객체의 Frame 을 처리한다.
-	m_Graphics->Frame();
+	if (!m_Graphics->Frame(mouseX, mouseY))
+	{
+		return false;
+	}
 
 	return m_Graphics->Render();
 }
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
-	{
-	// 키보드가 눌러졌는가 처리
-	case WM_KEYDOWN:
-	{
-		// 키 눌림 flag 를 m_Input 객체에 처리하도록 한다.
-		m_Input->KeyDown((unsigned int)wparam);
-		return 0;
-	}
-	// 키보드가 떨어졌는가 처리
-	case WM_KEYUP:
-	{
-		// 키 떨어짐 Flag 를 m_input 객체에 처리하도록 한다.
-		m_Input->KeyUp((unsigned int)wparam);
-		return 0;
-	}
-	// 그 외의 모든 메시지들은 기본 메시지 처리로 넘긴다.
-	default:
-	{
-		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
-	}
+	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
@@ -155,7 +152,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// 프로그램의 이름을 지정한다
-	m_applicationName = L"DX11Demo_02";
+	m_applicationName = L"DX11Demo_13";
 
 	// windows 클래스를 아래와 같이 설정한다.
 	WNDCLASSEX wc;
