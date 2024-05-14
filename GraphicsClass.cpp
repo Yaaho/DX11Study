@@ -4,6 +4,7 @@
 #include "ModelClass.h"
 #include "LightClass.h"
 #include "LightShaderClass.h"
+#include "TextClass.h"
 #include "GraphicsClass.h"
 
 GraphicsClass::GraphicsClass()
@@ -47,8 +48,27 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 카메라 포지션 설정
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	XMMATRIX baseViewMatrix;
+	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(baseViewMatrix);
 
+	// m_Text 객체 생성
+	m_Text = new TextClass;
+	if (!m_Text)
+	{
+		return false;
+	}
+
+	// m_Text 객체 초기화
+	if (!m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight,
+		baseViewMatrix))
+	{
+		MessageBox(hwnd, L"Could not initialize the next object.", L"Error", MB_OK);
+		return false;
+	}
+
+	/*
 	// m_model 객체 생성
 	m_Model = new ModelClass;
 	if (!m_Model)
@@ -90,6 +110,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetDirection(1.0f, 0.0f, 0.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
+	*/
 
 	return true;
 }
@@ -97,6 +118,15 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
+	// m_Text 객체 반환
+	if (m_Text)
+	{
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
+
+	/*
 	// m_Light 객체 반환
 	if (m_Light)
 	{
@@ -119,6 +149,7 @@ void GraphicsClass::Shutdown()
 		delete m_Model;
 		m_Model = 0;
 	}
+	*/
 
 	// m_Camera 객체 반환
 	if (m_Camera)
@@ -138,6 +169,10 @@ void GraphicsClass::Shutdown()
 
 bool GraphicsClass::Frame()
 {
+	// Set the Position of the camera
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+
+	/* 
 	static float rotation = 0.0f;
 
 	// 각 프레임의 rotation 변수를 업데이트한다.
@@ -149,9 +184,12 @@ bool GraphicsClass::Frame()
 
 	// 그래픽 렌더링 처리
 	return Render(rotation);
+	*/
+
+	return true;
 }
 
-bool GraphicsClass::Render(float rotation)
+bool GraphicsClass::Render()
 {
 	// 씬을 그리기 위해 버퍼를 지웁니다
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -160,17 +198,37 @@ bool GraphicsClass::Render(float rotation)
 	m_Camera->Render();
 
 	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져온다.
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	m_Direct3D->GetWorldMatrix(worldMatrix);
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	// 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
+	m_Direct3D->TurnZBufferOff();
+
+	// Turn on the alpha blending before rendering the text.
+	m_Direct3D->TurnOnAlphaBlending();
 
 	// 삼각형이 회전할 수 있도록 회전 값으로 월드 행렬을 회전한다.
-	worldMatrix = XMMatrixRotationY(rotation);
+	// worldMatrix = XMMatrixRotationY(rotation);
 
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비한다.
-	m_Model->Render(m_Direct3D->GetDeviceContext());
+	// m_Model->Render(m_Direct3D->GetDeviceContext());
 
+	// render the text strings
+	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
+	{
+		return false;
+	}
+
+	// turn off alpha blending after rendering the text.
+	m_Direct3D->TurnOffAlphaBlending();
+
+	// 모든 2d 렌더링이 완료되었으므로 Z 버퍼를 다시 켠다.
+	m_Direct3D->TurnZBufferOn();
+
+	/*
 	// Light 쉐이더를 사용하여 모델을 렌더링한다.
 	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(),
 		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
@@ -180,6 +238,7 @@ bool GraphicsClass::Render(float rotation)
 	{
 		return false;
 	}
+	*/
 
 	// 버퍼의 내용을 화면에 출력합니다
 	m_Direct3D->EndScene();

@@ -115,7 +115,9 @@ bool SystemClass::Frame()
 	}
 
 	// 그래픽 객체의 Frame 을 처리한다.
-	return m_Graphics->Frame();
+	m_Graphics->Frame();
+
+	return m_Graphics->Render();
 }
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)

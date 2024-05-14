@@ -60,6 +60,15 @@
     <ClInclude Include="LightClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FontShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,15 +107,28 @@
     <ClCompile Include="LightClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FontShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="LightVS.HLSL" />
     <FxCompile Include="LightPS.HLSL" />
+    <FxCompile Include="FontVS.HLSL" />
+    <FxCompile Include="FontPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
+    <Image Include="data\font.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
+    <Text Include="data\fontdata.txt" />
   </ItemGroup>
 </Project>

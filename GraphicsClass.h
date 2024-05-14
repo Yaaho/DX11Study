@@ -10,6 +10,7 @@ class CameraClass;
 class ModelClass;
 class LightClass;
 class LightShaderClass;
+class TextClass;
 
 class GraphicsClass
 {
@@ -21,9 +22,7 @@ public:
 	bool Initialize(int, int, HWND);
 	void Shutdown();
 	bool Frame();
-
-private:
-	bool Render(float);
+	bool Render();
 
 private:
 	D3DClass* m_Direct3D = nullptr;
@@ -31,4 +30,5 @@ private:
 	ModelClass* m_Model = nullptr;
 	LightShaderClass* m_LightShader = nullptr;
 	LightClass* m_Light = nullptr;
+	TextClass* m_Text = nullptr;
 };
