@@ -19,8 +19,6 @@ TextClass::~TextClass()
 bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, HWND hwnd, int screenWidth,
     int screenHeight, XMMATRIX baseViewMatrix)
 {
-    bool result;
-
     // 화면 너비와 높이를 저장한다.
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
@@ -36,8 +34,7 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
     }
 
     // 폰트 객체를 초기화 한다.
-    result = m_Font->Initialize(device, "data/fontdata.txt", L"data/font.dds");
-    if (!result)
+    if (!m_Font->Initialize(device, "data/fontdata.txt", L"data/font.dds"))
     {
         MessageBox(hwnd, L"Could not initialize the font object.", L"Error", MB_OK);
         return false;
@@ -51,37 +48,32 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
     }
 
     // 폰트 셰이더 객체를 초기화 한다.
-    result = m_FontShader->Initialize(device, hwnd);
-    if (!result)
+    if (!m_FontShader->Initialize(device, hwnd))
     {
         MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
         return false;
     }
 
     // 첫번째 문장을 초기화한다.
-    result = InitializeSentence(&m_sentence1, 16, device);
-    if (!result)
+    if (!InitializeSentence(&m_sentence1, 16, device))
     {
         return false;
     }
 
     // 문장 정점 버퍼를 새 문자열 정보로 업데이트한다.
-    result = UpdateSentence(m_sentence1, "Hello", 100, 100, 1.0f, 1.0f, 1.0f, deviceContext);
-    if (!result)
+    if (!UpdateSentence(m_sentence1, "Fps: ", 20, 20, 0.0f, 1.0f, 0.0f, deviceContext))
     {
         return false;
     }
 
     // 두 번째 문장을 초기화한다.
-    result = InitializeSentence(&m_sentence2, 16, device);
-    if (!result)
+    if (!InitializeSentence(&m_sentence2, 16, device))
     {
         return false;
     }
 
     // 문장 정점 버퍼를 새 문자열 정보로 업데이트 한다.
-    result = UpdateSentence(m_sentence2, "Goodbye", 100, 200, 1.0f, 1.0f, 0.0f, deviceContext);
-    if (!result)
+    if (!UpdateSentence(m_sentence2, "Cpu: ", 20, 40, 0.0f, 1.0f, 0.0f, deviceContext))
     {
         return false;
     }
@@ -120,19 +112,13 @@ void TextClass::Shutdown()
 
 bool TextClass::Render(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX orthoMatrix)
 {
-    bool result;
-
-
     // 첫 번째 문장을 그린다.
-    result = RenderSentence(deviceContext, m_sentence1, worldMatrix, orthoMatrix);
-    if (!result)
+    if (!RenderSentence(deviceContext, m_sentence1, worldMatrix, orthoMatrix))
     {
         return false;
     }
 
-    // 두 번째 문장을 그린다.
-    result = RenderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix);
-    if (!result)
+    if (!RenderSentence(deviceContext, m_sentence2, worldMatrix, orthoMatrix))
     {
         return false;
     }
@@ -381,4 +367,68 @@ bool TextClass::SetMousePosition(int mouseX, int mouseY, ID3D11DeviceContext* de
     }
 
     return true;
+}
+
+bool TextClass::SetFps(int fps, ID3D11DeviceContext* deviceContext)
+{
+    // fps 를 10000 이하로 자른다.
+    if (fps > 9999)
+    {
+        fps = 9999;
+    }
+
+    // fps 정수를 문자열 형식으로 반환한다.
+    char tempString[16] = { 0, };
+    _itoa_s(fps, tempString, 10);
+
+    // fps 문자열을 설정한다.
+    char fpsString[16] = { 0, };
+    strcpy_s(fpsString, "Fps: ");
+    strcat_s(fpsString, tempString);
+    
+    float red = 0;
+    float green = 0;
+    float blue = 0;
+
+    // fps 가 60 이상이면 fps 색상을 녹색으로 설정한다.
+    if (fps >= 60)
+    {
+        red = 0.0f;
+        green = 1.0f;
+        blue = 0.0f;
+    }
+
+    // fps 가 60 보다 작은 경우 fps 색상을 노란색으로 설정한다.
+    if (fps < 60)
+    {
+        red = 1.0f;
+        green = 1.0f;
+        blue = 0.0f;
+    }
+
+    // fps 가 30 미만이면 fps 색상을 빨간색으로 설정한다.
+    if (fps < 30)
+    {
+        red = 1.0f;
+        green = 0.0f;
+        blue = 0.0f;
+    }
+
+    // 문장 정점 버퍼를 새 문자열 정보로 업데이트한다.
+    return UpdateSentence(m_sentence1, tempString, 20, 20, red, green, blue, deviceContext);
+}
+
+bool TextClass::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
+{
+    // cpu 정수를 문자열 형식으로 반환한다.
+    char tempString[16] = { 0, };
+    _itoa_s(cpu, tempString, 10);
+
+    // cpu 문자열을 설정한다.
+    char cpuString[16] = { 0, };
+    strcpy_s(cpuString, "Cpu: ");
+    strcat_s(cpuString, tempString);
+    strcat_s(cpuString, "%");
+
+    return UpdateSentence(m_sentence2, cpuString, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
 }

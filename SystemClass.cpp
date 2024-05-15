@@ -1,26 +1,23 @@
 #include "Stdafx.h"
 #include "InputClass.h"
 #include "GraphicsClass.h"
+#include "FpsClass.h"
+#include "CpuClass.h"
+#include "TimerClass.h"
 #include "SystemClass.h"
 
 
 SystemClass::SystemClass()
 {
-
 }
-
 
 SystemClass::SystemClass(const SystemClass& other)
 {
-
 }
-
 
 SystemClass::~SystemClass()
 {
-
 }
-
 
 bool SystemClass::Initialize()
 {
@@ -51,12 +48,71 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	// m_Graphics 객체 초기화 후 결과값 리턴
-	return m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd);
+	// m_Graphics 객체 초기화
+	if (!m_Graphics->Initialize(screenWidth, screenHeight, m_hwnd))
+	{
+		return false;
+	}
+
+	// fps 객체 생성
+	m_Fps = new FpsClass;
+	if (!m_Fps)
+	{
+		return false;
+	}
+
+	// fps 객체 초기화
+	m_Fps->Initialize();
+
+	// cpu 객체 생성
+	m_Cpu = new CpuClass;
+	if (!m_Cpu)
+	{
+		return false;
+	}
+
+	// cpu 객체 초기화
+	m_Cpu->Initialize();
+
+	m_Timer = new TimerClass;
+	if (!m_Timer)
+	{
+		return true;
+	}
+
+	if (!m_Timer->Initialize())
+	{
+		MessageBox(m_hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
+		return false;
+	}
+
+	return true;
 }
 
 void SystemClass::Shutdown()
 {
+	// 타이머 객체를 해제한다.
+	if (m_Timer)
+	{
+		delete m_Timer;
+		m_Timer = 0;
+	}
+
+	// cpu 객체를 해제한다.
+	if (m_Cpu)
+	{
+		m_Cpu->Shutdown();
+		delete m_Cpu;
+		m_Cpu = 0;
+	}
+
+	// fps 객체를 해제한다.
+	if (m_Fps)
+	{
+		delete m_Fps;
+		m_Fps = 0;
+	}
+
 	// m_Graphics 객체 반환
 	if (m_Graphics)
 	{
@@ -118,19 +174,19 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
-	int mouseX = 0, mouseY = 0;
-
+	// 시스템 통계를 업데이트 한다.
+	m_Timer->Frame();
+	m_Fps->Frame();
+	m_Cpu->Frame();
+	
 	// 입력 프레임 처리를 수행한다.
 	if (!m_Input->Frame())
 	{
 		return false;
 	}
 
-	// 입력 객체에서 마우스 위치를 가져온다.
-	m_Input->GetMouseLocation(mouseX, mouseY);
-
 	// 그래픽 객체의 Frame 을 처리한다.
-	if (!m_Graphics->Frame(mouseX, mouseY))
+	if (!m_Graphics->Frame(m_Fps->GetFps(), m_Cpu->GetCpuPercentage(), m_Timer->GetTime()))
 	{
 		return false;
 	}
@@ -152,7 +208,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// 프로그램의 이름을 지정한다
-	m_applicationName = L"DX11Demo_13";
+	m_applicationName = L"DX11Demo_15";
 
 	// windows 클래스를 아래와 같이 설정한다.
 	WNDCLASSEX wc;

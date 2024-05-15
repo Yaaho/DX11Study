@@ -26,7 +26,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	// Direct3D 객체 생성
 	m_Direct3D = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
-
 	if (!m_Direct3D)
 	{
 		return false;
@@ -167,13 +166,20 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(int mouseX, int mouseY)
+bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 {
-	if (!m_Text->SetMousePosition(mouseX, mouseY, m_Direct3D->GetDeviceContext()))
+	// 초당 프레임 수를 설정한다.
+	if (!m_Text->SetFps(fps, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
 	}
 
+	// cpu 사용을 설정한다.
+	if (!m_Text->SetCpu(cpu, m_Direct3D->GetDeviceContext()))
+	{
+		return false;
+	}
+	
 	// Set the Position of the camera
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
