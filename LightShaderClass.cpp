@@ -29,12 +29,11 @@ void LightShaderClass::Shutdown()
 bool LightShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
 	ID3D11ShaderResourceView* texture, 
-	XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor, 
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
 	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, 
-		texture, lightDirection, ambientColor, diffuseColor, cameraPosition, specularColor, specularPower))
+		texture, lightDirection, diffuseColor))
 	{
 		return false;
 	}
@@ -182,21 +181,6 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		return false;
 	}
 
-	// 버텍스 셰이더에 있는 카메라 동적 상수 버퍼의 Description 을 설정한다.
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
-
-	// 이 클래스 내에서 정점 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
-	if (FAILED(device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer)))
-	{
-		return false;
-	}
-
 	// 픽셀 셰이더에 있는 광원 동적 상수 버퍼의 Description 을 설정한다.
 	D3D11_BUFFER_DESC lightBufferDesc;
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -222,13 +206,6 @@ void LightShaderClass::ShutdownShader()
 	{
 		m_lightBuffer->Release();
 		m_lightBuffer = 0;
-	}
-
-	// 카메라 상수 버퍼를 해제한다.
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
 	}
 
 	// 행렬 상수 버퍼를 해제한다.
@@ -282,13 +259,10 @@ void LightShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 
 bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor,
-	XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower)
+	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
-	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
-	worldMatrix = XMMatrixTranspose(worldMatrix);
-	viewMatrix = XMMatrixTranspose(viewMatrix);
-	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+	// 픽셀 셰이더에서 셰이더 텍스쳐 리소스를 설정한다.
+	deviceContext->PSSetShaderResources(0, 1, &texture);
 
 	// constant 버퍼의 내용을 쓸 수 있도록 잠근다.
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -299,6 +273,11 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
 	MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
 	// constant 버퍼에 행렬을 복사한다.
 	dataPtr->world = worldMatrix;
@@ -314,34 +293,6 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	// 마지막으로 정점 셰이더의 constant 버퍼를 바뀐 값으로 바꾼다.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-
-	// constant 버퍼의 내용을 쓸 수 있도록 잠근다.
-	if (FAILED(deviceContext->Map(m_cameraBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-	{
-		return false;
-	}
-
-	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
-	CameraBufferType* dataPtr2 = (CameraBufferType*)mappedResource.pData;
-
-	// constant 버퍼에 행렬을 복사한다.
-	dataPtr2->cameraPosition = cameraPosition;
-	dataPtr2->padding = 0.0f;
-
-	// constant 버퍼의 잠금을 푼다.
-	deviceContext->Unmap(m_cameraBuffer, 0);
-
-	// 정점 셰이더에서의 constant 버퍼의 위치를 설정한다.
-	bufferNumber = 1;
-
-	// 마지막으로 정점 셰이더의 constant 버퍼를 바뀐 값으로 바꾼다.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
-
-
-	// 픽셀 셰이더에서 셰이더 텍스쳐 리소스를 설정한다.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-
-
 	// light constant buffer 를 기록할 수 있도록 잠근다
 	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 	{
@@ -349,14 +300,11 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	}
 
 	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
-	LightBufferType* dataptr3 = (LightBufferType*)mappedResource.pData;
+	LightBufferType* dataptr2 = (LightBufferType*)mappedResource.pData;
 
 	// 조명 변수를 constant 버퍼에 복사한다.
-	dataptr3->ambientColor = ambientColor;
-	dataptr3->diffuseColor = diffuseColor;
-	dataptr3->lightDirection = lightDirection;
-	dataptr3->specularColor = specularColor;
-	dataptr3->specularPower = specularPower;
+	dataptr2->diffuseColor = diffuseColor;
+	dataptr2->lightDirection = lightDirection;
 
 	// constant 버퍼의 잠금을 해제한다.
 	deviceContext->Unmap(m_lightBuffer, 0);

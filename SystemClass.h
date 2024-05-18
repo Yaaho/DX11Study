@@ -10,9 +10,9 @@
 class InputClass;
 // 그래픽을 처리하는 클래스
 class GraphicsClass;
-class FpsClass;
-class CpuClass;
 class TimerClass;
+class PositionClass;
+
 
 // WinAPI 윈도우 프로그래밍을 클래스 화 한 것
 class SystemClass
@@ -42,9 +42,8 @@ private:
 
 	InputClass* m_Input = nullptr;
 	GraphicsClass* m_Graphics = nullptr;
-	FpsClass* m_Fps = nullptr;
-	CpuClass* m_Cpu = nullptr;
 	TimerClass* m_Timer = nullptr;
+	PositionClass* m_Position = nullptr;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

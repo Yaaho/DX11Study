@@ -17,7 +17,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* textureFilename)
+bool ModelClass::Initialize(ID3D11Device* device, WCHAR* textureFilename, char* modelFilename)
 {
 	// 모델 데이터를 로드한다.
 	if (!LoadModel(modelFilename))

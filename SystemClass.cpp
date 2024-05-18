@@ -1,9 +1,8 @@
 #include "Stdafx.h"
 #include "InputClass.h"
 #include "GraphicsClass.h"
-#include "FpsClass.h"
-#include "CpuClass.h"
 #include "TimerClass.h"
+#include "PositionClass.h"
 #include "SystemClass.h"
 
 
@@ -54,26 +53,6 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	// fps 객체 생성
-	m_Fps = new FpsClass;
-	if (!m_Fps)
-	{
-		return false;
-	}
-
-	// fps 객체 초기화
-	m_Fps->Initialize();
-
-	// cpu 객체 생성
-	m_Cpu = new CpuClass;
-	if (!m_Cpu)
-	{
-		return false;
-	}
-
-	// cpu 객체 초기화
-	m_Cpu->Initialize();
-
 	m_Timer = new TimerClass;
 	if (!m_Timer)
 	{
@@ -86,31 +65,29 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
+	m_Position = new PositionClass;
+	if (!m_Position)
+	{
+		return false;
+	}
+
 	return true;
 }
 
 void SystemClass::Shutdown()
 {
+	// 위치 객체 반환
+	if (m_Position)
+	{
+		delete m_Position;
+		m_Position = 0;
+	}
+
 	// 타이머 객체를 해제한다.
 	if (m_Timer)
 	{
 		delete m_Timer;
 		m_Timer = 0;
-	}
-
-	// cpu 객체를 해제한다.
-	if (m_Cpu)
-	{
-		m_Cpu->Shutdown();
-		delete m_Cpu;
-		m_Cpu = 0;
-	}
-
-	// fps 객체를 해제한다.
-	if (m_Fps)
-	{
-		delete m_Fps;
-		m_Fps = 0;
 	}
 
 	// m_Graphics 객체 반환
@@ -176,8 +153,6 @@ bool SystemClass::Frame()
 {
 	// 시스템 통계를 업데이트 한다.
 	m_Timer->Frame();
-	m_Fps->Frame();
-	m_Cpu->Frame();
 	
 	// 입력 프레임 처리를 수행한다.
 	if (!m_Input->Frame())
@@ -185,8 +160,21 @@ bool SystemClass::Frame()
 		return false;
 	}
 
+	// 업데이트 된 위치를 계산하기 위한 프레임 시간을 설정한다.
+	m_Position->SetFrameTime(m_Timer->GetTime());
+
+	// 왼쪽 또는 오른쪽 화살표 키를 눌렀는지 확인하고 카메라를 회전시킨다.
+	bool keyDown = m_Input->IsLeftArrowPressed();
+	m_Position->TurnLeft(keyDown);
+	keyDown = m_Input->IsRightArrowPressed();
+	m_Position->TurnRight(keyDown);
+
+	// 현재 뷰 포인트 회전을 가져온다.
+	float rotationY = 0.0f;
+	m_Position->GetRotation(rotationY);
+
 	// 그래픽 객체의 Frame 을 처리한다.
-	if (!m_Graphics->Frame(m_Fps->GetFps(), m_Cpu->GetCpuPercentage(), m_Timer->GetTime()))
+	if (!m_Graphics->Frame(rotationY))
 	{
 		return false;
 	}
@@ -208,7 +196,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// 프로그램의 이름을 지정한다
-	m_applicationName = L"DX11Demo_15";
+	m_applicationName = L"DX11Demo_16";
 
 	// windows 클래스를 아래와 같이 설정한다.
 	WNDCLASSEX wc;

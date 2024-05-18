@@ -4,19 +4,16 @@
 
 InputClass::InputClass()
 {
-
 }
 
 
 InputClass::InputClass(const InputClass& other)
 {
-
 }
 
 
 InputClass::~InputClass()
 {
-
 }
 
 bool InputClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight)
@@ -186,8 +183,27 @@ void InputClass::ProcessInput()
 
 bool InputClass::IsEscapePressed()
 {
-	// escape 키가 현재 눌려지고 있는지 bit 값을 계산하여 확인한다.
-	if (m_keyboardState[DIK_ESCAPE] & 0x90)
+	if (m_keyboardState[DIK_ESCAPE] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool InputClass::IsLeftArrowPressed()
+{
+	if (m_keyboardState[DIK_LEFT] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool InputClass::IsRightArrowPressed()
+{
+	if (m_keyboardState[DIK_RIGHT] & 0x80)
 	{
 		return true;
 	}

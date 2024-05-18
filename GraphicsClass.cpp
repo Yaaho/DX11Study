@@ -1,10 +1,12 @@
 #include "Stdafx.h"
 #include "D3DClass.h"
 #include "CameraClass.h"
-#include "ModelClass.h"
-#include "LightClass.h"
-#include "LightShaderClass.h"
 #include "TextClass.h"
+#include "ModelClass.h"
+#include "LightShaderClass.h"
+#include "LightClass.h"
+#include "ModelListClass.h"
+#include "FrustumClass.h"
 #include "GraphicsClass.h"
 
 GraphicsClass::GraphicsClass()
@@ -67,7 +69,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	/*
 	// m_model 객체 생성
 	m_Model = new ModelClass;
 	if (!m_Model)
@@ -76,7 +77,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/model.txt", L"data/seafloor.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), L"data/seafloor.dds", "data/sphere.txt"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
@@ -106,10 +107,29 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	// m_Light 객체 초기화
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(1.0f, 0.0f, 0.0f);
+	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
-	*/
+
+	// 모델 목록 객체 생성
+	m_ModelList = new ModelListClass;
+	if (!m_ModelList)
+	{
+		return false;
+	}
+
+	// 모델 목록 객체 초기화
+	if (!m_ModelList->Initialize(25))
+	{
+		MessageBox(hwnd, L"Could not initialize the model list object.", L"Error", MB_OK);
+	}
+
+	// 프러스텀 객체 생성
+	m_Frustum = new FrustumClass;
+	if (!m_Frustum)
+	{
+		return false;
+	}
 
 	return true;
 }
@@ -117,15 +137,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
-	// m_Text 객체 반환
-	if (m_Text)
+	// 프러스텀 객체 반환
+	if (m_Frustum)
 	{
-		m_Text->Shutdown();
-		delete m_Text;
-		m_Text = 0;
+		delete m_Frustum; 
+		m_Frustum = 0;
 	}
 
-	/*
+	// 모델 목록 객체 반환
+	if (m_ModelList)
+	{
+		m_ModelList->Shutdown();
+		delete m_ModelList;
+		m_ModelList = 0;
+	}
+
 	// m_Light 객체 반환
 	if (m_Light)
 	{
@@ -148,7 +174,14 @@ void GraphicsClass::Shutdown()
 		delete m_Model;
 		m_Model = 0;
 	}
-	*/
+
+	// m_Text 객체 반환
+	if (m_Text)
+	{
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
 
 	// m_Camera 객체 반환
 	if (m_Camera)
@@ -166,8 +199,15 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
+bool GraphicsClass::Frame(float rotationY)
 {
+	// 카메라의 위치를 설정한다.
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+
+	// 카메라의 회전을 설정한다.
+	m_Camera->SetRotation(0.0f, rotationY, 0.0f);
+
+	/*
 	// 초당 프레임 수를 설정한다.
 	if (!m_Text->SetFps(fps, m_Direct3D->GetDeviceContext()))
 	{
@@ -179,29 +219,19 @@ bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 	{
 		return false;
 	}
-	
-	// Set the Position of the camera
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-
-	/* 
-	static float rotation = 0.0f;
-
-	// 각 프레임의 rotation 변수를 업데이트한다.
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-
-	// 그래픽 렌더링 처리
-	return Render(rotation);
 	*/
-
+	
 	return true;
 }
 
 bool GraphicsClass::Render()
 {
+	float positionX = 0;
+	float positionY = 0;
+	float positionZ = 0;
+	float radius = 1.0f; // 구의 반지름을 1.0f 로 설정
+	XMFLOAT4 color;
+
 	// 씬을 그리기 위해 버퍼를 지웁니다
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -215,17 +245,53 @@ bool GraphicsClass::Render()
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
+	// 절두체를 만든다.
+	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+
+	// 렌더링 될 모델의 수를 얻는다.
+	int modelCount = m_ModelList->GetModelCount();
+
+	// 렌더링 된 모델의 개수를 초기화한다.
+	int renderCount = 0;
+
+	// 모든 모델을 살펴보고 카메라 뷰에서 볼 수 있는 경우에만 렌더링한다.
+	for (int index = 0; index < modelCount; index++)
+	{
+		// 이 인덱스에서 구형 모델의 위치와 색상을 가져온다.
+		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// 구형 모델이 뷰 frustum에 있는지 확인한다.
+		if (m_Frustum->CheckSphere(positionX, positionY, positionZ, radius))
+		{
+			// 모델을 렌더링 할 위치로 이동한다.
+			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
+
+			// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 드로잉을 준비한다.
+			m_Model->Render(m_Direct3D->GetDeviceContext());
+
+			// 라이트 쉐이더를 사용하여 모델을 렌더링한다.
+			m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), color);
+
+			// 원래의 월드 매트릭스로 리셋
+			m_Direct3D->GetWorldMatrix(worldMatrix);
+
+			// 이 모델이 렌더링 되었기 때문에 이 카운트의 수를 늘린다.
+			renderCount++;
+		}
+	}
+
+	// 이 프레임에서 실제로 렌더링 된 모델의 수를 설정한다.
+	if (!m_Text->SetRenderCount(renderCount, m_Direct3D->GetDeviceContext()))
+	{
+		return false;
+	}
+
 	// 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
 	m_Direct3D->TurnZBufferOff();
 
-	// Turn on the alpha blending before rendering the text.
+	// 텍스트를 렌더링하기 정에 알파 블렌딩을 켠다.
 	m_Direct3D->TurnOnAlphaBlending();
-
-	// 삼각형이 회전할 수 있도록 회전 값으로 월드 행렬을 회전한다.
-	// worldMatrix = XMMatrixRotationY(rotation);
-
-	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비한다.
-	// m_Model->Render(m_Direct3D->GetDeviceContext());
 
 	// 텍스트 문자열을 렌더링 한다.
 	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
@@ -238,18 +304,6 @@ bool GraphicsClass::Render()
 
 	// 모든 2d 렌더링이 완료되었으므로 Z 버퍼를 다시 켠다.
 	m_Direct3D->TurnZBufferOn();
-
-	/*
-	// Light 쉐이더를 사용하여 모델을 렌더링한다.
-	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(),
-		m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-		m_Model->GetTexture(), m_Light->GetDirection(), m_Light->GetAmbientColor(), 
-		m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
-		m_Light->GetSpecularPower()))
-	{
-		return false;
-	}
-	*/
 
 	// 버퍼의 내용을 화면에 출력합니다
 	m_Direct3D->EndScene();

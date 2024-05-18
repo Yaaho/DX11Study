@@ -44,9 +44,6 @@ XMFLOAT3 CameraClass::GetRotation()
 void CameraClass::Render()
 {
 	XMFLOAT3 up, position, lookAt;
-	XMVECTOR upVector, positionVector, lookAtVector;
-	float yaw, pitch, roll;
-	XMMATRIX rotationMatrix;
 
 	// 위쪽을 가리키는 벡터를 설정한다.
 	up.x = 0.0f;
@@ -54,35 +51,26 @@ void CameraClass::Render()
 	up.z = 0.0f;
 
 	// XMVECTOR 구조체에 로드한다.
-	upVector = XMLoadFloat3(&up);
+	XMVECTOR upVector = XMLoadFloat3(&up);
 
 	// 3D 월드에서 카메라의 위치를 설정한다.
 	position = m_position;
 
 	// XMVECTOR 구조체에 로드한다.
-	positionVector = XMLoadFloat3(&position);
+	XMVECTOR positionVector = XMLoadFloat3(&position);
+
+	// rotation 을 라디안으로 계산한다.
+	float radians = m_rotation.y * 0.0174532925f;
 
 	// 기본적으로 카메라가 찾고있는 위치를 설정한다.
-	lookAt.x = 0.0f;
-	lookAt.y = 0.0f;
-	lookAt.z = 1.0f;
+	lookAt.x = sinf(radians) + m_position.x;
+	lookAt.y = m_position.y;
+	lookAt.z = cosf(radians) + m_position.z;
 
 	// XMVECTOR 구조체에 로드한다.
-	lookAtVector = XMLoadFloat3(&lookAt);
+	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
 
-	// yaw, pitch, roll 값을 통해 회전 행렬을 만든다.
-	pitch = m_rotation.x * 0.0174532925f;
-	yaw = m_rotation.y * 0.0174532925f;
-	roll = m_rotation.z * 0.0174532925f;
-
-	// lookAt 및 up 벡터를 회전 행렬로 변형하여 뷰가 원점에서 올바르게 회전되도록 한다.
-	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
-	upVector = XMVector3TransformCoord(upVector, rotationMatrix);
-
-	// 회전 된 카메라 위치를 뷰어 위치로 변환한다.
-	lookAtVector = XMVectorAdd(positionVector, lookAtVector);
-
-	// 마지막으로 세 개의 업데이트 된 벡터에서 뷰 행렬을 만든다.
+	// 세 개의 업데이트 된 벡터에서 뷰 행렬을 만든다.
 	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
 }
 

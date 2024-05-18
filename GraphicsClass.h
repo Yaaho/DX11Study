@@ -7,10 +7,14 @@ const float SCREEN_NEAR = 0.1f;
 
 class D3DClass;
 class CameraClass;
-class ModelClass;
-class LightClass;
-class LightShaderClass;
 class TextClass;
+class ModelClass;
+class LightShaderClass;
+class LightClass;
+class ModelListClass;
+class FrustumClass;
+
+
 
 class GraphicsClass
 {
@@ -21,14 +25,16 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int, int, float);
+	bool Frame(float);
 	bool Render();
 
 private:
 	D3DClass* m_Direct3D = nullptr;
 	CameraClass* m_Camera = nullptr;
+	TextClass* m_Text = nullptr;
 	ModelClass* m_Model = nullptr;
 	LightShaderClass* m_LightShader = nullptr;
 	LightClass* m_Light = nullptr;
-	TextClass* m_Text = nullptr;
+	ModelListClass* m_ModelList = nullptr;
+	FrustumClass* m_Frustum = nullptr;
 };
