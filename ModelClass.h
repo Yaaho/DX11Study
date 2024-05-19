@@ -1,6 +1,6 @@
 #pragma once
 
-class TextureClass;
+class TextureArrayClass;
 
 class ModelClass : public AlignedAllocationPolicy<16>
 {
@@ -24,19 +24,19 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, WCHAR*, char*);
+	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
+	ID3D11ShaderResourceView** GetTextureArray();
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(ID3D11Device*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
@@ -47,6 +47,6 @@ private:
 	ID3D11Buffer* m_indexBuffer = nullptr;
 	int m_vertexCount = 0;
 	int m_indexCount = 0;
-	TextureClass* m_Texture = nullptr;
+	TextureArrayClass* m_TextureArray = nullptr;
 	ModelType* m_model = nullptr;
 };

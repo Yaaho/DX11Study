@@ -143,11 +143,13 @@
     <ClInclude Include="LightShaderClass.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="ModelListClass.h" />
+    <ClInclude Include="MultiTextureShaderClass.h" />
     <ClInclude Include="PositionClass.h" />
     <ClInclude Include="Stdafx.h" />
     <ClInclude Include="SystemClass.h" />
     <ClInclude Include="TargetVer.h" />
     <ClInclude Include="TextClass.h" />
+    <ClInclude Include="TextureArrayClass.h" />
     <ClInclude Include="TextureClass.h" />
     <ClInclude Include="TextureShaderClass.h" />
     <ClInclude Include="TimerClass.h" />
@@ -168,9 +170,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="ModelListClass.cpp" />
+    <ClCompile Include="MultiTextureShaderClass.cpp" />
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="SystemClass.cpp" />
     <ClCompile Include="TextClass.cpp" />
+    <ClCompile Include="TextureArrayClass.cpp" />
     <ClCompile Include="TextureClass.cpp" />
     <ClCompile Include="TextureShaderClass.cpp" />
     <ClCompile Include="TimerClass.cpp" />
@@ -218,8 +222,10 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="data\dirt01.dds" />
     <Image Include="data\font.dds" />
     <Image Include="data\seafloor.dds" />
+    <Image Include="data\stone01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\fontdata.txt" />
