@@ -3,7 +3,7 @@
 #include "CameraClass.h"
 #include "TextClass.h"
 #include "ModelClass.h"
-#include "MultiTextureShaderClass.h"
+#include "LightMapShaderClass.h"
 #include "LightClass.h"
 #include "ModelListClass.h"
 #include "FrustumClass.h"
@@ -77,23 +77,23 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt", L"data/stone01.dds", L"data/dirt01.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt", L"data/stone01.dds", L"data/light01.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
 	// 멀티 텍스처 셰이더 객체 생성
-	m_MultiTextureShader = new MultiTextureShaderClass;
-	if (!m_MultiTextureShader)
+	m_LightMapShader = new LightMapShaderClass;
+	if (!m_LightMapShader)
 	{
 		return false;
 	}
 
 	// 멀티 텍스쳐 셰이더 객체 생성
-	if (!m_MultiTextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	if (!m_LightMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 	}
 
 	// m_Light 객체 생성
@@ -159,11 +159,11 @@ void GraphicsClass::Shutdown()
 	}
 
 	// m_MultiTextureShader 객체 반환
-	if (m_MultiTextureShader)
+	if (m_LightMapShader)
 	{
-		m_MultiTextureShader->Shutdown();
-		delete m_MultiTextureShader;
-		m_MultiTextureShader = 0;
+		m_LightMapShader->Shutdown();
+		delete m_LightMapShader;
+		m_LightMapShader = 0;
 	}
 
 	// m_Model 객체 반환
@@ -268,10 +268,8 @@ bool GraphicsClass::Render()
 			// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 드로잉을 준비한다.
 			m_Model->Render(m_Direct3D->GetDeviceContext());
 
-
-
 			// 라이트 쉐이더를 사용하여 모델을 렌더링한다.
-			m_MultiTextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
+			m_LightMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), color);
 
 			// 원래의 월드 매트릭스로 리셋

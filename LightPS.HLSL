@@ -60,8 +60,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     float4 color = saturate(diffuseColor * lightIntensity);
     
     // 빛의 색과 텍스쳐의 색을 곱해서 이 픽셀의 최종 색상을 결정한다.
-    color = color * textureColor1 * textureColor2 * 2.0;
-    color = saturate(color);
+    color = color * textureColor1 * textureColor2 * 2.0f;
     
     // 출력 색상의 마지막에 반사 컴포넌트를 추가한다.
     // color = saturate(color + specular);

@@ -93,6 +93,9 @@
     <ClInclude Include="TextureArrayClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="LightMapShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -164,6 +167,9 @@
     <ClCompile Include="TextureArrayClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="LightMapShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="LightVS.HLSL" />
@@ -176,6 +182,7 @@
     <Image Include="data\font.dds" />
     <Image Include="data\dirt01.dds" />
     <Image Include="data\stone01.dds" />
+    <Image Include="data\light01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
