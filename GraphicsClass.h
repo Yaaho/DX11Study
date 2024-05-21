@@ -9,7 +9,7 @@ class D3DClass;
 class CameraClass;
 class TextClass;
 class ModelClass;
-class LightMapShaderClass;
+class AlphaMapShaderClass;
 class LightClass;
 class ModelListClass;
 class FrustumClass;
@@ -33,7 +33,7 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 	ModelClass* m_Model = nullptr;
-	LightMapShaderClass* m_LightMapShader = nullptr;
+	AlphaMapShaderClass* m_AlphaMapShader = nullptr;
 	LightClass* m_Light = nullptr;
 	ModelListClass* m_ModelList = nullptr;
 	FrustumClass* m_Frustum = nullptr;

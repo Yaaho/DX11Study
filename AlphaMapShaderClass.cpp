@@ -1,39 +1,36 @@
 #include "Stdafx.h"
-#include "LightShaderClass.h"
+#include "AlphaMapShaderClass.h"
 
-LightShaderClass::LightShaderClass()
+AlphaMapShaderClass::AlphaMapShaderClass()
 {
 }
 
 
-LightShaderClass::LightShaderClass(const LightShaderClass& other)
+AlphaMapShaderClass::AlphaMapShaderClass(const AlphaMapShaderClass& other)
 {
 }
 
-LightShaderClass::~LightShaderClass()
+AlphaMapShaderClass::~AlphaMapShaderClass()
 {
 }
 
-bool LightShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool AlphaMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	// 정점 및 픽셀 쉐이더를 초기화한다.
 	return InitializeShader(device, hwnd, L"LightVS.HLSL", L"LightPS.HLSL");
 }
 
-void LightShaderClass::Shutdown()
+void AlphaMapShaderClass::Shutdown()
 {
 	// 버텍스 및 픽셀 쉐이더와 관련된 객체를 종료한다.
 	ShutdownShader();
 }
 
-bool LightShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
-	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-	ID3D11ShaderResourceView* texture, 
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
+bool AlphaMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
+	ID3D11ShaderResourceView** textureArray, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
-	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, 
-		texture, lightDirection, diffuseColor))
+	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textureArray, lightDirection, diffuseColor))
 	{
 		return false;
 	}
@@ -44,7 +41,8 @@ bool LightShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount
 	return true;
 }
 
-bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+
+bool AlphaMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	ID3D10Blob* errorMessage = nullptr;
 
@@ -79,7 +77,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		}
 		else
 		{
-			// 컴파일 오류가  아니라면 셰이더 파일을 찾을 수 없는 경우이다.
+			// 컴파일 오류가 아니라면 셰이더 파일을 찾을 수 없는 경우이다.
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
 		}
 
@@ -100,8 +98,9 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		return false;
 	}
 
+
 	// 정점 입력 레이아웃 구조체를 설정한다.
-	// 이 설정은 ModelClass 와 셰이더의 VertexType 구조와 일치해야 한다.
+	// // 이 설정은 ModelClass 와 셰이더의 VertexType 구조와 일치해야 한다.
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
@@ -144,29 +143,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-	// 텍스쳐 샘플러 상태 구조체를 생성 및 설정한다.
-	D3D11_SAMPLER_DESC samplerDesc;
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 텍스쳐 샘플러 상태를 만든다.
-	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
-	{
-		return false;
-	}
-
-	// 버텍스 셰이더에 있는 행렬 상수 버퍼의 구조체를 작성한다.(월드, 뷰, 프로젝션 매트릭스)
+	// 정점 셰이더에 있는 행렬 상수 버퍼의 구조체를 작성한다.(월드, 뷰, 프로젝션 매트릭스)
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
@@ -175,7 +152,7 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// 이 클래스 내에서 정점 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
+	// 상수 버퍼 포인터를 만들어 이 클래스에서 정점 셰이더 상수 버퍼에 접근할 수 있게 한다.
 	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer)))
 	{
 		return false;
@@ -196,11 +173,40 @@ bool LightShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 		return false;
 	}
 
+	// 텍스쳐 샘플러 상태 구조체를 생성 및 설정한다.
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
+	{
+		return false;
+	}
+
 	return true;
 }
 
-void LightShaderClass::ShutdownShader()
+
+void AlphaMapShaderClass::ShutdownShader()
 {
+	// 샘플러 상태를 해제한다.
+	if (m_sampleState)
+	{
+		m_sampleState->Release();
+		m_sampleState = 0;
+	}
+
 	// 광원 상수 버퍼를 해제한다.
 	if (m_lightBuffer)
 	{
@@ -213,13 +219,6 @@ void LightShaderClass::ShutdownShader()
 	{
 		m_matrixBuffer->Release();
 		m_matrixBuffer = 0;
-	}
-
-	// 샘플러 상태를 해제한다.
-	if (m_sampleState)
-	{
-		m_sampleState->Release();
-		m_sampleState = 0;
 	}
 
 	// 레이아웃을 해제한다.
@@ -244,53 +243,38 @@ void LightShaderClass::ShutdownShader()
 	}
 }
 
-void LightShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+
+bool AlphaMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
+	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView** textureArray,
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
-	// 에러 메시지를 출력창에 표시한다.
-	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
+	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
+	worldMatrix = XMMatrixTranspose(worldMatrix);
+	viewMatrix = XMMatrixTranspose(viewMatrix);
+	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
-	// 에러 메시지를 반환한다.
-	errorMessage->Release();
-	errorMessage = 0;
-
-	// 컴파일 에러가 있음을 팝업 메시지로 알려준다.
-	MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
-}
-
-bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-	ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
-{
-	// 픽셀 셰이더에서 셰이더 텍스쳐 리소스를 설정한다.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-
-	// constant 버퍼의 내용을 쓸 수 있도록 잠근다.
+	// 상수 버퍼의 내용을 쓸 수 있도록 잠근다.
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 	{
 		return false;
 	}
 
-	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
+	// 상수 버퍼의 데이터에 대한 포인터를 가져온다.
 	MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
-	worldMatrix = XMMatrixTranspose(worldMatrix);
-	viewMatrix = XMMatrixTranspose(viewMatrix);
-	projectionMatrix = XMMatrixTranspose(projectionMatrix);
-
-	// constant 버퍼에 행렬을 복사한다.
+	// 상수 버퍼에 행렬을 복사한다.
 	dataPtr->world = worldMatrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
 
-	// constant 버퍼의 잠금을 푼다.
+	// 상수 버퍼의 잠금을 푼다.
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
-	// 정점 셰이더에서의 constant 버퍼의 위치를 설정한다.
+	// 정점 셰이더에서의 상수 버퍼의 위치를 설정한다.
 	unsigned bufferNumber = 0;
 
-	// 마지막으로 정점 셰이더의 constant 버퍼를 바뀐 값으로 바꾼다.
+	// 마지막으로 정점 셰이더의 상수 버퍼를 바뀐 값으로 바꾼다.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	// light constant buffer 를 기록할 수 있도록 잠근다
@@ -315,10 +299,26 @@ bool LightShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	// 마지막으로 업데이트 된 값으로 픽셀 셰이더에서 광원 상수 버퍼를 설정한다.
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
+	// 픽셀 셰이더에서 셰이더 텍스쳐 리소스를 설정한다.
+	deviceContext->PSSetShaderResources(0, 3, textureArray);
+
 	return true;
 }
 
-void LightShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void AlphaMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+{
+	// 에러 메시지를 출력창에 표시한다.
+	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
+
+	// 에러 메시지를 반환한다.
+	errorMessage->Release();
+	errorMessage = 0;
+
+	// 컴파일 에러가 있음을 팝업 메시지로 알려준다.
+	MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
+}
+
+void AlphaMapShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// 정점 입력 레이아웃을 설정한다.
 	deviceContext->IASetInputLayout(m_layout);
@@ -333,4 +333,3 @@ void LightShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int inde
 	// 삼각형을 그린다.
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 }
-
