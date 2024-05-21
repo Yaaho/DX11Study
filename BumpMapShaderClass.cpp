@@ -1,35 +1,31 @@
 #include "Stdafx.h"
-#include "LightMapShaderClass.h"
+#include "BumpMapShaderClass.h"
 
-#include <fstream>
-using namespace std;
-
-LightMapShaderClass::LightMapShaderClass()
+BumpMapShaderClass::BumpMapShaderClass()
 {
 }
 
-
-LightMapShaderClass::LightMapShaderClass(const LightMapShaderClass& other)
+BumpMapShaderClass::BumpMapShaderClass(const BumpMapShaderClass& other)
 {
 }
 
-LightMapShaderClass::~LightMapShaderClass()
+BumpMapShaderClass::~BumpMapShaderClass()
 {
 }
 
-bool LightMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool BumpMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	// 정점 및 픽셀 쉐이더를 초기화한다.
 	return InitializeShader(device, hwnd, L"LightVS.HLSL", L"LightPS.HLSL");
 }
 
-void LightMapShaderClass::Shutdown()
+void BumpMapShaderClass::Shutdown()
 {
 	// 버텍스 및 픽셀 쉐이더와 관련된 객체를 종료한다.
 	ShutdownShader();
 }
 
-bool LightMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
+bool BumpMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView** textureArray, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
@@ -45,7 +41,7 @@ bool LightMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCo
 }
 
 
-bool LightMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
+bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
 {
 	ID3D10Blob* errorMessage = nullptr;
 
@@ -104,7 +100,7 @@ bool LightMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 
 	// 정점 입력 레이아웃 구조체를 설정한다.
 	// // 이 설정은 ModelClass 와 셰이더의 VertexType 구조와 일치해야 한다.
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -129,8 +125,24 @@ bool LightMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
 
+	polygonLayout[3].SemanticName = "TANGENT";
+	polygonLayout[3].SemanticIndex = 0;
+	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[3].InputSlot = 0;
+	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[3].InstanceDataStepRate = 0;
+
+	polygonLayout[4].SemanticName = "BINORMAL";
+	polygonLayout[4].SemanticIndex = 0;
+	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[4].InputSlot = 0;
+	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[4].InstanceDataStepRate = 0;
+
 	// 레이아웃의 요소 수를 가져온다.
-	unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+	UINT numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// 정점 입력 레이아웃을 만든다.
 	if (FAILED(device->CreateInputLayout(polygonLayout, numElements,
@@ -201,7 +213,7 @@ bool LightMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHA
 }
 
 
-void LightMapShaderClass::ShutdownShader()
+void BumpMapShaderClass::ShutdownShader()
 {
 	// 샘플러 상태를 해제한다.
 	if (m_sampleState)
@@ -246,7 +258,21 @@ void LightMapShaderClass::ShutdownShader()
 	}
 }
 
-bool LightMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
+void BumpMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
+{
+	// 에러 메시지를 출력창에 표시한다.
+	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
+
+	// 에러 메시지를 반환한다.
+	errorMessage->Release();
+	errorMessage = 0;
+
+	// 컴파일 에러가 있음을 팝업 메시지로 알려준다.
+	MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
+}
+
+
+bool BumpMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
 	XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView** textureArray,
 	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor)
 {
@@ -308,20 +334,7 @@ bool LightMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 }
 
 
-void LightMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
-{
-	// 에러 메시지를 출력창에 표시한다.
-	OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
-
-	// 에러 메시지를 반환한다.
-	errorMessage->Release();
-	errorMessage = 0;
-
-	// 컴파일 에러가 있음을 팝업 메시지로 알려준다.
-	MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
-}
-
-void LightMapShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void BumpMapShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// 정점 입력 레이아웃을 설정한다.
 	deviceContext->IASetInputLayout(m_layout);

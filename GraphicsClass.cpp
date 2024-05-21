@@ -3,7 +3,7 @@
 #include "CameraClass.h"
 #include "TextClass.h"
 #include "ModelClass.h"
-#include "AlphaMapShaderClass.h"
+#include "BumpMapShaderClass.h"
 #include "LightClass.h"
 #include "ModelListClass.h"
 #include "FrustumClass.h"
@@ -78,21 +78,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	// m_Model 객체 초기화
 	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt", 
-		L"data/stone01.dds", L"data/dirt01.dds", L"data/alpha01.dds"))
+		L"data/stone01.dds", L"data/bump01.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// 멀티 텍스처 셰이더 객체 생성
-	m_AlphaMapShader = new AlphaMapShaderClass;
-	if (!m_AlphaMapShader)
+	// 범프 맵 셰이더 객체 생성
+	m_BumpMapShader = new BumpMapShaderClass;
+	if (!m_BumpMapShader)
 	{
 		return false;
 	}
 
-	// 멀티 텍스쳐 셰이더 객체 생성
-	if (!m_AlphaMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// 범프 맵 셰이더 초기화
+	if (!m_BumpMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 	}
@@ -160,11 +160,11 @@ void GraphicsClass::Shutdown()
 	}
 
 	// m_AlphaMapShader 객체 반환
-	if (m_AlphaMapShader)
+	if (m_BumpMapShader)
 	{
-		m_AlphaMapShader->Shutdown();
-		delete m_AlphaMapShader;
-		m_AlphaMapShader = 0;
+		m_BumpMapShader->Shutdown();
+		delete m_BumpMapShader;
+		m_BumpMapShader = 0;
 	}
 
 	// m_Model 객체 반환
@@ -270,7 +270,7 @@ bool GraphicsClass::Render()
 			m_Model->Render(m_Direct3D->GetDeviceContext());
 
 			// 라이트 쉐이더를 사용하여 모델을 렌더링한다.
-			m_AlphaMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
+			m_BumpMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), color);
 
 			// 원래의 월드 매트릭스로 리셋

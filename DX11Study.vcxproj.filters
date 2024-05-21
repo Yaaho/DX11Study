@@ -84,10 +84,10 @@
     <ClInclude Include="TextureArrayClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LightMapShaderClass.h">
+    <ClInclude Include="AlphaMapShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AlphaMapShaderClass.h">
+    <ClInclude Include="BumpMapShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -152,10 +152,10 @@
     <ClCompile Include="TextureArrayClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="LightMapShaderClass.cpp">
+    <ClCompile Include="AlphaMapShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="AlphaMapShaderClass.cpp">
+    <ClCompile Include="BumpMapShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -172,6 +172,7 @@
     <Image Include="data\stone01.dds" />
     <Image Include="data\light01.dds" />
     <Image Include="data\alpha01.dds" />
+    <Image Include="data\bump01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

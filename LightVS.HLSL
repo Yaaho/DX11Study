@@ -13,6 +13,8 @@ struct VertexInputType
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 // 픽셀 셰이더에 넘겨주는 정보
@@ -21,6 +23,8 @@ struct PixelInputType
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 PixelInputType LightVertexShader(VertexInputType input)
@@ -35,14 +39,26 @@ PixelInputType LightVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-    // 버텍스의 텍스쳐 좌표를 픽셀 쉐이더의 input으로 넣어 좌표 사이가 보간된다.
+    // 버텍스의 텍스쳐 좌표를 픽셀 쉐이더의 input으로 넣어 버텍스 사이 픽셀의 UV 좌표가 보간된다.
     output.tex = input.tex;
     
-    // 법선 벡터를 월드 좌표계로 만들기 위해 worldMatrix를 이용해 tranform 한다.
-    output.normal = mul(input.normal, (float3x3)worldMatrix);
     
+    
+    
+    // 법선 벡터를 worldMatrix를 이용해 tranform 하여 월드 좌표계의 벡터로 만든다.
+    output.normal = mul(input.normal, (float3x3)worldMatrix);
     // 법선 벡터를 노말라이즈 한다.
     output.normal = normalize(output.normal);
+    
+    // 접선 벡터를 worldMatrix를 이용해 tranform 하여 월드 좌표계의 벡터로 만든다.
+    output.tangent = mul(input.tangent, (float3x3)worldMatrix);
+    // 접선 벡터를 노말라이즈 한다.
+    output.tangent = normalize(output.tangent);
+    
+    // 종법선 벡터를 worldMatrix를 이용해 tranform 하여 월드 좌표계의 벡터로 만든다. 
+    output.binormal = mul(input.binormal, (float3x3) worldMatrix);
+    // 종법선 벡터를 노말라이즈 한다.
+    output.binormal = normalize(output.binormal);
     
     /* 
     // 이 버텍스의 월드 위치를 구한다.

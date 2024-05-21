@@ -1,6 +1,6 @@
 #pragma once
 
-class LightMapShaderClass : public AlignedAllocationPolicy<16>
+class BumpMapShaderClass : public AlignedAllocationPolicy<16>
 {
 private:
 	struct MatrixBufferType
@@ -18,9 +18,9 @@ private:
 	};
 
 public:
-	LightMapShaderClass();
-	LightMapShaderClass(const LightMapShaderClass&);
-	~LightMapShaderClass();
+	BumpMapShaderClass();
+	BumpMapShaderClass(const BumpMapShaderClass&);
+	~BumpMapShaderClass();
 
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
@@ -42,6 +42,5 @@ private:
 	ID3D11InputLayout* m_layout = nullptr;
 	ID3D11Buffer* m_matrixBuffer = nullptr;
 	ID3D11Buffer* m_lightBuffer = nullptr;
-
 	ID3D11SamplerState* m_sampleState = nullptr;
 };

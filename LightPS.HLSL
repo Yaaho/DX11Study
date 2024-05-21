@@ -1,7 +1,7 @@
 // 전역변수
 
 // 텍스쳐
-Texture2D ShaderTexture[3];
+Texture2D ShaderTexture[2];
 // C++ 에서 설정할 수 있음
 // 어떻게 텍스쳐의 픽셀이 씌워지는 지 수정함
 SamplerState SampleType;
@@ -17,14 +17,24 @@ struct PixelInputType
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
     // 이 텍스쳐 좌표 위치에서 샘플러를 사용하여 텍스쳐에서 픽셀 색깔을 샘플링한다.
-    float4 textureColor1 = ShaderTexture[0].Sample(SampleType, input.tex);
-    float4 textureColor2 = ShaderTexture[1].Sample(SampleType, input.tex);
-    float4 alphaValue = ShaderTexture[2].Sample(SampleType, input.tex);
+    float4 textureColor = ShaderTexture[0].Sample(SampleType, input.tex);
+    float4 bumpMap = ShaderTexture[1].Sample(SampleType, input.tex);
+    
+    // 노말 값의 범위를 (0, +1) 에서 (-1, +1)로 확장한다.
+    bumpMap = (bumpMap * 2.0f) - 1.0f;
+    
+    // 범프 맵의 데이터에서 법선을 계산한다.
+    float3 bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+    
+    // 범프 노말을 노말라이즈 한다.
+    bumpNormal = normalize(bumpNormal);
     
     
     // 픽셀의 색상은 ambientColor(주변광) 값보다 어두워 질 수 없다
@@ -37,7 +47,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     float3 lightDir = -lightDirection;
     
     // 뒤집은 lightDirection 벡터와 법선 벡터를 내적하여 빛의 양을 계산한다.
-    float lightIntensity = saturate(dot(input.normal, lightDir));
+    float lightIntensity = saturate(dot(bumpNormal, lightDir));
 
     /*
     // 해당 픽셀에 빛이 있으면
@@ -58,13 +68,12 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     }
     */
     
-    // 알파 값을 기반으로 두 텍스쳐를 결합한다.
-    float4 color = (alphaValue * textureColor1) + ((1.0 - alphaValue) * textureColor2);
-    
-    color = saturate(color * diffuseColor * lightIntensity);
+    float color = saturate(diffuseColor * lightIntensity);
     
     // 출력 색상의 마지막에 반사 컴포넌트를 추가한다.
     // color = saturate(color + specular);
+    
+    color = color * textureColor;
     
     return color;
 }
