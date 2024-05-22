@@ -7,6 +7,11 @@ cbuffer MatrixBuffer
     matrix projectionMatrix;
 };
 
+cbuffer CameraBuffer
+{
+    float3 cameraPosition;
+};
+
 // 버텍스에 담겨져 있는 정보
 struct VertexInputType
 {
@@ -25,6 +30,7 @@ struct PixelInputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float3 viewDirection : TEXCOORD1;
 };
 
 PixelInputType LightVertexShader(VertexInputType input)
@@ -42,9 +48,6 @@ PixelInputType LightVertexShader(VertexInputType input)
     // 버텍스의 텍스쳐 좌표를 픽셀 쉐이더의 input으로 넣어 버텍스 사이 픽셀의 UV 좌표가 보간된다.
     output.tex = input.tex;
     
-    
-    
-    
     // 법선 벡터를 worldMatrix를 이용해 tranform 하여 월드 좌표계의 벡터로 만든다.
     output.normal = mul(input.normal, (float3x3)worldMatrix);
     // 법선 벡터를 노말라이즈 한다.
@@ -60,16 +63,14 @@ PixelInputType LightVertexShader(VertexInputType input)
     // 종법선 벡터를 노말라이즈 한다.
     output.binormal = normalize(output.binormal);
     
-    /* 
     // 이 버텍스의 월드 위치를 구한다.
-    float4 WorldPosition = mul(input.position, worldMatrix);
+    float4 worldPosition = mul(input.position, worldMatrix);
     
     // 카메라가 이 버텍스를 보는 방향의 벡터를 구한다.
-    output.viewDirection = cameraPosition.xyz - WorldPosition.xyz;
+    output.viewDirection = cameraPosition.xyz - worldPosition.xyz;
     
     // viewDirection 벡터를 노말라이즈 한다.
     output.viewDirection = normalize(output.viewDirection);
-    */
     
     return output;
 }

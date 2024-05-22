@@ -3,7 +3,7 @@
 #include "CameraClass.h"
 #include "TextClass.h"
 #include "ModelClass.h"
-#include "BumpMapShaderClass.h"
+#include "SpecMapShaderClass.h"
 #include "LightClass.h"
 #include "ModelListClass.h"
 #include "FrustumClass.h"
@@ -78,21 +78,21 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	
 	// m_Model °´Ã¼ ÃÊ±âÈ­
 	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt", 
-		L"data/stone01.dds", L"data/bump01.dds"))
+		L"data/stone02.dds", L"data/bump02.dds", L"data/spec02.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ¹üÇÁ ¸Ê ¼ÎÀÌ´õ °´Ã¼ »ý¼º
-	m_BumpMapShader = new BumpMapShaderClass;
-	if (!m_BumpMapShader)
+	// ½ºÆÐÅ§·¯ ¸Ê ¼ÎÀÌ´õ °´Ã¼ »ý¼º
+	m_SpecMapShader = new SpecMapShaderClass;
+	if (!m_SpecMapShader)
 	{
 		return false;
 	}
 
-	// ¹üÇÁ ¸Ê ¼ÎÀÌ´õ ÃÊ±âÈ­
-	if (!m_BumpMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// ½ºÆÐÅ§·¯ ¸Ê ¼ÎÀÌ´õ ÃÊ±âÈ­
+	if (!m_SpecMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
 	}
@@ -109,7 +109,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(32.0f);
+	m_Light->SetSpecularPower(16.0f);
 
 	// ¸ðµ¨ ¸ñ·Ï °´Ã¼ »ý¼º
 	m_ModelList = new ModelListClass;
@@ -160,11 +160,11 @@ void GraphicsClass::Shutdown()
 	}
 
 	// m_AlphaMapShader °´Ã¼ ¹ÝÈ¯
-	if (m_BumpMapShader)
+	if (m_SpecMapShader)
 	{
-		m_BumpMapShader->Shutdown();
-		delete m_BumpMapShader;
-		m_BumpMapShader = 0;
+		m_SpecMapShader->Shutdown();
+		delete m_SpecMapShader;
+		m_SpecMapShader = 0;
 	}
 
 	// m_Model °´Ã¼ ¹ÝÈ¯
@@ -270,8 +270,10 @@ bool GraphicsClass::Render()
 			m_Model->Render(m_Direct3D->GetDeviceContext());
 
 			// ¶óÀÌÆ® ½¦ÀÌ´õ¸¦ »ç¿ëÇÏ¿© ¸ðµ¨À» ·»´õ¸µÇÑ´Ù.
-			m_BumpMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
-				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), m_Light->GetDirection(), color);
+			m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(), 
+				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
+				m_Light->GetSpecularPower());
 
 			// ¿ø·¡ÀÇ ¿ùµå ¸ÅÆ®¸¯½º·Î ¸®¼Â
 			m_Direct3D->GetWorldMatrix(worldMatrix);

@@ -1,15 +1,18 @@
 // 전역변수
 
 // 텍스쳐
-Texture2D ShaderTexture[2];
-// C++ 에서 설정할 수 있음
+Texture2D ShaderTexture[3];
+
 // 어떻게 텍스쳐의 픽셀이 씌워지는 지 수정함
+// C++ 에서 설정할 수 있음
 SamplerState SampleType;
 
 cbuffer LightBuffer
 {
     float4 diffuseColor;
+    float4 specularColor;
     float3 lightDirection;
+    float specularPower;
 };
 
 struct PixelInputType
@@ -19,6 +22,7 @@ struct PixelInputType
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float3 viewDirection : TEXCOORD1;
 };
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
@@ -36,7 +40,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     // 범프 노말을 노말라이즈 한다.
     bumpNormal = normalize(bumpNormal);
     
-    
     // 픽셀의 색상은 ambientColor(주변광) 값보다 어두워 질 수 없다
     // float4 color = ambientColor;
 
@@ -49,31 +52,31 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     // 뒤집은 lightDirection 벡터와 법선 벡터를 내적하여 빛의 양을 계산한다.
     float lightIntensity = saturate(dot(bumpNormal, lightDir));
 
-    /*
+    // lightIntensity 를 기반으로 최종 diffuse 색을 결정한다.
+    float color = saturate(diffuseColor * lightIntensity);
+    
+    // 최종 diffuse 색상과 텍스쳐 색상을 결합한다.
+    color = color * textureColor;
+    
     // 해당 픽셀에 빛이 있으면
     if (lightIntensity > 0.0f)
     {
-        // 빛의 양에 따라 최종 diffuseColor 를 결정한다.
-        color += (diffuseColor * lightIntensity);
-        
-        // 최종 빛의 색상을 채운다.
-        color = saturate(color);
+        // 스패큘러 맵을 가져온다.
+        float specularIntensity = ShaderTexture[2].Sample(SampleType, input.tex);
         
         // 반사 벡터를 계산한다.
         // 반사 벡터 = 2 * 빛의 강도 * 법선 - 빛의 방향
         float3 reflection = normalize(2 * lightIntensity * input.normal - lightDir);
         
         // 반사 벡터, 시선 방향, specularPower 를 기준으로 반사 조명의 양을 결정한다.
-        specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+        float specular = pow(saturate(dot(reflection, input.viewDirection)), specularPower);
+        
+        // 스패큘러 맵을 사용하여 이 픽셀의 반사광의 강도를 결정한다.
+        specular = specular * specularIntensity;
+
+        // 출력 색상에 최종 정반사 값을 더한다.
+        color = saturate(color + specular);
     }
-    */
-    
-    float color = saturate(diffuseColor * lightIntensity);
-    
-    // 출력 색상의 마지막에 반사 컴포넌트를 추가한다.
-    // color = saturate(color + specular);
-    
-    color = color * textureColor;
     
     return color;
 }
