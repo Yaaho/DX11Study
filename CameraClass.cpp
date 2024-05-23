@@ -43,7 +43,7 @@ XMFLOAT3 CameraClass::GetRotation()
 
 void CameraClass::Render()
 {
-	XMFLOAT3 up, position, lookAt;
+	XMFLOAT3 up, position, lookAt, debuglookAt;
 
 	// 위쪽을 가리키는 벡터를 설정한다.
 	up.x = 0.0f;
@@ -67,14 +67,25 @@ void CameraClass::Render()
 	lookAt.y = m_position.y;
 	lookAt.z = cosf(radians) + m_position.z;
 
+	debuglookAt.x = 0.0f;
+	debuglookAt.y = 1.0f;
+	debuglookAt.z = 0.0f;
+
 	// XMVECTOR 구조체에 로드한다.
 	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
+	XMVECTOR debuglookAtVector = XMLoadFloat3(&debuglookAt);
 
 	// 세 개의 업데이트 된 벡터에서 뷰 행렬을 만든다.
 	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+	m_debugviewMatrix = XMMatrixLookAtLH(positionVector, debuglookAtVector, upVector);
 }
 
 void CameraClass::GetViewMatrix(XMMATRIX& viewMatrix)
 {
 	viewMatrix = m_viewMatrix;
+}
+
+void CameraClass::GetDebugViewMatrix(XMMATRIX& debugviewMatrix)
+{
+	debugviewMatrix = m_debugviewMatrix;
 }

@@ -15,9 +15,11 @@ public:
 
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
+	void GetDebugViewMatrix(XMMATRIX&);
 
 private:
 	XMFLOAT3 m_position;
 	XMFLOAT3 m_rotation;
 	XMMATRIX m_viewMatrix;
+	XMMATRIX m_debugviewMatrix;
 };

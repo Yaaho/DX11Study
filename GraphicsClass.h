@@ -11,6 +11,11 @@ class TextClass;
 class ModelClass;
 class SpecMapShaderClass;
 class LightClass;
+
+class RenderTextureClass;
+class DebugWindowClass;
+class TextureShaderClass;
+
 class ModelListClass;
 class FrustumClass;
 
@@ -29,6 +34,10 @@ public:
 	bool Render();
 
 private:
+	bool RenderToTexture();
+	bool RenerScene();
+
+private:
 	D3DClass* m_Direct3D = nullptr;
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
@@ -37,4 +46,7 @@ private:
 	LightClass* m_Light = nullptr;
 	ModelListClass* m_ModelList = nullptr;
 	FrustumClass* m_Frustum = nullptr;
+	RenderTextureClass* m_RenderTexture = nullptr;
+	DebugWindowClass* m_DebugWindow = nullptr;
+	TextureShaderClass* m_TextureShader = nullptr;
 };

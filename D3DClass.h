@@ -1,6 +1,6 @@
 #pragma once
 
-class D3DClass
+class D3DClass : public AlignedAllocationPolicy<16>
 {
 public:
 	D3DClass();
@@ -27,6 +27,10 @@ public:
 
 	void TurnOnAlphaBlending();
 	void TurnOffAlphaBlending();
+
+	ID3D11DepthStencilView* GetDepthStencilView();
+	void SetBackBufferRenderTarget();
+
 private:
 	bool m_vsync_enabled = false;
 	int m_videoCardMemory = 0;
