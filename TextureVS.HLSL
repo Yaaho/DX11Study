@@ -5,7 +5,6 @@ cbuffer PerFrameBuffer
     matrix projectionMatrix;
 };
 
-
 struct VertexInputType
 {
     float4 position : POSITION;
@@ -21,12 +20,11 @@ struct PixelInputType
 PixelInputType TextureVertexShader(VertexInputType input)
 {
     PixelInputType output = (PixelInputType) 0;
-    
 
-	// 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
+	// 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경한다.
     input.position.w = 1.0f;
 
-	// 월드, 뷰 및 투영 행렬에 대한 정점의 위치를 ??계산합니다.
+	// 월드, 뷰 및 투영 행렬에 대한 정점의 위치를 계산한다.
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);

@@ -23,6 +23,7 @@ struct PixelInputType
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float3 viewDirection : TEXCOORD1;
+    float fogFactor : FOG;
 };
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
@@ -77,6 +78,12 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
         // 출력 색상에 최종 정반사 값을 더한다.
         color = saturate(color + specular);
     }
+    
+    // 안개의 색을 회색으로 설정한다.
+    float4 fogColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
+    
+    // 안개 효과 방정식을 사용하여 최종 색상을 계산한다.
+    color = input.fogFactor * color + (1.0 - input.fogFactor) * fogColor;
     
     return color;
 }

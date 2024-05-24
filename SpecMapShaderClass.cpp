@@ -27,11 +27,11 @@ void SpecMapShaderClass::Shutdown()
 
 bool SpecMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView** textureArray, 
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float fogStart, float fogEnd)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
 	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textureArray, 
-		lightDirection, diffuseColor, cameraPosition, specularColor, specularPower))
+		lightDirection, diffuseColor, cameraPosition, specularColor, specularPower, fogStart, fogEnd))
 	{
 		return false;
 	}
@@ -174,6 +174,36 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 	}
 
+	// 버텍스 셰이더에 있는 카메라 동적 상수 버퍼의 Description 을 설정한다.
+	D3D11_BUFFER_DESC cameraBufferDesc;
+	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
+	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cameraBufferDesc.MiscFlags = 0;
+	cameraBufferDesc.StructureByteStride = 0;
+
+	// 이 클래스 내에서 버텍스 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
+	if (FAILED(device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer)))
+	{
+		return false;
+	}
+
+	// 버텍스 셰이더에 있는 동적 안개 상수 버퍼의 Description 을 설정한다.
+	D3D11_BUFFER_DESC fogBufferDesc;
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBufferType);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	// 상수 버퍼 포인터를 만들어 이 클래스에서 정점 셰이더 상수 버퍼에 접근할 수 있게 한다.
+	if (FAILED(device->CreateBuffer(&fogBufferDesc, NULL, &m_fogBuffer)))
+	{
+		return false;
+	}
+
 	// 픽셀 셰이더에 있는 광원 동적 상수 버퍼의 Description 을 설정한다.
 	D3D11_BUFFER_DESC lightBufferDesc;
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -185,21 +215,6 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 
 	// 이 클래스 내에서 픽셀 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
 	if (FAILED(device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer)))
-	{
-		return false;
-	}
-
-	// 픽셀 셰이더에 있는 카메라 동적 상수 버퍼의 Description 을 설정한다.
-	D3D11_BUFFER_DESC cameraBufferDesc;
-	cameraBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cameraBufferDesc.ByteWidth = sizeof(CameraBufferType);
-	cameraBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cameraBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cameraBufferDesc.MiscFlags = 0;
-	cameraBufferDesc.StructureByteStride = 0;
-
-	// 이 클래스 내에서 픽셀 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
-	if (FAILED(device->CreateBuffer(&cameraBufferDesc, NULL, &m_cameraBuffer)))
 	{
 		return false;
 	}
@@ -237,18 +252,25 @@ void SpecMapShaderClass::ShutdownShader()
 		m_sampleState = 0;
 	}
 
-	// 카메라 상수 버퍼를 해제한다.
-	if (m_cameraBuffer)
-	{
-		m_cameraBuffer->Release();
-		m_cameraBuffer = 0;
-	}
-
 	// 광원 상수 버퍼를 해제한다.
 	if (m_lightBuffer)
 	{
 		m_lightBuffer->Release();
 		m_lightBuffer = 0;
+	}
+
+	// 안개 상수 버퍼를 해제한다.
+	if (m_fogBuffer)
+	{
+		m_fogBuffer->Release();
+		m_fogBuffer = 0;
+	}
+
+	// 카메라 상수 버퍼를 해제한다.
+	if (m_cameraBuffer)
+	{
+		m_cameraBuffer->Release();
+		m_cameraBuffer = 0;
 	}
 
 	// 행렬 상수 버퍼를 해제한다.
@@ -297,7 +319,7 @@ void SpecMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 
 bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView** textureArray,
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float fogStart, float fogEnd)
 {
 	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
 	worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -350,6 +372,28 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	// 마지막으로 업데이트 된 값으로 버텍스 셰이더에서 카메라 상수 버퍼를 설정한다.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 
+	// fog constant buffer 를 기록할 수 있도록 잠근다.
+	if (FAILED(deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	{
+		return false;
+	}
+
+	//const 버퍼의 데이터에 대한 포인터를 가져온다.
+	FogBufferType* dataptr3 = (FogBufferType*)mappedResource.pData;
+
+	// 안개 정보를 constant 버퍼에 복사한다.
+	dataptr3->fogStart = fogStart;
+	dataptr3->fogEnd = fogEnd;
+	
+	// 상수 버퍼의 잠금을 해제한다.
+	deviceContext->Unmap(m_fogBuffer, 0);
+
+	// 정점 셰이더에 안개 상수 버퍼의 위치를 설정한다.
+	bufferNumber = 2;
+
+	// 업데이트 된 값으로 버텍스 셰이더에서 안개 버퍼를 설정한다.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
+
 	// light constant buffer 를 기록할 수 있도록 잠근다
 	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 	{
@@ -357,13 +401,13 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	}
 
 	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
-	LightBufferType* dataptr3 = (LightBufferType*)mappedResource.pData;
+	LightBufferType* dataptr4 = (LightBufferType*)mappedResource.pData;
 
 	// 조명 변수를 constant 버퍼에 복사한다.
-	dataptr3->diffuseColor = diffuseColor;
-	dataptr3->lightDirection = lightDirection;
-	dataptr3->specularColor = specularColor;
-	dataptr3->specularPower = specularPower;
+	dataptr4->diffuseColor = diffuseColor;
+	dataptr4->lightDirection = lightDirection;
+	dataptr4->specularColor = specularColor;
+	dataptr4->specularPower = specularPower;
 
 	// constant 버퍼의 잠금을 해제한다.
 	deviceContext->Unmap(m_lightBuffer, 0);

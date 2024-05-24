@@ -18,6 +18,13 @@ private:
 		XMFLOAT3 lightDirection;
 	};
 
+	struct FogBufferType
+	{
+		float fogStart;
+		float fogEnd;
+		float padding1, padding2;
+	};
+
 	struct CameraBufferType
 	{
 		XMFLOAT3 cameraPosition;
@@ -32,7 +39,7 @@ public:
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView**,
-		XMFLOAT3, XMFLOAT4, XMFLOAT3, XMFLOAT4, float);
+		XMFLOAT3, XMFLOAT4, XMFLOAT3, XMFLOAT4, float, float, float);
 
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
@@ -40,7 +47,7 @@ private:
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
 	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX, XMMATRIX, ID3D11ShaderResourceView**,
-		XMFLOAT3, XMFLOAT4, XMFLOAT3, XMFLOAT4, float);
+		XMFLOAT3, XMFLOAT4, XMFLOAT3, XMFLOAT4, float, float, float);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 private:
@@ -50,5 +57,6 @@ private:
 	ID3D11Buffer* m_matrixBuffer = nullptr;
 	ID3D11Buffer* m_lightBuffer = nullptr;
 	ID3D11Buffer* m_cameraBuffer = nullptr;
+	ID3D11Buffer* m_fogBuffer = nullptr;
 	ID3D11SamplerState* m_sampleState = nullptr;
 };
