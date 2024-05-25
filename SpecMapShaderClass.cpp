@@ -27,11 +27,11 @@ void SpecMapShaderClass::Shutdown()
 
 bool SpecMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView** textureArray, 
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float fogStart, float fogEnd)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 clipPlane, XMFLOAT4 specularColor, float specularPower)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
 	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textureArray, 
-		lightDirection, diffuseColor, cameraPosition, specularColor, specularPower, fogStart, fogEnd))
+		lightDirection, diffuseColor, cameraPosition, clipPlane, specularColor, specularPower))
 	{
 		return false;
 	}
@@ -190,16 +190,16 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	}
 
 	// 버텍스 셰이더에 있는 동적 안개 상수 버퍼의 Description 을 설정한다.
-	D3D11_BUFFER_DESC fogBufferDesc;
-	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	fogBufferDesc.ByteWidth = sizeof(FogBufferType);
-	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	fogBufferDesc.MiscFlags = 0;
-	fogBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC clipPlaneBufferDesc;
+	clipPlaneBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	clipPlaneBufferDesc.ByteWidth = sizeof(ClipPlaneBufferType);
+	clipPlaneBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	clipPlaneBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	clipPlaneBufferDesc.MiscFlags = 0;
+	clipPlaneBufferDesc.StructureByteStride = 0;
 
 	// 상수 버퍼 포인터를 만들어 이 클래스에서 정점 셰이더 상수 버퍼에 접근할 수 있게 한다.
-	if (FAILED(device->CreateBuffer(&fogBufferDesc, NULL, &m_fogBuffer)))
+	if (FAILED(device->CreateBuffer(&clipPlaneBufferDesc, NULL, &m_ClipPlaneBuffer)))
 	{
 		return false;
 	}
@@ -260,10 +260,10 @@ void SpecMapShaderClass::ShutdownShader()
 	}
 
 	// 안개 상수 버퍼를 해제한다.
-	if (m_fogBuffer)
+	if (m_ClipPlaneBuffer)
 	{
-		m_fogBuffer->Release();
-		m_fogBuffer = 0;
+		m_ClipPlaneBuffer->Release();
+		m_ClipPlaneBuffer = 0;
 	}
 
 	// 카메라 상수 버퍼를 해제한다.
@@ -319,7 +319,7 @@ void SpecMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 
 bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView** textureArray,
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float fogStart, float fogEnd)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 clipPlane, XMFLOAT4 specularColor, float specularPower)
 {
 	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
 	worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -373,26 +373,25 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_cameraBuffer);
 
 	// fog constant buffer 를 기록할 수 있도록 잠근다.
-	if (FAILED(deviceContext->Map(m_fogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(deviceContext->Map(m_ClipPlaneBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 	{
 		return false;
 	}
 
 	//const 버퍼의 데이터에 대한 포인터를 가져온다.
-	FogBufferType* dataptr3 = (FogBufferType*)mappedResource.pData;
+	ClipPlaneBufferType* dataptr3 = (ClipPlaneBufferType*)mappedResource.pData;
 
 	// 안개 정보를 constant 버퍼에 복사한다.
-	dataptr3->fogStart = fogStart;
-	dataptr3->fogEnd = fogEnd;
+	dataptr3->clipPlane = clipPlane;
 	
 	// 상수 버퍼의 잠금을 해제한다.
-	deviceContext->Unmap(m_fogBuffer, 0);
+	deviceContext->Unmap(m_ClipPlaneBuffer, 0);
 
 	// 정점 셰이더에 안개 상수 버퍼의 위치를 설정한다.
 	bufferNumber = 2;
 
 	// 업데이트 된 값으로 버텍스 셰이더에서 안개 버퍼를 설정한다.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_fogBuffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_ClipPlaneBuffer);
 
 	// light constant buffer 를 기록할 수 있도록 잠근다
 	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))

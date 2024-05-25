@@ -371,15 +371,10 @@ bool GraphicsClass::RenerScene()
 	float radius = 1.0f; // 구의 반지름을 1.0f 로 설정
 	XMFLOAT4 color;
 
-	// 안개의 색을 회색으로 설정
-	float fogColor = 0.5f;
-
-	// 안개의 시작과 끝을 설정
-	float fogStart = 0.0f;
-	float fogEnd = 5.0f;
-
 	// 씬을 그리기 위해 버퍼를 지운다.
-	m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	XMFLOAT4 clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
 
 	// 카메라의 위치에 따라 뷰 행렬을 생성한다.
 	m_Camera->Render();
@@ -418,8 +413,8 @@ bool GraphicsClass::RenerScene()
 			// 라이트 쉐이더를 사용하여 모델을 렌더링한다.
 			m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(),
-				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
-				m_Light->GetSpecularPower(), fogStart, fogEnd);
+				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), clipPlane, m_Light->GetSpecularColor(),
+				m_Light->GetSpecularPower());
 
 			// 원래의 월드 매트릭스로 리셋
 			m_Direct3D->GetWorldMatrix(worldMatrix);

@@ -11,11 +11,9 @@ class TextClass;
 class ModelClass;
 class SpecMapShaderClass;
 class LightClass;
-
 class RenderTextureClass;
 class DebugWindowClass;
 class TextureShaderClass;
-
 class ModelListClass;
 class FrustumClass;
 
