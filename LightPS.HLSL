@@ -15,9 +15,9 @@ cbuffer LightBuffer
     float specularPower;
 };
 
-cbuffer TranslationBuffer
+cbuffer TransparentBuffer
 {
-    float textureTranslation;
+    float blendAmount;
 };
 
 struct PixelInputType
@@ -32,9 +32,6 @@ struct PixelInputType
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-    // 픽셀을 샘플링하는 위치를 변환한다.
-    input.tex.x += textureTranslation;
-    
     // 이 텍스쳐 좌표 위치에서 샘플러를 사용하여 텍스쳐에서 픽셀 색깔을 샘플링한다.
     float4 textureColor = ShaderTexture[0].Sample(SampleType, input.tex);
     float4 bumpMap = ShaderTexture[1].Sample(SampleType, input.tex);
@@ -61,7 +58,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     float lightIntensity = saturate(dot(bumpNormal, lightDir));
 
     // lightIntensity 를 기반으로 최종 diffuse 색을 결정한다.
-    float color = saturate(diffuseColor * lightIntensity);
+    float4 color = saturate(diffuseColor * lightIntensity);
     
     // 최종 diffuse 색상과 텍스쳐 색상을 결합한다.
     color = color * textureColor;
@@ -85,6 +82,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
         // 출력 색상에 최종 정반사 값을 더한다.
         color = saturate(color + specular);
     }
+    
+    // 이 픽셀의 알파 값을 blendAmount 로 설정한다.
+    color.a = blendAmount;
     
     return color;
 }

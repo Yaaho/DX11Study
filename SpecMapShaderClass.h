@@ -24,9 +24,9 @@ private:
 		float padding;
 	};
 
-	struct TranslateBufferType
+	struct TransparentBufferType
 	{
-		float tranlation;
+		float blendAmount;
 		XMFLOAT3 padding;
 	};
 
@@ -56,6 +56,6 @@ private:
 	ID3D11Buffer* m_matrixBuffer = nullptr;
 	ID3D11Buffer* m_cameraBuffer = nullptr;
 	ID3D11Buffer* m_lightBuffer = nullptr;
-	ID3D11Buffer* m_translateBuffer = nullptr;
+	ID3D11Buffer* m_transparentBuffer = nullptr;
 	ID3D11SamplerState* m_sampleState = nullptr;
 };

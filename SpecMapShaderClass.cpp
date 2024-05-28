@@ -27,11 +27,11 @@ void SpecMapShaderClass::Shutdown()
 
 bool SpecMapShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
 	ID3D11ShaderResourceView** textureArray, 
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float tranlation)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float blend)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정한다.
 	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textureArray, 
-		lightDirection, diffuseColor, cameraPosition, specularColor, specularPower, tranlation))
+		lightDirection, diffuseColor, cameraPosition, specularColor, specularPower, blend))
 	{
 		return false;
 	}
@@ -204,17 +204,17 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		return false;
 	}
 
-	// 픽셀 셰이더에 있는 광원 동적 상수 버퍼의 Description 을 설정한다.
-	D3D11_BUFFER_DESC translateBufferDesc;
-	translateBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	translateBufferDesc.ByteWidth = sizeof(TranslateBufferType);
-	translateBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	translateBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	translateBufferDesc.MiscFlags = 0;
-	translateBufferDesc.StructureByteStride = 0;
+	// 픽셀 셰이더에 있는 동적 상수 버퍼의 Description 을 설정한다.
+	D3D11_BUFFER_DESC transparentBufferDesc;
+	transparentBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	transparentBufferDesc.ByteWidth = sizeof(TransparentBufferType);
+	transparentBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	transparentBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	transparentBufferDesc.MiscFlags = 0;
+	transparentBufferDesc.StructureByteStride = 0;
 
 	// 이 클래스 내에서 픽셀 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
-	if (FAILED(device->CreateBuffer(&translateBufferDesc, NULL, &m_translateBuffer)))
+	if (FAILED(device->CreateBuffer(&transparentBufferDesc, NULL, &m_transparentBuffer)))
 	{
 		return false;
 	}
@@ -253,10 +253,10 @@ void SpecMapShaderClass::ShutdownShader()
 	}
 
 	// 안개 상수 버퍼를 해제한다.
-	if (m_translateBuffer)
+	if (m_transparentBuffer)
 	{
-		m_translateBuffer->Release();
-		m_translateBuffer = 0;
+		m_transparentBuffer->Release();
+		m_transparentBuffer = 0;
 	}
 
 	// 광원 상수 버퍼를 해제한다.
@@ -319,7 +319,7 @@ void SpecMapShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
 
 bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView** textureArray,
-	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float tranlation)
+	XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor, XMFLOAT3 cameraPosition, XMFLOAT4 specularColor, float specularPower, float blend)
 {
 	// 행렬을 transpose 하여 셰이더에서 사용할 수 있게 한다.
 	worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -399,26 +399,26 @@ bool SpecMapShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 
-	// light constant buffer 를 기록할 수 있도록 잠근다
-	if (FAILED(deviceContext->Map(m_translateBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	// constant buffer 를 기록할 수 있도록 잠근다
+	if (FAILED(deviceContext->Map(m_transparentBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 	{
 		return false;
 	}
 
 	// constant 버퍼의 데이터에 대한 포인터를 가져온다.
-	TranslateBufferType* dataptr4 = (TranslateBufferType*)mappedResource.pData;
+	TransparentBufferType* dataptr4 = (TransparentBufferType*)mappedResource.pData;
 
-	// 조명 변수를 constant 버퍼에 복사한다.
-	dataptr4->tranlation = tranlation;
+	// 변수를 constant 버퍼에 복사한다.
+	dataptr4->blendAmount = blend;
 
 	// constant 버퍼의 잠금을 해제한다.
-	deviceContext->Unmap(m_translateBuffer, 0);
+	deviceContext->Unmap(m_transparentBuffer, 0);
 
-	// 픽셀 셰이더에서 광원 constant 버퍼의 위치를 설정한다.
+	// 픽셀 셰이더에서 constant 버퍼의 위치를 설정한다.
 	bufferNumber = 1;
 
 	// 마지막으로 업데이트 된 값으로 픽셀 셰이더에서 광원 상수 버퍼를 설정한다.
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_translateBuffer);
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_transparentBuffer);
 
 
 	// 픽셀 셰이더에서 셰이더 텍스쳐 리소스를 설정한다.

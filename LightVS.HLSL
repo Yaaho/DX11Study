@@ -35,7 +35,7 @@ struct PixelInputType
 
 PixelInputType LightVertexShader(VertexInputType input)
 {
-    PixelInputType output = (PixelInputType) 0;
+    PixelInputType output = (PixelInputType)0;
     
     // 트랜스폼 변환 행렬 계산을 위해 위치 벡터를 4 단위로 변환한다.
     input.position.w = 1.0f;

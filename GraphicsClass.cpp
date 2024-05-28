@@ -371,12 +371,7 @@ bool GraphicsClass::RenerScene()
 	float radius = 1.0f; // 구의 반지름을 1.0f 로 설정
 	XMFLOAT4 color;
 
-	static float textureTranslation = 0.0f;
-	textureTranslation += 0.005f;
-	if (textureTranslation > 1.0f)
-	{
-		textureTranslation -= 1.0f;
-	}
+	float blendAmount = 0.5f;
 
 	// 씬을 그리기 위해 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -393,6 +388,9 @@ bool GraphicsClass::RenerScene()
 
 	// 절두체를 만든다.
 	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+
+	// 투명도가 작동하도록 알파 블렌딩을 킨다.
+	m_Direct3D->TurnOnAlphaBlending();
 
 	// 렌더링 될 모델의 수를 얻는다.
 	int modelCount = m_ModelList->GetModelCount();
@@ -419,7 +417,7 @@ bool GraphicsClass::RenerScene()
 			m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(),
 				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
-				m_Light->GetSpecularPower(), textureTranslation);
+				m_Light->GetSpecularPower(), blendAmount);
 
 			// 원래의 월드 매트릭스로 리셋
 			m_Direct3D->GetWorldMatrix(worldMatrix);
