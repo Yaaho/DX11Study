@@ -15,6 +15,11 @@ cbuffer LightBuffer
     float specularPower;
 };
 
+cbuffer TranslationBuffer
+{
+    float textureTranslation;
+};
+
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -23,11 +28,13 @@ struct PixelInputType
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float3 viewDirection : TEXCOORD1;
-    float clip : SV_ClipDistance0;
 };
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
+    // 픽셀을 샘플링하는 위치를 변환한다.
+    input.tex.x += textureTranslation;
+    
     // 이 텍스쳐 좌표 위치에서 샘플러를 사용하여 텍스쳐에서 픽셀 색깔을 샘플링한다.
     float4 textureColor = ShaderTexture[0].Sample(SampleType, input.tex);
     float4 bumpMap = ShaderTexture[1].Sample(SampleType, input.tex);

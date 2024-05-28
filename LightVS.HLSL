@@ -12,11 +12,6 @@ cbuffer CameraBuffer
     float3 cameraPosition;
 };
 
-cbuffer ClipPlaneBuffer
-{
-    float4 clipPlane;
-};
-
 // 버텍스에 담겨져 있는 정보
 struct VertexInputType
 {
@@ -36,7 +31,6 @@ struct PixelInputType
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float3 viewDirection : TEXCOORD1;
-    float clip : SV_ClipDistance0;
 };
 
 PixelInputType LightVertexShader(VertexInputType input)
@@ -77,9 +71,6 @@ PixelInputType LightVertexShader(VertexInputType input)
     
     // viewDirection 벡터를 노말라이즈 한다.
     output.viewDirection = normalize(output.viewDirection);
-    
-    // 클리핑 면을 설정한다.
-    output.clip = dot(mul(input.position, worldMatrix), clipPlane);
     
     return output;
 }
