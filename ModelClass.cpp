@@ -17,8 +17,7 @@ ModelClass::~ModelClass()
 {
 }
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, 
-	WCHAR* textureFilename1, WCHAR* textureFilename2, WCHAR* textureFilename3)
+bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename)
 {
 	// 모델 데이터를 로드한다.
 	if (!LoadModel(modelFilename))
@@ -35,8 +34,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename,
 		return false;
 	}
 
-	// 이 모델의 텍스쳐를 로드한다.
-	return LoadTextures(device, textureFilename1, textureFilename2, textureFilename3);
+	return true;
 }
 
 void ModelClass::Shutdown()
@@ -66,7 +64,6 @@ ID3D11ShaderResourceView** ModelClass::GetTextureArray()
 {
 	return m_TextureArray->GetTextureArray();
 }
-
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device)
 {
@@ -179,6 +176,32 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 
 	// 정점 버퍼로 그릴 기본형을 설정한다. 여기서는 삼각형으로 설정한다.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1)
+{
+	// 텍스쳐 오브젝트를 생성한다.
+	m_TextureArray = new TextureArrayClass;
+	if (!m_TextureArray)
+	{
+		return false;
+	}
+
+	// 텍스쳐 오브젝트를 초기화한다.
+	return m_TextureArray->Initialize(device, filename1);
+}
+
+bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+{
+	// 텍스쳐 오브젝트를 생성한다.
+	m_TextureArray = new TextureArrayClass;
+	if (!m_TextureArray)
+	{
+		return false;
+	}
+
+	// 텍스쳐 오브젝트를 초기화한다.
+	return m_TextureArray->Initialize(device, filename1, filename2);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)

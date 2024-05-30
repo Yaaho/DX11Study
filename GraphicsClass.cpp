@@ -7,8 +7,7 @@
 #include "LightClass.h"
 
 #include "RenderTextureClass.h"
-#include "DebugWindowClass.h"
-#include "TextureShaderClass.h"
+#include "ReflectionShaderClass.h"
 
 #include "ModelListClass.h"
 #include "FrustumClass.h"
@@ -82,8 +81,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	
 	// m_Model 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt", 
-		L"data/stone02.dds", L"data/bump02.dds", L"data/spec02.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt") || !m_Model->LoadTextures(m_Direct3D->GetDevice(), L"data/stone02.dds", L"data/bump02.dds", L"data/spec02.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
@@ -129,31 +127,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// 디버그 창 객체를 만든다.
-	m_DebugWindow = new DebugWindowClass;
-	if (!m_DebugWindow)
+	m_FloorModel = new ModelClass;
+	if (!m_FloorModel)
 	{
 		return false;
 	}
 
-	// 디버그 창 객체를 초기화한다.
-	if (!m_DebugWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, 100, 100))
+	if (!m_FloorModel->Initialize(m_Direct3D->GetDevice(), "data/floor.txt") || !m_FloorModel->LoadTextures(m_Direct3D->GetDevice(), L"data/blue01.dds"))
 	{
-		MessageBox(hwnd, L"Could not initialize the debug window object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// 텍스쳐 셰이더 객체를 생성한다.
-	m_TextureShader = new TextureShaderClass;
-	if (!m_TextureShader)
+	m_ReflectionShader = new ReflectionShaderClass;
+	if (!m_ReflectionShader)
 	{
 		return false;
 	}
 
-	// 텍스쳐 셰이더 객체를 초기화한다.
-	if (!m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	if (!m_ReflectionShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
+		return false;
 	}
 
 	// 모델 목록 객체 생성
@@ -197,20 +192,20 @@ void GraphicsClass::Shutdown()
 		m_ModelList = 0;
 	}
 
-	// 텍스쳐 쉐이더 객체 반환
-	if (m_TextureShader)
+	// 반사 쉐이더 객체 반환
+	if (m_ReflectionShader)
 	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_ReflectionShader->Shutdown();
+		delete m_ReflectionShader;
+		m_ReflectionShader = 0;
 	}
 
-	// 디버그 창 객체 반환
-	if (m_DebugWindow)
+	// 바닥 모델 객체 반환
+	if (m_FloorModel)
 	{
-		m_DebugWindow->Shutdown();
-		delete m_DebugWindow;
-		m_DebugWindow = 0;
+		m_FloorModel->Shutdown();
+		delete m_FloorModel;
+		m_FloorModel = 0;
 	}
 
 	// 렌더 택스쳐 객체 반환
@@ -271,7 +266,7 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame(float rotationY)
 {
 	// 카메라의 위치를 설정한다.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 	// 카메라의 회전을 설정한다.
 	m_Camera->SetRotation(0.0f, rotationY, 0.0f);
@@ -301,42 +296,35 @@ bool GraphicsClass::Render()
 		return false;
 	}
 
-	// 씬을 그리기 위해 버퍼를 지웁니다
-	// m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// 백 버퍼의 장면을 정상적으로 렌더링한다.
-	if (!RenerScene())
-	{
-		return false;
-	}
+	int renderCount = RederScene();
 
-	// 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
-	m_Direct3D->TurnZBufferOff();
 
-	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져온다.
-	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
-	m_Camera->GetDebugViewMatrix(viewMatrix);
+	XMMATRIX worldMatrix, orthoMatrix;
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// 디버그 윈도우 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 그리기를 준비한다.
-	if (!m_DebugWindow->Render(m_Direct3D->GetDeviceContext(), 50, 50))
+	// 이 프레임에서 실제로 렌더링 된 모델의 수를 설정한다.
+	if (!m_Text->SetRenderCount(renderCount, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
 	}
 
-	// 디버그 윈도우 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 그리기를 준비한다.
-	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DebugWindow->GetIndexCount(),
-		worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView()))
+	// 텍스트를 렌더링하기 전에 알파 블렌딩을 켠다.
+	m_Direct3D->TurnOnAlphaBlending();
+
+	// 텍스트 문자열을 렌더링 한다.
+	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
 	{
 		return false;
 	}
 
-	// 모든 2d 렌더링이 완료되었으므로 Z 버퍼를 다시 켠다.
-	m_Direct3D->TurnZBufferOn();
+	// 텍스트를 렌더링 한 후 알파 블렌딩을 해제한다.
+	m_Direct3D->TurnOffAlphaBlending();
 
-	// 버퍼의 내용을 화면에 출력합니다
 	m_Direct3D->EndScene();
+
 
 	return true;
 }
@@ -344,26 +332,82 @@ bool GraphicsClass::Render()
 
 bool GraphicsClass::RenderToTexture()
 {
-	// 렌더 타겟을 렌더링에 맞게 설정한다.
+	// Set the render target to be the render to texture.
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
 
-	// 렌더 타겟의 색상을 초기화한다.
-	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(),
-		0.0f, 0.0f, 1.0f, 1.0f);
+	// Clear the render to texture.
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	//  백 버퍼 대신 텍스쳐가 렌더링된다.
-	if (!RenerScene())
+	// Use the camera to calculate the reflection matrix.
+	m_Camera->RenderReflection(-1.5f);
+
+
+
+
+
+	float positionX = 0;
+	float positionY = 0;
+	float positionZ = 0;
+	float radius = 1.0f; // 구의 반지름을 1.0f 로 설정
+	XMFLOAT4 color;
+
+	// 카메라의 위치에 따라 뷰 행렬을 생성한다.
+	m_Camera->Render();
+
+
+	XMMATRIX worldMatrix, viewMatrix, reflectionViewMatrix, projectionMatrix;
+	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져온다.
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	// Get the camera reflection view matrix instead of the normal view matrix.
+	reflectionViewMatrix = m_Camera->GetReflectionViewMatrix();
+
+	// 절두체를 만든다.
+	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
+
+	// 렌더링 될 모델의 수를 얻는다.
+	int modelCount = m_ModelList->GetModelCount();
+
+	// 렌더링 된 모델의 개수를 초기화한다.
+	int renderCount = 0;
+
+	// 모든 모델을 살펴보고 카메라 뷰에서 볼 수 있는 경우에만 렌더링한다.
+	for (int index = 0; index < modelCount; index++)
 	{
-		return false;
+		// 이 인덱스에서 구형 모델의 위치와 색상을 가져온다.
+		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// 구형 모델이 뷰 frustum에 있는지 확인한다.
+		if (m_Frustum->CheckSphere(positionX, positionY, positionZ, radius))
+		{
+			// 모델을 렌더링 할 위치로 이동한다.
+			worldMatrix = XMMatrixTranslation(positionX, positionY, positionZ);
+
+			// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프라인에 배치하여 드로잉을 준비한다.
+			m_Model->Render(m_Direct3D->GetDeviceContext());
+
+			// 라이트 쉐이더를 사용하여 모델을 렌더링한다.
+			m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
+				worldMatrix, reflectionViewMatrix, projectionMatrix, m_Model->GetTextureArray(),
+				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
+				m_Light->GetSpecularPower());
+
+			// 원래의 월드 매트릭스로 리셋
+			m_Direct3D->GetWorldMatrix(worldMatrix);
+
+			// 이 모델이 렌더링 되었기 때문에 이 카운트의 수를 늘린다.
+			renderCount++;
+		}
 	}
 
-	// 렌더링 대상을 원래의 백 버퍼로 다시 설정한다.
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
 	m_Direct3D->SetBackBufferRenderTarget();
 
 	return true;
 }
 
-bool GraphicsClass::RenerScene()
+int GraphicsClass::RederScene()
 {
 	float positionX = 0;
 	float positionY = 0;
@@ -371,7 +415,6 @@ bool GraphicsClass::RenerScene()
 	float radius = 1.0f; // 구의 반지름을 1.0f 로 설정
 	XMFLOAT4 color;
 
-	float blendAmount = 0.5f;
 
 	// 씬을 그리기 위해 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -380,17 +423,13 @@ bool GraphicsClass::RenerScene()
 	m_Camera->Render();
 
 	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져온다.
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
 	// 절두체를 만든다.
 	m_Frustum->ConstructFrustum(SCREEN_DEPTH, projectionMatrix, viewMatrix);
-
-	// 투명도가 작동하도록 알파 블렌딩을 킨다.
-	m_Direct3D->TurnOnAlphaBlending();
 
 	// 렌더링 될 모델의 수를 얻는다.
 	int modelCount = m_ModelList->GetModelCount();
@@ -417,7 +456,7 @@ bool GraphicsClass::RenerScene()
 			m_SpecMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(),
 				worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextureArray(),
 				m_Light->GetDirection(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(),
-				m_Light->GetSpecularPower(), blendAmount);
+				m_Light->GetSpecularPower());
 
 			// 원래의 월드 매트릭스로 리셋
 			m_Direct3D->GetWorldMatrix(worldMatrix);
@@ -427,23 +466,19 @@ bool GraphicsClass::RenerScene()
 		}
 	}
 
-	// 이 프레임에서 실제로 렌더링 된 모델의 수를 설정한다.
-	if (!m_Text->SetRenderCount(renderCount, m_Direct3D->GetDeviceContext()))
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	worldMatrix = XMMatrixTranslation(0.0f, -1.5f, 0.0f);
+
+	XMMATRIX reflectionMatrix = m_Camera->GetReflectionViewMatrix();
+
+	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
+
+	// Render the floor model using the reflection shader, reflection texture, and reflection view matrix.
+	if (!m_ReflectionShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_FloorModel->GetTextureArray(), m_RenderTexture->GetShaderResourceView(), reflectionMatrix))
 	{
 		return false;
 	}
 
-	// 텍스트를 렌더링하기 정에 알파 블렌딩을 켠다.
-	m_Direct3D->TurnOnAlphaBlending();
-
-	// 텍스트 문자열을 렌더링 한다.
-	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
-	{
-		return false;
-	}
-
-	// 텍스트를 렌더링 한 후 알파 블렌딩을 해제한다.
-	m_Direct3D->TurnOffAlphaBlending();
-
-	return true;
+	return renderCount;
 }

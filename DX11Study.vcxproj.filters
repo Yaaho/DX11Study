@@ -96,6 +96,9 @@
     <ClInclude Include="TextureShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ReflectionShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -170,6 +173,9 @@
     <ClCompile Include="TextureShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ReflectionShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="LightVS.HLSL" />
@@ -178,6 +184,8 @@
     <FxCompile Include="FontPS.HLSL" />
     <FxCompile Include="TextureVS.HLSL" />
     <FxCompile Include="TexturePS.HLSL" />
+    <FxCompile Include="ReflectionVS.HLSL" />
+    <FxCompile Include="ReflectionPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -190,11 +198,13 @@
     <Image Include="data\bump02.dds" />
     <Image Include="data\spec02.dds" />
     <Image Include="data\stone02.dds" />
+    <Image Include="data\blue01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
     <Text Include="data\fontdata.txt" />
     <Text Include="data\sphere.txt" />
     <Text Include="data\cube.txt" />
+    <Text Include="data\floor.txt" />
   </ItemGroup>
 </Project>

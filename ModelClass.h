@@ -40,7 +40,10 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, char*, WCHAR*, WCHAR*, WCHAR*);
+	bool Initialize(ID3D11Device*, char*);
+	bool LoadTextures(ID3D11Device*, WCHAR*);
+	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*);
+	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -52,7 +55,6 @@ private:
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 
-	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void ReleaseTexture();
 
 	bool LoadModel(char*);
@@ -68,5 +70,6 @@ private:
 	int m_vertexCount = 0;
 	int m_indexCount = 0;
 	ModelType* m_model = nullptr;
+
 	TextureArrayClass* m_TextureArray = nullptr;
 };

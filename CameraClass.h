@@ -15,11 +15,17 @@ public:
 
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
+
+	void RenderDebug();
 	void GetDebugViewMatrix(XMMATRIX&);
+
+	void RenderReflection(float);
+	XMMATRIX GetReflectionViewMatrix();
 
 private:
 	XMFLOAT3 m_position;
 	XMFLOAT3 m_rotation;
 	XMMATRIX m_viewMatrix;
 	XMMATRIX m_debugviewMatrix;
+	XMMATRIX m_reflectionViewMatrix;
 };

@@ -14,6 +14,42 @@ TextureArrayClass::~TextureArrayClass()
 {
 }
 
+
+bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1)
+{
+	// 첫번째 텍스쳐를 파일로부터 읽어온다
+	if (FAILED(CreateDDSTextureFromFile(device, filename1, nullptr, &m_texture[0])))
+	{
+		return false;
+	}
+
+	textureCount = 1;
+
+	return true;
+}
+
+bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+{
+
+	// 첫번째 텍스쳐를 파일로부터 읽어온다
+	if (FAILED(CreateDDSTextureFromFile(device, filename1, nullptr, &m_texture[0])))
+	{
+		return false;
+	}
+
+	// 두번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename2, nullptr, &m_texture[1])))
+	{
+		return false;
+	}
+
+	textureCount = 2;
+
+	return true;
+}
+
+
+
 bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)
 {
 	// 첫번째 텍스쳐를 파일로부터 읽어온다
@@ -34,22 +70,21 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, WCHAR* filename1, WCHAR
 		return false;
 	}
 
+	textureCount = 3;
+
 	return true;
 }
 
 void TextureArrayClass::Shutdown()
 {
-	// 텍스쳐 뷰 리소스를 해제한다.
-	if (m_texture[0])
+	for (int i = 0; i < textureCount; i++)
 	{
-		m_texture[0]->Release();
-		m_texture[0] = 0;
-	}
-
-	if (m_texture[1])
-	{
-		m_texture[1]->Release();
-		m_texture[1] = 0;
+		// 텍스쳐 뷰 리소스를 해제한다.
+		if (m_texture[i])
+		{
+			m_texture[i]->Release();
+			m_texture[i] = 0;
+		}
 	}
 
 	return;

@@ -15,11 +15,6 @@ cbuffer LightBuffer
     float specularPower;
 };
 
-cbuffer TransparentBuffer
-{
-    float blendAmount;
-};
-
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -83,8 +78,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
         color = saturate(color + specular);
     }
     
-    // 이 픽셀의 알파 값을 blendAmount 로 설정한다.
-    color.a = blendAmount;
     
     return color;
 }
