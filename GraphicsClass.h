@@ -14,6 +14,8 @@ class LightClass;
 
 class RenderTextureClass;
 class ReflectionShaderClass;
+class BitmapClass;
+class FadeShaderClass;
 
 class ModelListClass;
 class FrustumClass;
@@ -29,12 +31,17 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(float);
+	bool Frame(float, float);
 	bool Render();
 
 private:
-	bool RenderToTexture();
-	int RederScene();
+	int RenderScene();
+	int RenderToFadeTexture();
+	
+	bool RenderToReflectionTexture();
+	bool RenderFadingScene();
+	bool RenderText(int renderCount);
+	
 
 private:
 	D3DClass* m_Direct3D = nullptr;
@@ -44,10 +51,20 @@ private:
 	SpecMapShaderClass* m_SpecMapShader = nullptr;
 	LightClass* m_Light = nullptr;
 
-	RenderTextureClass* m_RenderTexture = nullptr;
+
+	RenderTextureClass* m_FadeRenderTexture = nullptr;
+	RenderTextureClass* m_ReflectionRenderTexture = nullptr;
+
 	ModelClass* m_FloorModel = nullptr;
 	ReflectionShaderClass* m_ReflectionShader = nullptr;
+	BitmapClass* m_Bitmap = nullptr;
+	FadeShaderClass* m_FadeShader = nullptr;
 
 	ModelListClass* m_ModelList = nullptr;
 	FrustumClass* m_Frustum = nullptr;
+
+	float m_fadeInTime = 0;
+	float m_accumulatedTime = 0;
+	float m_fadePercentage = 0;
+	float m_fadeDone = false;
 };

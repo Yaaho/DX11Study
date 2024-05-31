@@ -282,8 +282,8 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 }
 
 
-bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, XMMATRIX worldMatrix,
-    XMMATRIX orthoMatrix)
+bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType* sentence, 
+    XMMATRIX worldMatrix, XMMATRIX orthoMatrix)
 {
     // 정점 버퍼 간격 및 오프셋을 설정한다.
     unsigned int stride = sizeof(VertexType);

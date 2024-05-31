@@ -1,29 +1,28 @@
 #include "Stdafx.h"
-#include "DebugWindowClass.h"
+#include "BitmapClass.h"
 
-
-DebugWindowClass::DebugWindowClass()
+BitmapClass::BitmapClass()
 {
 }
 
 
-DebugWindowClass::DebugWindowClass(const DebugWindowClass& other)
+BitmapClass::BitmapClass(const BitmapClass& other)
 {
 }
 
 
-DebugWindowClass::~DebugWindowClass()
+BitmapClass::~BitmapClass()
 {
 }
 
 
-bool DebugWindowClass::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, int bitmapWidth, int bitmapHeight)
+bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, int bitmapWidth, int bitmapHeight)
 {
-    // 화면 크기를 저장하십시오.
+    // 화면 크기를 멤버변수에 저장
     m_screenWidth = screenWidth;
     m_screenHeight = screenHeight;
 
-    // 이 비트맵을 렌더링 할 픽셀의 크기를 저장합니다.
+    // 렌더링할 비트맵의 픽셀의 크기를 저장
     m_bitmapWidth = bitmapWidth;
     m_bitmapHeight = bitmapHeight;
 
@@ -32,18 +31,23 @@ bool DebugWindowClass::Initialize(ID3D11Device* device, int screenWidth, int scr
     m_previousPosY = -1;
 
     // 정점 및 인덱스 버퍼를 초기화합니다.
-    return InitializeBuffers(device);
+    if (!InitializeBuffers(device))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 
-void DebugWindowClass::Shutdown()
+void BitmapClass::Shutdown()
 {
     // 버텍스 및 인덱스 버퍼를 종료합니다.
     ShutdownBuffers();
 }
 
 
-bool DebugWindowClass::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool BitmapClass::Render(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
     // 화면의 다른 위치로 렌더링하기 위해 동적 정점 버퍼를 다시 빌드합니다.
     if (!UpdateBuffers(deviceContext, positionX, positionY))
@@ -58,19 +62,16 @@ bool DebugWindowClass::Render(ID3D11DeviceContext* deviceContext, int positionX,
 }
 
 
-int DebugWindowClass::GetIndexCount()
+int BitmapClass::GetIndexCount()
 {
     return m_indexCount;
 }
 
 
-bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
+bool BitmapClass::InitializeBuffers(ID3D11Device* device)
 {
-    // 정점 배열의 정점 수를 설정합니다.
-    m_vertexCount = 6;
-
-    // 인덱스 배열의 인덱스 수를 설정합니다.
-    m_indexCount = m_vertexCount;
+    // 정점 배열의 정점 수와 인덱스 배열의 인덱스 수를 지정합니다.
+    m_indexCount = m_vertexCount = 6;
 
     // 정점 배열을 만듭니다.
     VertexType* vertices = new VertexType[m_vertexCount];
@@ -79,6 +80,9 @@ bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
         return false;
     }
 
+    // 정점 배열을 0으로 초기화합니다.
+    memset(vertices, 0, (sizeof(VertexType) * m_vertexCount));
+
     // 인덱스 배열을 만듭니다.
     unsigned long* indices = new unsigned long[m_indexCount];
     if (!indices)
@@ -86,16 +90,13 @@ bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
         return false;
     }
 
-    // 처음에는 정점 배열을 0으로 초기화합니다.
-    memset(vertices, 0, (sizeof(VertexType) * m_vertexCount));
-
-    // 데이터로 인덱스 배열을로드합니다.
+    // 데이터로 인덱스 배열을 로드합니다.
     for (int i = 0; i < m_indexCount; i++)
     {
         indices[i] = i;
     }
 
-    // 정적 정점 버퍼의 설명을 설정한다.
+    // 정적 정점 버퍼의 구조체를 설정합니다.
     D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
@@ -116,7 +117,7 @@ bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
         return false;
     }
 
-    // 정적 인덱스 버퍼의 설명을 설정합니다.
+    // 정적 인덱스 버퍼의 구조체를 설정합니다.
     D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
@@ -125,19 +126,19 @@ bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
     indexBufferDesc.MiscFlags = 0;
     indexBufferDesc.StructureByteStride = 0;
 
-    // 하위 리소스 구조에 인덱스 데이터에 대한 포인터를 제공합니다.
+    // 인덱스 데이터를 가리키는 보조 리소스 구조체를 작성합니다.
     D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
 
-    // 인덱스 버퍼를 만듭니다.
+    // 인덱스 버퍼를 생성합니다.
     if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer)))
     {
         return false;
     }
 
-    // 이제 버텍스와 인덱스 버퍼가 생성되고로드 된 배열을 해제하십시오.
+    // 생성되고 값이 할당된 정점 버퍼와 인덱스 버퍼를 해제합니다.
     delete[] vertices;
     vertices = 0;
 
@@ -148,7 +149,7 @@ bool DebugWindowClass::InitializeBuffers(ID3D11Device* device)
 }
 
 
-void DebugWindowClass::ShutdownBuffers()
+void BitmapClass::ShutdownBuffers()
 {
     // 인덱스 버퍼를 해제합니다.
     if (m_indexBuffer)
@@ -157,7 +158,7 @@ void DebugWindowClass::ShutdownBuffers()
         m_indexBuffer = 0;
     }
 
-    // 버텍스 버퍼를 해제한다.
+    // 정점 버퍼를 해제합니다.
     if (m_vertexBuffer)
     {
         m_vertexBuffer->Release();
@@ -165,10 +166,16 @@ void DebugWindowClass::ShutdownBuffers()
     }
 }
 
-
-bool DebugWindowClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
+bool BitmapClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int positionX, int positionY)
 {
-    //이 비트 맵을 렌더링 할 위치가 변경되지 않은 경우 정점 버퍼를 업데이트하지 마십시오.
+    float left, right, top, bottom;
+    VertexType* vertices;
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    VertexType* verticesPtr;
+    HRESULT result;
+
+
+    // 이 비트맵을 렌더링 할 위치가 변경되지 않은 경우 정점 버퍼를 업데이트 하지 마십시오.
     // 현재 올바른 매개 변수가 있습니다.
     if ((positionX == m_previousPosX) && (positionY == m_previousPosY))
     {
@@ -180,26 +187,26 @@ bool DebugWindowClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int pos
     m_previousPosY = positionY;
 
     // 비트 맵 왼쪽의 화면 좌표를 계산합니다.
-    float left = (float)((m_screenWidth / 2) * -1) + (float)positionX;
+    left = (float)((m_screenWidth / 2) * -1) + (float)positionX;
 
     // 비트 맵 오른쪽의 화면 좌표를 계산합니다.
-    float right = left + (float)m_bitmapWidth;
+    right = left + (float)m_bitmapWidth;
 
     // 비트 맵 상단의 화면 좌표를 계산합니다.
-    float top = (float)(m_screenHeight / 2) - (float)positionY;
+    top = (float)(m_screenHeight / 2) - (float)positionY;
 
     // 비트 맵 아래쪽의 화면 좌표를 계산합니다.
-    float bottom = top - (float)m_bitmapHeight;
+    bottom = top - (float)m_bitmapHeight;
 
     // 정점 배열을 만듭니다.
-    VertexType* vertices = new VertexType[m_vertexCount];
+    vertices = new VertexType[m_vertexCount];
     if (!vertices)
     {
         return false;
     }
 
     // 정점 배열에 데이터를로드합니다.
-    // 첫 번째 삼각형.
+    // 첫 번째 삼각형
     vertices[0].position = XMFLOAT3(left, top, 0.0f);  // Top left.
     vertices[0].texture = XMFLOAT2(0.0f, 0.0f);
 
@@ -209,7 +216,7 @@ bool DebugWindowClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int pos
     vertices[2].position = XMFLOAT3(left, bottom, 0.0f);  // Bottom left.
     vertices[2].texture = XMFLOAT2(0.0f, 1.0f);
 
-    // 두 번째 삼각형.
+    // 두 번째 삼각형
     vertices[3].position = XMFLOAT3(left, top, 0.0f);  // Top left.
     vertices[3].texture = XMFLOAT2(0.0f, 0.0f);
 
@@ -220,14 +227,14 @@ bool DebugWindowClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int pos
     vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
 
     // 버텍스 버퍼를 쓸 수 있도록 잠급니다.
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    if (FAILED(deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    if (FAILED(result))
     {
         return false;
     }
 
     // 정점 버퍼의 데이터를 가리키는 포인터를 얻는다.
-    VertexType* verticesPtr = (VertexType*)mappedResource.pData;
+    verticesPtr = (VertexType*)mappedResource.pData;
 
     // 데이터를 정점 버퍼에 복사합니다.
     memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * m_vertexCount));
@@ -242,12 +249,11 @@ bool DebugWindowClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int pos
     return true;
 }
 
-
-void DebugWindowClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
+void BitmapClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
-    // 정점 버퍼 보폭 및 오프셋을 설정합니다.
-    unsigned int stride = sizeof(VertexType);
-    unsigned int offset = 0;
+    // 정점 버퍼의 단위와 오프셋을 설정합니다.
+    UINT stride = sizeof(VertexType);
+    UINT offset = 0;
 
     // 렌더링 할 수 있도록 입력 어셈블러에서 정점 버퍼를 활성으로 설정합니다.
     deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
@@ -255,6 +261,6 @@ void DebugWindowClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
     // 렌더링 할 수 있도록 입력 어셈블러에서 인덱스 버퍼를 활성으로 설정합니다.
     deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-    // 이 꼭지점 버퍼에서 렌더링되어야하는 프리미티브 유형을 설정합니다.이 경우에는 삼각형입니다.
+    // 정점 버퍼로 그릴 기본형을 설정합니다. 여기서는 삼각형으로 설정합니다.
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

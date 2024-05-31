@@ -79,7 +79,8 @@ void CameraClass::GetViewMatrix(XMMATRIX& viewMatrix)
 	viewMatrix = m_viewMatrix;
 }
 
-void CameraClass::RenderDebug()
+
+void CameraClass::GetBaseViewMatrix(XMMATRIX& baseviewMatrix)
 {
 	XMFLOAT3 up, position, lookAt;
 
@@ -91,33 +92,27 @@ void CameraClass::RenderDebug()
 	// XMVECTOR 구조체에 로드한다.
 	XMVECTOR upVector = XMLoadFloat3(&up);
 
-	// 3D 월드에서 카메라의 위치를 설정한다.
-	position = m_position;
-
-	// XMVECTOR 구조체에 로드한다.
+	position.x = 0.0f;
+	position.y = 0.0f;
+	position.z = -1.0f;
 	XMVECTOR positionVector = XMLoadFloat3(&position);
 
 	// rotation 을 라디안으로 계산한다.
 	float radians = m_rotation.y * 0.0174532925f;
 
-	lookAt.x = 0.0f;
-	lookAt.y = 1.0f;
-	lookAt.z = 0.0f;
+	// 기본적으로 카메라가 보고있는 위치를 설정한다.
+	lookAt.x = sinf(radians) + m_position.x;
+	lookAt.y = m_position.y;
+	lookAt.z = cosf(radians) + m_position.z;
 
 	// XMVECTOR 구조체에 로드한다.
 	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
 
-	// 세 개의 업데이트 된 벡터에서 뷰 행렬을 만든다.
-	m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+	baseviewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
 }
 
 
-void CameraClass::GetDebugViewMatrix(XMMATRIX& debugviewMatrix)
-{
-	debugviewMatrix = m_debugviewMatrix;
-}
-
-void CameraClass::RenderReflection(float height)
+void CameraClass::RenderReflection(float height, XMMATRIX& reflectionMatrix)
 {
 	XMFLOAT3 up, position, lookAt;
 
@@ -148,12 +143,5 @@ void CameraClass::RenderReflection(float height)
 	// XMVECTOR 구조체에 로드한다.
 	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
 
-	// 세 개의 업데이트 된 벡터에서 뷰 행렬을 만든다.
-	m_reflectionViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-}
-
-
-XMMATRIX CameraClass::GetReflectionViewMatrix()
-{
-	return m_reflectionViewMatrix;
+	reflectionMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
 }

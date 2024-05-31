@@ -174,7 +174,7 @@ bool SystemClass::Frame()
 	m_Position->GetRotation(rotationY);
 
 	// 그래픽 객체의 Frame 을 처리한다.
-	if (!m_Graphics->Frame(rotationY))
+	if (!m_Graphics->Frame(rotationY, m_Timer->GetTime()))
 	{
 		return false;
 	}
