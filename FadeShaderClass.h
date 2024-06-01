@@ -40,6 +40,4 @@ private:
     ID3D11Buffer* m_matrixBuffer = nullptr;
     ID3D11Buffer* m_fadeBuffer = nullptr;
     ID3D11SamplerState* m_sampleState = nullptr;
-
-    XMMATRIX m_baseViewMatrix;
 };

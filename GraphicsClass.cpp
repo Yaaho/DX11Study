@@ -8,7 +8,9 @@
 
 #include "RenderTextureClass.h"
 #include "ReflectionShaderClass.h"
-#include "BitmapClass.h"
+
+#include "OrthoWindowClass.h"
+
 #include "FadeShaderClass.h"
 
 #include "ModelListClass.h"
@@ -54,6 +56,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+
+	// 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->Render();
+
+	m_Camera->RenderBaseViewMatrix();
 	XMMATRIX baseViewMatrix;
 	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 
@@ -165,17 +173,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// 비트 맵 객체를 만듭니다.
-	m_Bitmap = new BitmapClass;
-	if (!m_Bitmap)
+	// 전체 화면 ortho window 객체를 생성합니다.
+	m_FullScreenWindow = new OrthoWindowClass;
+	if (!m_FullScreenWindow)
 	{
 		return false;
 	}
 
-	// 비트 맵 객체를 초기화합니다.
-	if (!m_Bitmap->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, screenWidth, screenHeight))
+	// 전체 화면 ortho window 객체를 초기화 합니다.
+	if (!m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight))
 	{
-		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -255,11 +263,11 @@ void GraphicsClass::Shutdown()
 		m_FadeShader = 0;
 	}
 
-	if (m_Bitmap)
+	if (m_FullScreenWindow)
 	{
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
+		m_FullScreenWindow->Shutdown();
+		delete m_FullScreenWindow;
+		m_FullScreenWindow = 0;
 	}
 
 	// 반사 쉐이더 객체 반환
@@ -590,31 +598,25 @@ bool GraphicsClass::RenderToReflectionTexture()
 
 bool GraphicsClass::RenderFadingScene()
 {
-	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	bool result;
 
 	// 장면을 시작할 버퍼를 지운다.
-	m_Direct3D->BeginScene(0.0f, 0.0f, 1.0f, 1.0f);
-
-	m_Camera->Render();
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// 카메라 및 d3d 객체에서 월드, 뷰 및 오쏘 (ortho) 행렬을 가져옵니다.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
 	// 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
 	m_Direct3D->TurnZBufferOff();
 
 	// 비트 맵 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
-	result = m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 0);
-	if (!result)
-	{
-		return false;
-	}
+	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	// 페이드 셰이더를 사용하여 비트 맵을 렌더링합니다.
-	result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix,
+	result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_FadeRenderTexture->GetShaderResourceView(), m_fadePercentage);
 	if (!result)
 	{

@@ -289,7 +289,7 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
     unsigned int stride = sizeof(VertexType);
     unsigned int offset = 0;
 
-    // 렌더링 할 수 있도록 입력 어셈블러에서 정저 버퍼를 활성으로 설정한다.
+    // 렌더링 할 수 있도록 입력 어셈블러에서 정적 버퍼를 활성으로 설정한다.
     deviceContext->IASetVertexBuffers(0, 1, &sentence->vertexBuffer, &stride, &offset);
 
     // 렌더링 할 수 있도록 입력 어셈블러에서 인덱스 버퍼를 활성으로 설정한다.

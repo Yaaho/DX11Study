@@ -14,7 +14,10 @@ class LightClass;
 
 class RenderTextureClass;
 class ReflectionShaderClass;
-class BitmapClass;
+class OrthoWindowClass;
+
+
+
 class FadeShaderClass;
 
 class ModelListClass;
@@ -57,7 +60,7 @@ private:
 
 	ModelClass* m_FloorModel = nullptr;
 	ReflectionShaderClass* m_ReflectionShader = nullptr;
-	BitmapClass* m_Bitmap = nullptr;
+	OrthoWindowClass* m_FullScreenWindow = nullptr;
 	FadeShaderClass* m_FadeShader = nullptr;
 
 	ModelListClass* m_ModelList = nullptr;

@@ -1,4 +1,3 @@
-
 cbuffer PerFrameBuffer
 {
     matrix worldMatrix;

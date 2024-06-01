@@ -15,7 +15,10 @@ public:
 
 	void Render();
 	void GetViewMatrix(XMMATRIX&);
+
+	void RenderBaseViewMatrix();
 	void GetBaseViewMatrix(XMMATRIX&);
+
 
 	void RenderReflection(float, XMMATRIX&);
 
@@ -23,4 +26,5 @@ private:
 	XMFLOAT3 m_position;
 	XMFLOAT3 m_rotation;
 	XMMATRIX m_viewMatrix;
+	XMMATRIX m_baseViewMatrix;
 };

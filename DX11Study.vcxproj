@@ -128,7 +128,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlignedAllocationPolicy.h" />
-    <ClInclude Include="BitmapClass.h" />
     <ClInclude Include="CameraClass.h" />
     <ClInclude Include="CpuClass.h" />
     <ClInclude Include="D3DClass.h" />
@@ -144,6 +143,7 @@
     <ClInclude Include="LightClass.h" />
     <ClInclude Include="ModelClass.h" />
     <ClInclude Include="ModelListClass.h" />
+    <ClInclude Include="OrthoWindowClass.h" />
     <ClInclude Include="PositionClass.h" />
     <ClInclude Include="ReflectionShaderClass.h" />
     <ClInclude Include="RenderTextureClass.h" />
@@ -158,7 +158,6 @@
     <ClInclude Include="TimerClass.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BitmapClass.cpp" />
     <ClCompile Include="CameraClass.cpp" />
     <ClCompile Include="CpuClass.cpp" />
     <ClCompile Include="D3DClass.cpp" />
@@ -174,6 +173,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelClass.cpp" />
     <ClCompile Include="ModelListClass.cpp" />
+    <ClCompile Include="OrthoWindowClass.cpp" />
     <ClCompile Include="PositionClass.cpp" />
     <ClCompile Include="ReflectionShaderClass.cpp" />
     <ClCompile Include="RenderTextureClass.cpp" />
