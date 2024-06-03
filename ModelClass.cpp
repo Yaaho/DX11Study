@@ -60,6 +60,11 @@ int ModelClass::GetIndexCount()
 	return m_indexCount;
 }
 
+ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
+{
+	return m_TextureArray->GetTexture(index);
+}
+
 ID3D11ShaderResourceView** ModelClass::GetTextureArray()
 {
 	return m_TextureArray->GetTextureArray();

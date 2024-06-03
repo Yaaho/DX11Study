@@ -90,6 +90,11 @@ void TextureArrayClass::Shutdown()
 	return;
 }
 
+ID3D11ShaderResourceView* TextureArrayClass::GetTexture(int index)
+{
+	return m_texture[index];
+}
+
 ID3D11ShaderResourceView** TextureArrayClass::GetTextureArray()
 {
 	return m_texture;

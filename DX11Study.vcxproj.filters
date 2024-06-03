@@ -93,13 +93,19 @@
     <ClInclude Include="TextureShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ReflectionShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="FadeShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="OrthoWindowClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RefractionShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LightShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -173,27 +179,37 @@
     <ClCompile Include="TextureShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ReflectionShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="FadeShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="OrthoWindowClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="WaterShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RefractionShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LightShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="LightVS.HLSL" />
-    <FxCompile Include="LightPS.HLSL" />
+    <FxCompile Include="SpecMapVS.HLSL" />
+    <FxCompile Include="SpecMapPS.HLSL" />
     <FxCompile Include="FontVS.HLSL" />
     <FxCompile Include="FontPS.HLSL" />
     <FxCompile Include="TextureVS.HLSL" />
     <FxCompile Include="TexturePS.HLSL" />
-    <FxCompile Include="ReflectionVS.HLSL" />
-    <FxCompile Include="ReflectionPS.HLSL" />
     <FxCompile Include="FadeVS.HLSL" />
     <FxCompile Include="FadePS.HLSL" />
+    <FxCompile Include="WaterVS.HLSL" />
+    <FxCompile Include="WaterPS.HLSL" />
+    <FxCompile Include="RefractionPS.HLSL" />
+    <FxCompile Include="RefractionVS.HLSL" />
+    <FxCompile Include="LightVS.HLSL" />
+    <FxCompile Include="LightPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -207,6 +223,10 @@
     <Image Include="data\spec02.dds" />
     <Image Include="data\stone02.dds" />
     <Image Include="data\blue01.dds" />
+    <Image Include="data\ground01.dds" />
+    <Image Include="data\marble01.dds" />
+    <Image Include="data\wall01.dds" />
+    <Image Include="data\water01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
@@ -214,5 +234,9 @@
     <Text Include="data\sphere.txt" />
     <Text Include="data\cube.txt" />
     <Text Include="data\floor.txt" />
+    <Text Include="data\bath.txt" />
+    <Text Include="data\ground.txt" />
+    <Text Include="data\wall.txt" />
+    <Text Include="data\water.txt" />
   </ItemGroup>
 </Project>

@@ -13,6 +13,7 @@ public:
 	bool Initialize(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
 	void Shutdown();
 
+	ID3D11ShaderResourceView* GetTexture(int index);
 	ID3D11ShaderResourceView** GetTextureArray();
 
 private:

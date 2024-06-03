@@ -48,6 +48,7 @@ public:
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
+	ID3D11ShaderResourceView* GetTexture(int index);
 	ID3D11ShaderResourceView** GetTextureArray();
 
 private:

@@ -16,7 +16,7 @@ SpecMapShaderClass::~SpecMapShaderClass()
 bool SpecMapShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	// 정점 및 픽셀 쉐이더를 초기화한다.
-	return InitializeShader(device, hwnd, L"LightVS.HLSL", L"LightPS.HLSL");
+	return InitializeShader(device, hwnd, L"SpecMapVS.HLSL", L"SpecMapPS.HLSL");
 }
 
 void SpecMapShaderClass::Shutdown()
@@ -48,7 +48,7 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 
 	// 버텍스 셰이더 코드를 컴파일한다.
 	ID3D10Blob* vertexShaderBuffer = nullptr;
-	if (FAILED(D3DCompileFromFile(vsFilename, NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+	if (FAILED(D3DCompileFromFile(vsFilename, NULL, NULL, "SpecMapVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
 		0, &vertexShaderBuffer, &errorMessage)))
 	{
 		// 셰이더 컴파일 실패 시 오류 메시지를 출력한다.
@@ -67,7 +67,7 @@ bool SpecMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 
 	// 픽셀 셰이더 코드를 컴파일한다.
 	ID3D10Blob* pixelShaderBuffer = nullptr;
-	if (FAILED(D3DCompileFromFile(psFilename, NULL, NULL, "LightPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+	if (FAILED(D3DCompileFromFile(psFilename, NULL, NULL, "SpecMapPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
 		0, &pixelShaderBuffer, &errorMessage)))
 	{
 		// 셰이더 컴파일 실패 시 오류 메시지를 출력한다.
