@@ -9,20 +9,16 @@ class D3DClass;
 class CameraClass;
 class TextClass;
 class ModelClass;
-class LightClass;
 
 class RenderTextureClass;
 
 class LightShaderClass;
+class LightClass;
 
 class RefractionShaderClass;
 class WaterShaderClass;
 
-
 class OrthoWindowClass;
-
-
-
 class FadeShaderClass;
 
 
@@ -45,7 +41,6 @@ private:
 	bool RenderRefractionToTexture();
 	bool RenderReflectionToTexture();
 
-
 	bool RenderFadingScene();
 	bool RenderText(int renderCount);
 	
@@ -60,13 +55,15 @@ private:
 	ModelClass* m_BathModel = nullptr;
 	ModelClass* m_WaterModel = nullptr;
 
-	LightClass* m_Light = nullptr;
-
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 	RenderTextureClass* m_RefractionTexture = nullptr;
 	RenderTextureClass* m_ReflectionTexture = nullptr;
 
 	LightShaderClass* m_LightShader = nullptr;
+	LightClass* m_Light1 = nullptr;
+	LightClass* m_Light2 = nullptr;
+	LightClass* m_Light3 = nullptr;
+	LightClass* m_Light4 = nullptr;
 
 	RefractionShaderClass* m_RefractionShader = nullptr;
 	WaterShaderClass* m_WaterShader = nullptr;

@@ -3,11 +3,15 @@
 #include "CameraClass.h"
 #include "TextClass.h"
 #include "ModelClass.h"
-#include "LightClass.h"
+
 #include "RenderTextureClass.h"
+
 #include "LightShaderClass.h"
+#include "LightClass.h"
+
 #include "RefractionShaderClass.h"
 #include "WaterShaderClass.h"
+
 #include "OrthoWindowClass.h"
 #include "FadeShaderClass.h"
 #include "GraphicsClass.h"
@@ -130,20 +134,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// m_Light 객체 생성
-	m_Light = new LightClass;
-	if (!m_Light)
-	{
-		return false;
-	}
-
-	// m_Light 객체 초기화
-	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(16.0f);
-
 
 	// 페이드에 쓰이는 렌더 텍스쳐 객체를 생성한다.
 	m_FadeRenderTexture = new RenderTextureClass;
@@ -205,7 +195,50 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
+	// 첫 번째 조명 객체를 만듭니다.
+	m_Light1 = new LightClass;
+	if (!m_Light1)
+	{
+		return false;
+	}
 
+	// 첫 번째 조명 객체를초기화합니다.
+	m_Light1->SetAmbientColor(0.4f, 0.4f, 0.4f, 0.4f);
+	m_Light1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
+	m_Light1->SetPosition(-3.0f, 1.0f, 3.0f);
+
+	// 두 번째 조명 객체를 만듭니다.
+	m_Light2 = new LightClass;
+	if (!m_Light2)
+	{
+		return false;
+	}
+
+	// 두 번째 조명 객체를 초기화합니다.
+	m_Light2->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	m_Light2->SetPosition(3.0f, 1.0f, 3.0f);
+
+	// 세 번째 조명 객체를 만듭니다.
+	m_Light3 = new LightClass;
+	if (!m_Light3)
+	{
+		return false;
+	}
+
+	// 세 번째 조명 객체를 초기화합니다.
+	m_Light3->SetDiffuseColor(0.0f, 0.0f, 1.0f, 1.0f);
+	m_Light3->SetPosition(-3.0f, 1.0f, -3.0f);
+
+	// 네 번째 조명 객체를 만듭니다.
+	m_Light4 = new LightClass;
+	if (!m_Light4)
+	{
+		return false;
+	}
+
+	// 네 번째 조명 객체를 초기화합니다.
+	m_Light4->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light4->SetPosition(3.0f, 1.0f, -3.0f);
 
 
 	// Create the refraction shader object.
@@ -319,6 +352,34 @@ void GraphicsClass::Shutdown()
 		m_RefractionShader = 0;
 	}
 
+	// m_Light 객체 반환
+	if (m_Light4)
+	{
+		delete m_Light4;
+		m_Light4 = 0;
+	}
+
+	// m_Light 객체 반환
+	if (m_Light3)
+	{
+		delete m_Light3;
+		m_Light3 = 0;
+	}
+
+	// m_Light 객체 반환
+	if (m_Light2)
+	{
+		delete m_Light2;
+		m_Light2 = 0;
+	}
+
+	// m_Light 객체 반환
+	if (m_Light1)
+	{
+		delete m_Light1;
+		m_Light1 = 0;
+	}
+
 	// m_AlphaMapShader 객체 반환
 	if (m_LightShader)
 	{
@@ -350,15 +411,6 @@ void GraphicsClass::Shutdown()
 		m_FadeRenderTexture->Shutdown();
 		delete m_FadeRenderTexture;
 		m_FadeRenderTexture = 0;
-	}
-
-
-
-	// m_Light 객체 반환
-	if (m_Light)
-	{
-		delete m_Light;
-		m_Light = 0;
 	}
 
 
@@ -521,6 +573,20 @@ bool GraphicsClass::Render()
 int GraphicsClass::RenderScene()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
+	XMFLOAT4 diffuseColor[4];
+	XMFLOAT4 lightPosition[4];
+
+	// 4 개의 밝은 색상에서 확산 색상 배열을 만듭니다.
+	diffuseColor[0] = m_Light1->GetDiffuseColor();
+	diffuseColor[1] = m_Light2->GetDiffuseColor();
+	diffuseColor[2] = m_Light3->GetDiffuseColor();
+	diffuseColor[3] = m_Light4->GetDiffuseColor();
+
+	// 네 개의 가벼운 위치에서 가벼운 위치 배열을 만듭니다.
+	lightPosition[0] = m_Light1->GetPosition();
+	lightPosition[1] = m_Light2->GetPosition();
+	lightPosition[2] = m_Light3->GetPosition();
+	lightPosition[3] = m_Light4->GetPosition();
 
 	// 장면을 시작할 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -541,8 +607,7 @@ int GraphicsClass::RenderScene()
 
 	// Render the ground model using the light shader.
 	bool result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_GroundModel->GetTextureArray(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		viewMatrix, projectionMatrix, m_GroundModel->GetTextureArray(), diffuseColor, lightPosition);
 	if (!result)
 	{
 		return false;
@@ -559,8 +624,7 @@ int GraphicsClass::RenderScene()
 
 	// Render the wall model using the light shader.
 	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_WallModel->GetTextureArray(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		projectionMatrix, m_WallModel->GetTextureArray(), diffuseColor, lightPosition);
 	if (!result)
 	{
 		return false;
@@ -577,8 +641,7 @@ int GraphicsClass::RenderScene()
 
 	// Render the bath model using the light shader.
 	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_BathModel->GetTextureArray(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
+		projectionMatrix, m_BathModel->GetTextureArray(), diffuseColor, lightPosition);
 	if (!result)
 	{
 		return false;
@@ -658,8 +721,8 @@ bool GraphicsClass::RenderRefractionToTexture()
 
 	// 욕조 아래만 그려지도록 욕조를 m_RefractionShader 으로 렌더링
 	if (!m_RefractionShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_BathModel->GetTexture(0), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), clipPlane))
+		worldMatrix, viewMatrix, projectionMatrix, m_BathModel->GetTexture(0), m_Light1->GetDirection(),
+		m_Light1->GetAmbientColor(), m_Light1->GetDiffuseColor(), clipPlane))
 	{
 		return false;
 	}
@@ -676,6 +739,22 @@ bool GraphicsClass::RenderRefractionToTexture()
 bool GraphicsClass::RenderReflectionToTexture()
 {
 	XMMATRIX reflectionViewMatrix, worldMatrix, projectionMatrix;
+
+	XMFLOAT4 diffuseColor[4];
+	XMFLOAT4 lightPosition[4];
+
+	// 4 개의 밝은 색상에서 확산 색상 배열을 만듭니다.
+	diffuseColor[0] = m_Light1->GetDiffuseColor();
+	diffuseColor[1] = m_Light2->GetDiffuseColor();
+	diffuseColor[2] = m_Light3->GetDiffuseColor();
+	diffuseColor[3] = m_Light4->GetDiffuseColor();
+
+	// 네 개의 가벼운 위치에서 가벼운 위치 배열을 만듭니다.
+	lightPosition[0] = m_Light1->GetPosition();
+	lightPosition[1] = m_Light2->GetPosition();
+	lightPosition[2] = m_Light3->GetPosition();
+	lightPosition[3] = m_Light4->GetPosition();
+
 
 	// Set the render target to be the reflection render to texture.
 	m_ReflectionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
@@ -702,8 +781,7 @@ bool GraphicsClass::RenderReflectionToTexture()
 
 	// Render the wall model using the light shader and the reflection view matrix.
 	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix,
-		reflectionViewMatrix, projectionMatrix, m_WallModel->GetTextureArray(), m_Light->GetDirection(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+		reflectionViewMatrix, projectionMatrix, m_WallModel->GetTextureArray(), diffuseColor, lightPosition))
 	{
 		return false;
 	}
