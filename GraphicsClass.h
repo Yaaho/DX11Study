@@ -10,13 +10,11 @@ class CameraClass;
 class TextClass;
 class ModelClass;
 
-class RenderTextureClass;
-
 class LightShaderClass;
 class LightClass;
 
-class RefractionShaderClass;
-class WaterShaderClass;
+class RenderTextureClass;
+class GlassShaderClass;
 
 class OrthoWindowClass;
 class FadeShaderClass;
@@ -39,7 +37,6 @@ private:
 	int RenderToFadeTexture();
 	
 	bool RenderRefractionToTexture();
-	bool RenderReflectionToTexture();
 
 	bool RenderFadingScene();
 	bool RenderText(int renderCount);
@@ -50,23 +47,15 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
-	ModelClass* m_GroundModel = nullptr;
-	ModelClass* m_WallModel = nullptr;
-	ModelClass* m_BathModel = nullptr;
-	ModelClass* m_WaterModel = nullptr;
+	ModelClass* m_Model = nullptr;
+	ModelClass* m_WindowModel = nullptr;
+
+	LightShaderClass* m_LightShader = nullptr;
+	LightClass* m_Light = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 	RenderTextureClass* m_RefractionTexture = nullptr;
-	RenderTextureClass* m_ReflectionTexture = nullptr;
-
-	LightShaderClass* m_LightShader = nullptr;
-	LightClass* m_Light1 = nullptr;
-	LightClass* m_Light2 = nullptr;
-	LightClass* m_Light3 = nullptr;
-	LightClass* m_Light4 = nullptr;
-
-	RefractionShaderClass* m_RefractionShader = nullptr;
-	WaterShaderClass* m_WaterShader = nullptr;
+	GlassShaderClass* m_GlassShader = nullptr;
 
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
 	FadeShaderClass* m_FadeShader = nullptr;

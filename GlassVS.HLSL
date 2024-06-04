@@ -9,37 +9,33 @@ struct VertexInputType
 {
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
 };
-
+ 
 struct PixelInputType
 {
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
+    float4 refractionPosition : TEXCOORD1;
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input)
+PixelInputType GlassVertexShader(VertexInputType input)
 {
     PixelInputType output;
-
-    // 적절한 핸렬 계산을 위해 위치 벡터의 4번째 단위를 변경한다.
+ 
     input.position.w = 1.0f;
-
-    // 월드, 뷰, 투영 행렬에 대한 정점의 위치를 계산한다.
+ 
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-    // 픽셀 셰이더의 텍스쳐 좌표를 저장한다.
     output.tex = input.tex;
-    
-    // 법선 벡터를 월드 좌표계로 변환한다.
-    output.normal = mul(input.normal, (float3x3) worldMatrix);
-	
-    // 법선 벡터를 노말라이즈 한다.
-    output.normal = normalize(output.normal);
-	
+
+    // 굴절을 위해 viewProjectWorld 행렬을 만든다.
+    matrix viewProjectWorld = mul(viewMatrix, projectionMatrix);
+    viewProjectWorld = mul(worldMatrix, viewProjectWorld);
+
+    output.refractionPosition = mul(input.position, viewProjectWorld);
+ 
     return output;
 }

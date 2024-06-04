@@ -4,13 +4,13 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-#include "RenderTextureClass.h"
 
 #include "LightShaderClass.h"
 #include "LightClass.h"
 
-#include "RefractionShaderClass.h"
-#include "WaterShaderClass.h"
+
+#include "RenderTextureClass.h"
+#include "GlassShaderClass.h"
 
 #include "OrthoWindowClass.h"
 #include "FadeShaderClass.h"
@@ -81,58 +81,66 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// Create the ground model object.
-	m_GroundModel = new ModelClass;
-	if (!m_GroundModel)
+	// 모델 객체 생성
+	m_Model = new ModelClass;
+	if (!m_Model)
 	{
 		return false;
 	}
 
-	if (!m_GroundModel->Initialize(m_Direct3D->GetDevice(), "data/ground.txt") || !m_GroundModel->LoadTextures(m_Direct3D->GetDevice(), L"data/ground01.dds"))
+	// 모델 객체 초기화
+	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/cube.txt") || !m_Model->LoadTextures(m_Direct3D->GetDevice(), L"data/seafloor.dds", L"data/bump03.dds"))
 	{
-		MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the wall model object.
-	m_WallModel = new ModelClass;
-	if (!m_WallModel)
-	{
-		return false;
-	}
-
-	if (!m_WallModel->Initialize(m_Direct3D->GetDevice(), "data/wall.txt") || !m_WallModel->LoadTextures(m_Direct3D->GetDevice(), L"data/wall01.dds"))
-	{
-		MessageBox(hwnd, L"Could not initialize the wall model object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the bath model object.
-	m_BathModel = new ModelClass;
-	if (!m_BathModel)
+	// 창 모델 객체를 만듭니다.
+	m_WindowModel = new ModelClass;
+	if (!m_WindowModel)
 	{
 		return false;
 	}
 
-	if (!m_BathModel->Initialize(m_Direct3D->GetDevice(), "data/bath.txt") || !m_BathModel->LoadTextures(m_Direct3D->GetDevice(), L"data/marble01.dds"))
+#define GLASS    true    // t유리, f얼음
+
+	// 창 모델 객체를 초기화합니다.    
+#if GLASS
+	if (!m_WindowModel->Initialize(m_Direct3D->GetDevice(), "data/square.txt") || !m_WindowModel->LoadTextures(m_Direct3D->GetDevice(), L"data/glass01.dds", L"data/bump03.dds"))    // 유리
+#else
+	if (!m_WindowModel->Initialize(m_Direct3D->GetDevice(), "data/square.txt") || !m_WindowModel->LoadTextures(m_Direct3D->GetDevice(), L"data/ice01.dds", L"data/icebump01.dds"))   // 얼음
+#endif
 	{
-		MessageBox(hwnd, L"Could not initialize the bath model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the window model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the water model object.
-	m_WaterModel = new ModelClass;
-	if (!m_WaterModel)
+	// 스패큘러 맵 셰이더 객체 생성
+	m_LightShader = new LightShaderClass;
+	if (!m_LightShader)
 	{
 		return false;
 	}
 
-	if (!m_WaterModel->Initialize(m_Direct3D->GetDevice(), "data/water.txt") || !m_WaterModel->LoadTextures(m_Direct3D->GetDevice(), L"data/water01.dds"))
+	// 스패큘러 맵 셰이더 초기화
+	if (!m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the water model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
+	}
+
+	// m_Light 생성
+	m_Light = new LightClass;
+	if (!m_Light)
+	{
 		return false;
 	}
 
+	// m_Light 객체 초기화
+	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(16.0f);
 
 
 	// 페이드에 쓰이는 렌더 텍스쳐 객체를 생성한다.
@@ -162,120 +170,19 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the reflection render to texture object.
-	m_ReflectionTexture = new RenderTextureClass;
-	if (!m_ReflectionTexture)
+
+	m_GlassShader = new GlassShaderClass;
+	if (!m_GlassShader)
 	{
 		return false;
 	}
 
-	// Initialize the reflection render to texture object.
-	if (!m_ReflectionTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight))
+	// 유리 쉐이더 객체를 초기화합니다.
+	if (!m_GlassShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the reflection render to texture object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the glass shader object.", L"Error", MB_OK);
 		return false;
 	}
-
-
-
-
-
-
-	// 스패큘러 맵 셰이더 객체 생성
-	m_LightShader = new LightShaderClass;
-	if (!m_LightShader)
-	{
-		return false;
-	}
-
-	// 스패큘러 맵 셰이더 초기화
-	if (!m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd))
-	{
-		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
-	}
-
-
-	// 첫 번째 조명 객체를 만듭니다.
-	m_Light1 = new LightClass;
-	if (!m_Light1)
-	{
-		return false;
-	}
-
-	// 첫 번째 조명 객체를초기화합니다.
-	m_Light1->SetAmbientColor(0.4f, 0.4f, 0.4f, 0.4f);
-	m_Light1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
-	m_Light1->SetPosition(-3.0f, 1.0f, 3.0f);
-
-	// 두 번째 조명 객체를 만듭니다.
-	m_Light2 = new LightClass;
-	if (!m_Light2)
-	{
-		return false;
-	}
-
-	// 두 번째 조명 객체를 초기화합니다.
-	m_Light2->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
-	m_Light2->SetPosition(3.0f, 1.0f, 3.0f);
-
-	// 세 번째 조명 객체를 만듭니다.
-	m_Light3 = new LightClass;
-	if (!m_Light3)
-	{
-		return false;
-	}
-
-	// 세 번째 조명 객체를 초기화합니다.
-	m_Light3->SetDiffuseColor(0.0f, 0.0f, 1.0f, 1.0f);
-	m_Light3->SetPosition(-3.0f, 1.0f, -3.0f);
-
-	// 네 번째 조명 객체를 만듭니다.
-	m_Light4 = new LightClass;
-	if (!m_Light4)
-	{
-		return false;
-	}
-
-	// 네 번째 조명 객체를 초기화합니다.
-	m_Light4->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light4->SetPosition(3.0f, 1.0f, -3.0f);
-
-
-	// Create the refraction shader object.
-	m_RefractionShader = new RefractionShaderClass;
-	if (!m_RefractionShader)
-	{
-		return false;
-	}
-
-	// Initialize the refraction shader object.
-	if (!m_RefractionShader->Initialize(m_Direct3D->GetDevice(), hwnd))
-	{
-		MessageBox(hwnd, L"Could not initialize the refraction shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the water shader object.
-	m_WaterShader = new WaterShaderClass;
-	if (!m_WaterShader)
-	{
-		return false;
-	}
-
-	// Initialize the water shader object.
-	if (!m_WaterShader->Initialize(m_Direct3D->GetDevice(), hwnd))
-	{
-		MessageBox(hwnd, L"Could not initialize the water shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Set the height of the water.
-	m_waterHeight = 2.75f;
-
-	// Initialize the position of the water.
-	m_waterTranslation = 0.0f;
-	
-
 
 
 	// 전체 화면 ortho window 객체를 생성합니다.
@@ -338,62 +245,12 @@ void GraphicsClass::Shutdown()
 		m_FullScreenWindow = 0;
 	}
 
-	if (m_WaterShader)
+	// 유리 쉐이더 객체를 해제합니다.
+	if (m_GlassShader)
 	{
-		m_WaterShader->Shutdown();
-		delete m_WaterShader;
-		m_WaterShader = 0;
-	}
-
-	if (m_RefractionShader)
-	{
-		m_RefractionShader->Shutdown();
-		delete m_RefractionShader;
-		m_RefractionShader = 0;
-	}
-
-	// m_Light 객체 반환
-	if (m_Light4)
-	{
-		delete m_Light4;
-		m_Light4 = 0;
-	}
-
-	// m_Light 객체 반환
-	if (m_Light3)
-	{
-		delete m_Light3;
-		m_Light3 = 0;
-	}
-
-	// m_Light 객체 반환
-	if (m_Light2)
-	{
-		delete m_Light2;
-		m_Light2 = 0;
-	}
-
-	// m_Light 객체 반환
-	if (m_Light1)
-	{
-		delete m_Light1;
-		m_Light1 = 0;
-	}
-
-	// m_AlphaMapShader 객체 반환
-	if (m_LightShader)
-	{
-		m_LightShader->Shutdown();
-		delete m_LightShader;
-		m_LightShader = 0;
-	}
-
-	// 렌더 택스쳐 객체 반환
-	if (m_ReflectionTexture)
-	{
-		m_ReflectionTexture->Shutdown();
-		delete m_ReflectionTexture;
-		m_ReflectionTexture = 0;
+		m_GlassShader->Shutdown();
+		delete m_GlassShader;
+		m_GlassShader = 0;
 	}
 
 	// 렌더 택스쳐 객체 반환
@@ -404,7 +261,6 @@ void GraphicsClass::Shutdown()
 		m_RefractionTexture = 0;
 	}
 
-
 	// 렌더 택스쳐 객체 반환
 	if (m_FadeRenderTexture)
 	{
@@ -413,44 +269,36 @@ void GraphicsClass::Shutdown()
 		m_FadeRenderTexture = 0;
 	}
 
-
-
-	// m_Model 객체 반환
-	if (m_WaterModel)
+	// m_Light 객체 반환
+	if (m_Light)
 	{
-		m_WaterModel->Shutdown();
-		delete m_WaterModel;
-		m_WaterModel = 0;
+		delete m_Light;
+		m_Light = 0;
 	}
 
-	// m_Model 객체 반환
-	if (m_BathModel)
+	// m_AlphaMapShader 객체 반환
+	if (m_LightShader)
 	{
-		m_BathModel->Shutdown();
-		delete m_BathModel;
-		m_BathModel = 0;
+		m_LightShader->Shutdown();
+		delete m_LightShader;
+		m_LightShader = 0;
 	}
 
-	// m_Model 객체 반환
-	if (m_WallModel)
+	// 창 모델 객체를 해제합니다.
+	if (m_WindowModel)
 	{
-		m_WallModel->Shutdown();
-		delete m_WallModel;
-		m_WallModel = 0;
+		m_WindowModel->Shutdown();
+		delete m_WindowModel;
+		m_WindowModel = 0;
 	}
 
-	// m_Model 객체 반환
-	if (m_GroundModel)
+	// 모델 객체를 해제합니다.
+	if (m_Model)
 	{
-		m_GroundModel->Shutdown();
-		delete m_GroundModel;
-		m_GroundModel = 0;
+		m_Model->Shutdown();
+		delete m_Model;
+		m_Model = 0;
 	}
-
-
-
-
-
 
 	// m_Text 객체 반환
 	if (m_Text)
@@ -508,7 +356,7 @@ bool GraphicsClass::Frame(float rotationY, float frameTime)
 
 
 	// 카메라의 위치를 설정한다.
-	m_Camera->SetPosition(-11.0f, 6.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
 	// 카메라의 회전을 설정한다.
 	m_Camera->SetRotation(0.0f, rotationY, 0.0f);
@@ -537,7 +385,6 @@ bool GraphicsClass::Render()
 	int renderCount;
 
 	RenderRefractionToTexture();
-	RenderReflectionToTexture();
 
 	if (m_fadeDone)
 	{
@@ -572,21 +419,14 @@ bool GraphicsClass::Render()
 
 int GraphicsClass::RenderScene()
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
-	XMFLOAT4 diffuseColor[4];
-	XMFLOAT4 lightPosition[4];
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
-	// 4 개의 밝은 색상에서 확산 색상 배열을 만듭니다.
-	diffuseColor[0] = m_Light1->GetDiffuseColor();
-	diffuseColor[1] = m_Light2->GetDiffuseColor();
-	diffuseColor[2] = m_Light3->GetDiffuseColor();
-	diffuseColor[3] = m_Light4->GetDiffuseColor();
-
-	// 네 개의 가벼운 위치에서 가벼운 위치 배열을 만듭니다.
-	lightPosition[0] = m_Light1->GetPosition();
-	lightPosition[1] = m_Light2->GetPosition();
-	lightPosition[2] = m_Light3->GetPosition();
-	lightPosition[3] = m_Light4->GetPosition();
+	// 유리 쉐이더의 굴절 스케일을 설정합니다.
+#if GLASS
+	float refractionScale = 0.01f;    // 유리 효과
+#else
+	float refractionScale = 0.1f;    // 얼음 효과
+#endif
 
 	// 장면을 시작할 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -599,77 +439,35 @@ int GraphicsClass::RenderScene()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// Translate to where the bath model will be rendered.
-	worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
+	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	// Put the ground model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-
-	// Render the ground model using the light shader.
-	bool result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_GroundModel->GetTextureArray(), diffuseColor, lightPosition);
-	if (!result)
+	// 텍스처 쉐이더로 모델을 렌더링한다.
+	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_Model->GetTexture(0), 
+		m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
 	{
 		return false;
 	}
 
-	// Reset the world matrix.
+	// 월드 행렬을 재설정합니다.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
-	// Translate to where the wall model will be rendered.
-	worldMatrix = XMMatrixTranslation(0.0f, 6.0f, 8.0f);
+	// 윈도우 모델이 렌더링 될 곳으로 되돌립니다.
+	worldMatrix = XMMatrixTranslation(0.0f, 0.0f, -1.5f);
 
-	// Put the wall model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_WallModel->Render(m_Direct3D->GetDeviceContext());
+	// 창 모델 정점과 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
+	m_WindowModel->Render(m_Direct3D->GetDeviceContext());
 
-	// Render the wall model using the light shader.
-	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_WallModel->GetTextureArray(), diffuseColor, lightPosition);
-	if (!result)
+	// 유리 쉐이더를 사용하여 창 모델을 렌더링합니다.
+	if (!m_GlassShader->Render(m_Direct3D->GetDeviceContext(), m_WindowModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_WindowModel->GetTexture(0), m_WindowModel->GetTexture(1), m_RefractionTexture->GetShaderResourceView(),
+		refractionScale))
 	{
 		return false;
 	}
 
-	// Reset the world matrix.
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-
-	// Translate to where the bath model will be rendered.
-	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
-
-	// Put the bath model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_BathModel->Render(m_Direct3D->GetDeviceContext());
-
-	// Render the bath model using the light shader.
-	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_BathModel->GetTextureArray(), diffuseColor, lightPosition);
-	if (!result)
-	{
-		return false;
-	}
-
-	// Reset the world matrix.
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-
-	// Get the camera reflection view matrix.
-	reflectionMatrix = m_Camera->GetReflectionViewMatrix();
-
-	// Translate to where the water model will be rendered.
-	worldMatrix = XMMatrixTranslation(0.0f, m_waterHeight, 0.0f);
-
-	// Put the water model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_WaterModel->Render(m_Direct3D->GetDeviceContext());
-
-	// Render the water model using the water shader.
-	result = m_WaterShader->Render(m_Direct3D->GetDeviceContext(), m_WaterModel->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, reflectionMatrix, m_ReflectionTexture->GetShaderResourceView(),
-		m_RefractionTexture->GetShaderResourceView(), m_WaterModel->GetTexture(0),
-		m_waterTranslation, 0.01f);
-	if (!result)
-	{
-		return false;
-	}
-
-	return 1;
+	return true;
 }
 
 
@@ -695,9 +493,6 @@ bool GraphicsClass::RenderRefractionToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 
-	// 물 표면 위에 있는 것을 모두 클리핑하도록 clipPlane 설정
-	XMFLOAT4 clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, m_waterHeight + 0.1f);
-
 	// 렌더링 대상을 렌더링에 맞게 설정합니다.
 	m_RefractionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
 
@@ -713,86 +508,21 @@ bool GraphicsClass::RenderRefractionToTexture()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// 욕조 모델이 렌더링되는 위치로 tranlation 
-	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
+	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	// 욕조 모델의 버텍스를 렌더링할 수 있도록 정보를 그래픽 파이프라인에 배치
-	m_BathModel->Render(m_Direct3D->GetDeviceContext());
+	// 텍스처 쉐이더로 모델을 렌더링한다.
+	m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_Model->GetTexture(0),
+		m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor());
 
-	// 욕조 아래만 그려지도록 욕조를 m_RefractionShader 으로 렌더링
-	if (!m_RefractionShader->Render(m_Direct3D->GetDeviceContext(), m_BathModel->GetIndexCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_BathModel->GetTexture(0), m_Light1->GetDirection(),
-		m_Light1->GetAmbientColor(), m_Light1->GetDiffuseColor(), clipPlane))
-	{
-		return false;
-	}
-
-	// 렌더 타겟을 원래의 백 버퍼로 변경
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
 	m_Direct3D->SetBackBufferRenderTarget();
 
 	return true;
 }
 
 
-
-
-bool GraphicsClass::RenderReflectionToTexture()
-{
-	XMMATRIX reflectionViewMatrix, worldMatrix, projectionMatrix;
-
-	XMFLOAT4 diffuseColor[4];
-	XMFLOAT4 lightPosition[4];
-
-	// 4 개의 밝은 색상에서 확산 색상 배열을 만듭니다.
-	diffuseColor[0] = m_Light1->GetDiffuseColor();
-	diffuseColor[1] = m_Light2->GetDiffuseColor();
-	diffuseColor[2] = m_Light3->GetDiffuseColor();
-	diffuseColor[3] = m_Light4->GetDiffuseColor();
-
-	// 네 개의 가벼운 위치에서 가벼운 위치 배열을 만듭니다.
-	lightPosition[0] = m_Light1->GetPosition();
-	lightPosition[1] = m_Light2->GetPosition();
-	lightPosition[2] = m_Light3->GetPosition();
-	lightPosition[3] = m_Light4->GetPosition();
-
-
-	// Set the render target to be the reflection render to texture.
-	m_ReflectionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
-
-	// Clear the reflection render to texture.
-	m_ReflectionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(), 0.0f, 0.0f,
-		0.0f, 1.0f);
-
-	// Use the camera to render the reflection and create a reflection view matrix.
-	m_Camera->RenderReflection(m_waterHeight);
-
-	// Get the camera reflection view matrix instead of the normal view matrix.
-	reflectionViewMatrix = m_Camera->GetReflectionViewMatrix();
-
-	// Get the world and projection matrices from the d3d object.
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-
-	// Translate to where the wall model will be rendered.
-	worldMatrix = XMMatrixTranslation(0.0f, 6.0f, 8.0f);
-
-	// Put the wall model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	m_WallModel->Render(m_Direct3D->GetDeviceContext());
-
-	// Render the wall model using the light shader and the reflection view matrix.
-	if (!m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_WallModel->GetIndexCount(), worldMatrix,
-		reflectionViewMatrix, projectionMatrix, m_WallModel->GetTextureArray(), diffuseColor, lightPosition))
-	{
-		return false;
-	}
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_Direct3D->SetBackBufferRenderTarget();
-
-
-
-	return true;
-}
 
 bool GraphicsClass::RenderFadingScene()
 {
