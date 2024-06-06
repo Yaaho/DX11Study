@@ -111,6 +111,9 @@
     <ClInclude Include="GlassShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FireShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -200,6 +203,9 @@
     <ClCompile Include="GlassShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="FireShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -218,6 +224,8 @@
     <FxCompile Include="LightPS.HLSL" />
     <FxCompile Include="GlassVS.HLSL" />
     <FxCompile Include="GlassPS.HLSL" />
+    <FxCompile Include="FireVS.HLSL" />
+    <FxCompile Include="FirePS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -239,6 +247,8 @@
     <Image Include="data\glass01.dds" />
     <Image Include="data\ice01.dds" />
     <Image Include="data\icebump01.dds" />
+    <Image Include="data\fire01.dds" />
+    <Image Include="data\noise01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

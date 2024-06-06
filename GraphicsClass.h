@@ -12,9 +12,9 @@ class ModelClass;
 
 class LightShaderClass;
 class LightClass;
+class FireShaderClass;
 
 class RenderTextureClass;
-class GlassShaderClass;
 
 class OrthoWindowClass;
 class FadeShaderClass;
@@ -35,8 +35,6 @@ public:
 private:
 	int RenderScene();
 	int RenderToFadeTexture();
-	
-	bool RenderRefractionToTexture();
 
 	bool RenderFadingScene();
 	bool RenderText(int renderCount);
@@ -48,14 +46,12 @@ private:
 	TextClass* m_Text = nullptr;
 
 	ModelClass* m_Model = nullptr;
-	ModelClass* m_WindowModel = nullptr;
 
 	LightShaderClass* m_LightShader = nullptr;
 	LightClass* m_Light = nullptr;
+	FireShaderClass* m_FireShader = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
-	RenderTextureClass* m_RefractionTexture = nullptr;
-	GlassShaderClass* m_GlassShader = nullptr;
 
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
 	FadeShaderClass* m_FadeShader = nullptr;
@@ -64,7 +60,4 @@ private:
 	float m_accumulatedTime = 0;
 	float m_fadePercentage = 0;
 	float m_fadeDone = false;
-
-	float m_waterHeight = 0;
-	float m_waterTranslation = 0;
 };
