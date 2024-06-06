@@ -4,7 +4,7 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-#include "TextureShaderClass.h"
+#include "DepthShaderClass.h"
 #include "FireShaderClass.h"
 
 #include "RenderTextureClass.h"
@@ -54,7 +54,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
-	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -1.0f));
+	m_Camera->SetPosition(XMFLOAT3(0.0f, 2.0f, -10.0f));
 	m_Camera->Render();
 
 	m_Camera->RenderBaseViewMatrix();
@@ -109,14 +109,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 	// 텍스처 쉐이더 객체를 생성한다.
-	m_TextureShader = new TextureShaderClass;
-	if (!m_TextureShader)
+	m_DepthShader = new DepthShaderClass;
+	if (!m_DepthShader)
 	{
 		return false;
 	}
 
 	// 텍스처 쉐이더 객체를 초기화한다.
-	if (!m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	if (!m_DepthShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
@@ -248,11 +248,11 @@ void GraphicsClass::Shutdown()
 	}
 
 	// m_TextureShader 객체 반환
-	if (m_TextureShader)
+	if (m_DepthShader)
 	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_DepthShader->Shutdown();
+		delete m_DepthShader;
+		m_DepthShader = 0;
 	}
 
 	// 모델 객체를 해제합니다.
@@ -391,21 +391,14 @@ int GraphicsClass::RenderScene()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixTranslation(0.0f, -1.0f, 3.0f);
-
-
 	// 드로잉을 준비하기 위해 바닥 파이프 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치합니다.
 	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
 
 	// 텍스처 쉐이더를 사용하여 바닥 모델을 렌더링합니다.
-	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_FloorModel->GetTexture(0)))
+	if (!m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix))
 	{
 		return false;
 	}
-
-	// 원래의 월드 매트릭스로 리셋
-	m_Direct3D->GetWorldMatrix(worldMatrix);
 	
 	// 빌보드 설정
 	XMMATRIX translateMatrix;

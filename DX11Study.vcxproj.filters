@@ -114,6 +114,9 @@
     <ClInclude Include="FireShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DepthShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -206,6 +209,9 @@
     <ClCompile Include="FireShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DepthShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -226,6 +232,8 @@
     <FxCompile Include="GlassPS.HLSL" />
     <FxCompile Include="FireVS.HLSL" />
     <FxCompile Include="FirePS.HLSL" />
+    <FxCompile Include="DepthVS.HLSL" />
+    <FxCompile Include="DepthPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />

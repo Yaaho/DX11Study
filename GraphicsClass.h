@@ -2,15 +2,15 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+const float SCREEN_DEPTH = 100.0f;
+const float SCREEN_NEAR = 1.0f;
 
 class D3DClass;
 class CameraClass;
 class TextClass;
 class ModelClass;
 
-class TextureShaderClass;
+class DepthShaderClass;
 class FireShaderClass;
 
 class RenderTextureClass;
@@ -47,7 +47,7 @@ private:
 	ModelClass* m_FloorModel = nullptr;
 	ModelClass* m_FireModel = nullptr;
 	
-	TextureShaderClass* m_TextureShader = nullptr;
+	DepthShaderClass* m_DepthShader = nullptr;
 	FireShaderClass* m_FireShader = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
