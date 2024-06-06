@@ -17,18 +17,15 @@ CameraClass::~CameraClass()
 
 }
 
-void CameraClass::SetPosition(float x, float y, float z)
+void CameraClass::SetPosition(XMFLOAT3 p)
 {
-	m_position.x = x;
-	m_position.y = y;
-	m_position.z = z;
+	m_position = p;
 }
 
-void CameraClass::SetRotation(float x, float y, float z)
+
+void CameraClass::SetRotation(XMFLOAT3 p)
 {
-	m_rotation.x = x;
-	m_rotation.y = y;
-	m_rotation.z = z;
+	m_rotation = p;
 }
 
 XMFLOAT3 CameraClass::GetPosition()

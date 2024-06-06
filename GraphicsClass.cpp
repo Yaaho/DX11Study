@@ -4,12 +4,10 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-#include "LightShaderClass.h"
-#include "LightClass.h"
+#include "TextureShaderClass.h"
 #include "FireShaderClass.h"
 
 #include "RenderTextureClass.h"
-#include "GlassShaderClass.h"
 
 #include "OrthoWindowClass.h"
 #include "FadeShaderClass.h"
@@ -55,9 +53,8 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-
 	// 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -1.0f));
 	m_Camera->Render();
 
 	m_Camera->RenderBaseViewMatrix();
@@ -80,57 +77,75 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
+	// 바닥 모델 객체를 만듭니다.
+	m_FloorModel = new ModelClass;
+	if (!m_FloorModel)
+	{
+		return false;
+	}
+
+	// 바닥 모델 객체를 초기화합니다.
+	if (!m_FloorModel->Initialize(m_Direct3D->GetDevice(), "data/floor.txt") || !m_FloorModel->LoadTextures(m_Direct3D->GetDevice(), L"data/grid01.dds"))
+	{
+		MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
+		return false;
+	}
+
+
 	// 모델 객체 생성
-	m_Model = new ModelClass;
-	if (!m_Model)
+	m_FireModel = new ModelClass;
+	if (!m_FireModel)
 	{
 		return false;
 	}
 
 	// 모델 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/square.txt") || !m_Model->LoadTextures(m_Direct3D->GetDevice(), 
+	if (!m_FireModel->Initialize(m_Direct3D->GetDevice(), "data/square.txt") || !m_FireModel->LoadTextures(m_Direct3D->GetDevice(),
 		L"data/fire01.dds", L"data/noise01.dds", L"data/alpha01.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// 스패큘러 맵 셰이더 객체 생성
-	m_LightShader = new LightShaderClass;
-	if (!m_LightShader)
+
+	// 텍스처 쉐이더 객체를 생성한다.
+	m_TextureShader = new TextureShaderClass;
+	if (!m_TextureShader)
 	{
 		return false;
 	}
 
-	// 스패큘러 맵 셰이더 초기화
-	if (!m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// 텍스처 쉐이더 객체를 초기화한다.
+	if (!m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the light map shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
 	}
 
-	// m_Light 생성
-	m_Light = new LightClass;
-	if (!m_Light)
+
+	m_FireShader = new FireShaderClass;
+	if (!m_FireShader)
 	{
 		return false;
 	}
 
+	// 텍스처 쉐이더 객체를 초기화한다.
+	if (!m_FireShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+
+	/*
 	// m_Light 객체 초기화
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(16.0f);
-
-
-	m_FireShader = new FireShaderClass;
-
-	// 화재 쉐이더 객체를 초기화합니다.
-	if (!m_FireShader->Initialize(m_Direct3D->GetDevice(), hwnd))
-	{
-		MessageBox(hwnd, L"Could not initialize the fire shader object.", L"Error", MB_OK);
-		return false;
-	}
+	*/
 
 
 	// 페이드에 쓰이는 렌더 텍스쳐 객체를 생성한다.
@@ -207,7 +222,6 @@ void GraphicsClass::Shutdown()
 		m_FullScreenWindow = 0;
 	}
 
-
 	// 렌더 택스쳐 객체 반환
 	if (m_FadeRenderTexture)
 	{
@@ -216,6 +230,16 @@ void GraphicsClass::Shutdown()
 		m_FadeRenderTexture = 0;
 	}
 
+	/*
+	// m_Light 객체 반환
+	if (m_Light)
+	{
+		delete m_Light;
+		m_Light = 0;
+	}
+	*/
+
+	// m_FireShader 객체 반환
 	if (m_FireShader)
 	{
 		m_FireShader->Shutdown();
@@ -223,27 +247,28 @@ void GraphicsClass::Shutdown()
 		m_FireShader = 0;
 	}
 
-	// m_Light 객체 반환
-	if (m_Light)
+	// m_TextureShader 객체 반환
+	if (m_TextureShader)
 	{
-		delete m_Light;
-		m_Light = 0;
-	}
-
-	// m_AlphaMapShader 객체 반환
-	if (m_LightShader)
-	{
-		m_LightShader->Shutdown();
-		delete m_LightShader;
-		m_LightShader = 0;
+		m_TextureShader->Shutdown();
+		delete m_TextureShader;
+		m_TextureShader = 0;
 	}
 
 	// 모델 객체를 해제합니다.
-	if (m_Model)
+	if (m_FireModel)
 	{
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = 0;
+		m_FireModel->Shutdown();
+		delete m_FireModel;
+		m_FireModel = 0;
+	}
+
+	// 모델 객체를 해제합니다.
+	if (m_FloorModel)
+	{
+		m_FloorModel->Shutdown();
+		delete m_FloorModel;
+		m_FloorModel = 0;
 	}
 
 	// m_Text 객체 반환
@@ -270,7 +295,7 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(float rotationY, float frameTime)
+bool GraphicsClass::Frame(XMFLOAT3& rotation, float frameTime)
 {
 	if (!m_fadeDone)
 	{
@@ -295,10 +320,7 @@ bool GraphicsClass::Frame(float rotationY, float frameTime)
 
 
 	// 카메라의 위치를 설정한다.
-	m_Camera->SetPosition(0.0f, 0.0f, -3.0f);
-
-	// 카메라의 회전을 설정한다.
-	m_Camera->SetRotation(0.0f, rotationY, 0.0f);
+	m_Camera->SetRotation(rotation);
 
 
 	/*
@@ -356,8 +378,67 @@ bool GraphicsClass::Render()
 
 int GraphicsClass::RenderScene()
 {
-	static float frameTime = 0.0f;
 
+	// 장면을 시작할 버퍼를 지운다.
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	// 카메라의 위치에 따라 뷰 행렬을 생성합니다.
+	m_Camera->Render();
+
+	// 카메라 및 d3d 객체에서 월드, 뷰 및 오쏘 (ortho) 행렬을 가져옵니다.
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	worldMatrix = XMMatrixTranslation(0.0f, -1.0f, 3.0f);
+
+
+	// 드로잉을 준비하기 위해 바닥 파이프 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치합니다.
+	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
+
+	// 텍스처 쉐이더를 사용하여 바닥 모델을 렌더링합니다.
+	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_FloorModel->GetTexture(0)))
+	{
+		return false;
+	}
+
+	// 원래의 월드 매트릭스로 리셋
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	
+	// 빌보드 설정
+	XMMATRIX translateMatrix;
+	XMFLOAT3 cameraPosition, modelPosition;
+
+	// 카메라 위치를 얻는다.
+	cameraPosition = m_Camera->GetPosition();
+
+	// 빌보드 모델의 위치를 설정한다.
+	modelPosition.x = 0.0f;
+	modelPosition.y = 1.0f;
+	modelPosition.z = 3.0f;
+
+	// 아크 탄젠트 함수를 사용하여 현재 카메라 위치를 향하도록 빌보드 모델에 적용해야하는 회전을 계산합니다.
+	double angle = atan2(modelPosition.x - cameraPosition.x, modelPosition.z - cameraPosition.z) * (180.0 / XM_PI);
+
+	// 회전을 라디안으로 변환합니다.
+	float rotation = (float)angle * 0.0174532925f;
+
+	// 월드 행렬을 이용하여 원점에서 빌보드 회전을 설정합니다.
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	// 빌보드 모델의 위치를 설정한다.
+	translateMatrix = XMMatrixTranslation(modelPosition.x, modelPosition.y, modelPosition.z);
+
+	// 마지막으로 rotation 및 Translation 행렬을 결합하여 빌보드 모델의 최종 행렬을 만듭니다.
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+
+
+
+	// 불 셰이더 설정
+	static float frameTime = 0.0f;
 
 	// 프레임 시간 카운터를 증가시킵니다.
 	frameTime += 0.01f;
@@ -381,27 +462,20 @@ int GraphicsClass::RenderScene()
 	float distortionScale = 0.8f;
 	float distortionBias = 0.5f;
 
-	// 장면을 시작할 버퍼를 지운다.
-	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// 카메라의 위치에 따라 뷰 행렬을 생성합니다.
-	m_Camera->Render();
 
-	// 카메라 및 d3d 객체에서 월드, 뷰 및 오쏘 (ortho) 행렬을 가져옵니다.
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+
 
 	// 화재 투명도의 알파 블렌드를 켭니다.
 	m_Direct3D->TurnOnAlphaBlending();
 
 	// 정사각형 모델의 정점과 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
-	m_Model->Render(m_Direct3D->GetDeviceContext());
+	m_FireModel->Render(m_Direct3D->GetDeviceContext());
 
 	// 화재 쉐이더를 사용하여 사각형 모델을 렌더링합니다.
-	if (!m_FireShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2),
+	if (!m_FireShader->Render(m_Direct3D->GetDeviceContext(), m_FireModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_FireModel->GetTexture(0), m_FireModel->GetTexture(1), m_FireModel->GetTexture(2),
 		frameTime, scrollSpeeds, scales, distortion1, distortion2, distortion3, distortionScale,
 		distortionBias))
 	{

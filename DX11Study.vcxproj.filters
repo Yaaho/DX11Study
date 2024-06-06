@@ -249,6 +249,7 @@
     <Image Include="data\icebump01.dds" />
     <Image Include="data\fire01.dds" />
     <Image Include="data\noise01.dds" />
+    <Image Include="data\grid01.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

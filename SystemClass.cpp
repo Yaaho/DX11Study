@@ -151,6 +151,8 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
+	XMFLOAT3 rotation(0.0f, 0.0f, 0.0f);
+
 	// 시스템 통계를 업데이트 한다.
 	m_Timer->Frame();
 	
@@ -164,17 +166,13 @@ bool SystemClass::Frame()
 	m_Position->SetFrameTime(m_Timer->GetTime());
 
 	// 왼쪽 또는 오른쪽 화살표 키를 눌렀는지 확인하고 카메라를 회전시킨다.
-	bool keyDown = m_Input->IsLeftArrowPressed();
-	m_Position->TurnLeft(keyDown);
-	keyDown = m_Input->IsRightArrowPressed();
-	m_Position->TurnRight(keyDown);
+	m_Position->TurnLeft(m_Input->IsLeftArrowPressed());
+	m_Position->TurnRight(m_Input->IsRightArrowPressed());
 
-	// 현재 뷰 포인트 회전을 가져온다.
-	float rotationY = 0.0f;
-	m_Position->GetRotation(rotationY);
+	m_Position->GetRotation(rotation);
 
 	// 그래픽 객체의 Frame 을 처리한다.
-	if (!m_Graphics->Frame(rotationY, m_Timer->GetTime()))
+	if (!m_Graphics->Frame(rotation, m_Timer->GetTime()))
 	{
 		return false;
 	}

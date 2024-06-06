@@ -10,8 +10,7 @@ class CameraClass;
 class TextClass;
 class ModelClass;
 
-class LightShaderClass;
-class LightClass;
+class TextureShaderClass;
 class FireShaderClass;
 
 class RenderTextureClass;
@@ -29,7 +28,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(float, float);
+	bool Frame(XMFLOAT3&, float);
 	bool Render();
 
 private:
@@ -45,10 +44,10 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
-	ModelClass* m_Model = nullptr;
-
-	LightShaderClass* m_LightShader = nullptr;
-	LightClass* m_Light = nullptr;
+	ModelClass* m_FloorModel = nullptr;
+	ModelClass* m_FireModel = nullptr;
+	
+	TextureShaderClass* m_TextureShader = nullptr;
 	FireShaderClass* m_FireShader = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
