@@ -117,6 +117,12 @@
     <ClInclude Include="DepthShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="HorizontalblurShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VerticalblurShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -212,6 +218,12 @@
     <ClCompile Include="DepthShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="HorizontalblurShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VerticalblurShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -234,6 +246,10 @@
     <FxCompile Include="FirePS.HLSL" />
     <FxCompile Include="DepthVS.HLSL" />
     <FxCompile Include="DepthPS.HLSL" />
+    <FxCompile Include="HorizontalblurVS.HLSL" />
+    <FxCompile Include="HorizontalblurPS.HLSL" />
+    <FxCompile Include="VerticalblurVS.HLSL" />
+    <FxCompile Include="VerticalblurPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />

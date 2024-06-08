@@ -2,8 +2,8 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 100.0f;
-const float SCREEN_NEAR = 1.0f;
+const float SCREEN_DEPTH = 1000.0f;
+const float SCREEN_NEAR = 0.1f;
 
 class D3DClass;
 class CameraClass;
@@ -12,6 +12,11 @@ class ModelClass;
 
 class DepthShaderClass;
 class FireShaderClass;
+
+class TextureShaderClass;
+
+class HorizontalblurShaderClass;
+class VerticalblurShaderClass;
 
 class RenderTextureClass;
 
@@ -32,10 +37,26 @@ public:
 	bool Render();
 
 private:
+
+	bool RenderSceneToTexture();
+	bool DownSampleTexture();
+	bool RenderHorizontalBlurToTexture();
+	bool RenderVerticalBlurToTexture();
+	bool UpSampleTexture();
+	bool Render2DTextureScene();
+
+
+
+
+
+
+
+	/*
 	int RenderScene();
 	int RenderToFadeTexture();
 
 	bool RenderFadingScene();
+	*/
 	bool RenderText(int renderCount);
 	
 
@@ -44,14 +65,26 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
-	ModelClass* m_FloorModel = nullptr;
 	ModelClass* m_FireModel = nullptr;
-	
-	DepthShaderClass* m_DepthShader = nullptr;
 	FireShaderClass* m_FireShader = nullptr;
+
+	TextureShaderClass* m_TextureShader = nullptr;
+
+
+	HorizontalblurShaderClass* m_HorizontalblurShader = nullptr;
+	VerticalblurShaderClass* m_VerticalblurShader = nullptr;
+
+	RenderTextureClass* m_RenderTexture = nullptr;
+	RenderTextureClass* m_DownSampleTexure = nullptr;
+	RenderTextureClass* m_HorizontalBlurTexture = nullptr;
+	RenderTextureClass* m_VerticalBlurTexture = nullptr;
+	RenderTextureClass* m_UpSampleTexure = nullptr;
+
+
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
+	OrthoWindowClass* m_SmallWindow = nullptr;
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
 	FadeShaderClass* m_FadeShader = nullptr;
 
