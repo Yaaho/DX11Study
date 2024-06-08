@@ -13,6 +13,11 @@ private:
 		XMFLOAT3 tangent;
 		XMFLOAT3 binormal;
 	};
+
+	struct InstanceType
+	{
+		XMFLOAT3 position;
+	};
 	
 	struct ModelType
 	{
@@ -47,7 +52,9 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
+	int GetVertexCount();
 	int GetIndexCount();
+	int GetInstanceCount();
 	ID3D11ShaderResourceView* GetTexture(int index);
 	ID3D11ShaderResourceView** GetTextureArray();
 
@@ -68,8 +75,11 @@ private:
 private:
 	ID3D11Buffer* m_vertexBuffer = nullptr;
 	ID3D11Buffer* m_indexBuffer = nullptr;
+	ID3D11Buffer* m_instanceBuffer = nullptr;
 	int m_vertexCount = 0;
 	int m_indexCount = 0;
+	int m_instanceCount = 0;
+
 	ModelType* m_model = nullptr;
 
 	TextureArrayClass* m_TextureArray = nullptr;

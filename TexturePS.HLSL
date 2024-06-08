@@ -1,4 +1,3 @@
-
 Texture2D shaderTexture;
 SamplerState SampleType;
 
