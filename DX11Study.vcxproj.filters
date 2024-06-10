@@ -123,6 +123,9 @@
     <ClInclude Include="VerticalblurShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ColorShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -224,6 +227,9 @@
     <ClCompile Include="VerticalblurShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ColorShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -250,6 +256,10 @@
     <FxCompile Include="HorizontalblurPS.HLSL" />
     <FxCompile Include="VerticalblurVS.HLSL" />
     <FxCompile Include="VerticalblurPS.HLSL" />
+    <FxCompile Include="ColorVS.HLSL" />
+    <FxCompile Include="ColorHS.HLSL" />
+    <FxCompile Include="ColorDS.HLSL" />
+    <FxCompile Include="ColorPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />

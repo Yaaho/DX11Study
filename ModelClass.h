@@ -8,10 +8,10 @@ private:
 	struct  VertexType
 	{
 		XMFLOAT3 position;
-		XMFLOAT2 texture;
-		XMFLOAT3 normal;
-		XMFLOAT3 tangent;
-		XMFLOAT3 binormal;
+		XMFLOAT4 color;
+		// XMFLOAT3 normal;
+		// XMFLOAT3 tangent;
+		// XMFLOAT3 binormal;
 	};
 
 	struct InstanceType
@@ -45,7 +45,8 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, char*);
+	bool Initialize(ID3D11Device*);
+	// bool Initialize(ID3D11Device*, char*);
 	bool LoadTextures(ID3D11Device*, WCHAR*);
 	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*);
 	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
@@ -80,7 +81,7 @@ private:
 	int m_indexCount = 0;
 	int m_instanceCount = 0;
 
-	ModelType* m_model = nullptr;
+	// ModelType* m_model = nullptr;
 
 	TextureArrayClass* m_TextureArray = nullptr;
 };

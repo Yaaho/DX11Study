@@ -4,7 +4,7 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-#include "TextureShaderClass.h"
+#include "ColorShaderClass.h"
 
 #include "RenderTextureClass.h"
 
@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
-	m_Camera->SetPosition(XMFLOAT3(0.0f, 2.0f, -10.0f));
+	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -3.0f));
 	m_Camera->Render();
 
 	m_Camera->RenderBaseViewMatrix();
@@ -85,8 +85,9 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 모델 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice(), "data/square.txt") || !m_Model->LoadTextures(m_Direct3D->GetDevice(),
-		L"data/seafloor.dds"))
+	if (!m_Model->Initialize(m_Direct3D->GetDevice()) 
+		/* || !m_Model->LoadTextures(m_Direct3D->GetDevice(),
+		L"data/seafloor.dds")*/)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
@@ -94,17 +95,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 
-	// 텍스처 쉐이더 객체를 생성한다.
-	m_TextureShader = new TextureShaderClass;
-	if (!m_TextureShader)
+	// m_ColorShader 객체 생성
+	m_ColorShader = new ColorShaderClass;
+	if (!m_ColorShader)
 	{
 		return false;
 	}
 
-	// 텍스처 쉐이더 객체를 초기화한다.
-	if (!m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// m_ColorShader 객체 초기화
+	if (!m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -211,11 +212,11 @@ void GraphicsClass::Shutdown()
 	}
 	*/
 
-	if (m_TextureShader)
+	if (m_ColorShader)
 	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_ColorShader->Shutdown();
+		delete m_ColorShader;
+		m_ColorShader = 0;
 	}
 
 	// 모델 객체를 해제합니다.
@@ -301,6 +302,10 @@ bool GraphicsClass::Render()
 
 	int renderCount;
 
+	RenderScene();
+	m_Direct3D->EndScene();
+
+	/*
 	if (m_fadeDone)
 	{
 		// 페이드 인이 완료되면 백 버퍼를 사용하여 장면을 정상적으로 렌더링합니다.
@@ -310,7 +315,7 @@ bool GraphicsClass::Render()
 	else
 	{
 		// 페이드 인이 완료되지 않은 경우 장면을 텍스처로 렌더링하고 텍스처를 페이드 인합니다.
-		renderCount = RenderToFadeTexture();
+		RenderToFadeTexture();
 
 		result = RenderFadingScene();
 		if (!result)
@@ -324,6 +329,7 @@ bool GraphicsClass::Render()
 	{
 		return false;
 	}
+	*/
 
 	return true;
 }
@@ -346,14 +352,17 @@ int GraphicsClass::RenderScene()
 	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	// 텍스쳐 쉐이더를 사용하여 모델을 렌더링합니다.
-	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetVertexCount(), m_Model->GetInstanceCount(),
-		worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(0)))
+	// 테셀레이션 양
+	float tessellationAmount = 12.0f;
+
+	// 색상 쉐이더를 사용하여 모델을 렌더링합니다.
+	if (!m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, tessellationAmount))
 	{
 		return false;
 	}
 
-	return  m_Model->GetInstanceCount();
+	return 0;
 }
 
 

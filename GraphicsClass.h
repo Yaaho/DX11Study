@@ -10,7 +10,7 @@ class CameraClass;
 class TextClass;
 class ModelClass;
 
-class TextureShaderClass;
+class ColorShaderClass;
 
 class RenderTextureClass;
 
@@ -44,7 +44,7 @@ private:
 	TextClass* m_Text = nullptr;
 
 	ModelClass* m_Model = nullptr;
-	TextureShaderClass* m_TextureShader = nullptr;
+	ColorShaderClass* m_ColorShader = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
