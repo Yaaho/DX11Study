@@ -126,6 +126,12 @@
     <ClInclude Include="ColorShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystemClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -230,6 +236,12 @@
     <ClCompile Include="ColorShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystemClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -260,6 +272,8 @@
     <FxCompile Include="ColorHS.HLSL" />
     <FxCompile Include="ColorDS.HLSL" />
     <FxCompile Include="ColorPS.HLSL" />
+    <FxCompile Include="ParticleVS.HLSL" />
+    <FxCompile Include="ParticlePS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -284,6 +298,7 @@
     <Image Include="data\fire01.dds" />
     <Image Include="data\noise01.dds" />
     <Image Include="data\grid01.dds" />
+    <Image Include="data\star.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

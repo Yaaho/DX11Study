@@ -280,7 +280,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_WIREFRAME; // 테셀레이션을 위한 수정. 원본값 : D3D11_FILL_WIREFRAME
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.FrontCounterClockwise = false;
 	rasterDesc.MultisampleEnable = false;
 	rasterDesc.ScissorEnable = false;
@@ -351,9 +351,20 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
 
 	// 알파블렌드 값을 설정한다.
+	/*
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	*/
+
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
 	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
@@ -520,7 +531,7 @@ void D3DClass::TurnZBufferOff()
 	m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1);
 }
 
-void D3DClass::TurnOnAlphaBlending()
+void D3DClass::EnableAlphaBlending()
 {
 	// Setup the blend factor
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -529,7 +540,7 @@ void D3DClass::TurnOnAlphaBlending()
 	m_deviceContext->OMSetBlendState(m_alphaEnableBlendingState, blendFactor, 0xffffffff);
 }
 
-void D3DClass::TurnOffAlphaBlending()
+void D3DClass::DisableAlphaBlending()
 {
 	// Setup the blend factor.
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };

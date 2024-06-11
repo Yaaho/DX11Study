@@ -25,8 +25,8 @@ public:
 	void TurnZBufferOn();
 	void TurnZBufferOff();
 
-	void TurnOnAlphaBlending();
-	void TurnOffAlphaBlending();
+	void EnableAlphaBlending();
+	void DisableAlphaBlending();
 
 	ID3D11DepthStencilView* GetDepthStencilView();
 	void SetBackBufferRenderTarget();

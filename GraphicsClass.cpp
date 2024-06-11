@@ -4,7 +4,10 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-#include "ColorShaderClass.h"
+
+#include "ParticleShaderClass.h"
+#include "ParticleSystemClass.h"
+
 
 #include "RenderTextureClass.h"
 
@@ -76,7 +79,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-
+	/*
 	// 모델 객체 생성
 	m_Model = new ModelClass;
 	if (!m_Model)
@@ -86,28 +89,44 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 	// 모델 객체 초기화
 	if (!m_Model->Initialize(m_Direct3D->GetDevice()) 
-		/* || !m_Model->LoadTextures(m_Direct3D->GetDevice(),
-		L"data/seafloor.dds")*/)
+	|| !m_Model->LoadTextures(m_Direct3D->GetDevice(),
+		L"data/seafloor.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
+	*/
 
 
 
-	// m_ColorShader 객체 생성
-	m_ColorShader = new ColorShaderClass;
-	if (!m_ColorShader)
+	// 파티클 셰이더 개체를 만듭니다.
+	m_ParticleShader = new ParticleShaderClass;
+	if (!m_ParticleShader)
 	{
 		return false;
 	}
 
-	// m_ColorShader 객체 초기화
-	if (!m_ColorShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// 파티클 셰이더 개체를 초기화합니다.
+	if (!m_ParticleShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
-		MessageBox(hwnd, L"Could not initialize the color shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
 		return false;
 	}
+
+	// 파티클 시스템 객체를 만듭니다.
+	m_ParticleSystem = new ParticleSystemClass;
+	if (!m_ParticleSystem)
+	{
+		return false;
+	}
+
+	// 파티클 시스템 객체를 초기화합니다.
+	if (!m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), L"data/star.dds"))
+	{
+		return false;
+	}
+
+
 
 
 	/*
@@ -212,13 +231,24 @@ void GraphicsClass::Shutdown()
 	}
 	*/
 
-	if (m_ColorShader)
+
+	// 모델 객체를 해제합니다.
+	if (m_ParticleSystem)
 	{
-		m_ColorShader->Shutdown();
-		delete m_ColorShader;
-		m_ColorShader = 0;
+		m_ParticleSystem->Shutdown();
+		delete m_ParticleSystem;
+		m_ParticleSystem = 0;
 	}
 
+	// 모델 객체를 해제합니다.
+	if (m_ParticleShader)
+	{
+		m_ParticleShader->Shutdown();
+		delete m_ParticleShader;
+		m_ParticleShader = 0;
+	}
+
+	/*
 	// 모델 객체를 해제합니다.
 	if (m_Model)
 	{
@@ -226,6 +256,7 @@ void GraphicsClass::Shutdown()
 		delete m_Model;
 		m_Model = 0;
 	}
+	*/
 
 	// m_Text 객체 반환
 	if (m_Text)
@@ -274,6 +305,8 @@ bool GraphicsClass::Frame(XMFLOAT3& rotation, float frameTime)
 		}
 	}
 
+	// 파티클 시스템에 대한 프레임 처리를 실행한다.
+	m_ParticleSystem->Frame(frameTime, m_Direct3D->GetDeviceContext());
 
 	// 카메라의 위치를 설정한다.
 	m_Camera->SetRotation(rotation);
@@ -302,10 +335,6 @@ bool GraphicsClass::Render()
 
 	int renderCount;
 
-	RenderScene();
-	m_Direct3D->EndScene();
-
-	/*
 	if (m_fadeDone)
 	{
 		// 페이드 인이 완료되면 백 버퍼를 사용하여 장면을 정상적으로 렌더링합니다.
@@ -324,7 +353,7 @@ bool GraphicsClass::Render()
 		}
 	}
 
-
+	/*
 	if (!RenderText(renderCount))
 	{
 		return false;
@@ -349,18 +378,21 @@ int GraphicsClass::RenderScene()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
-	m_Model->Render(m_Direct3D->GetDeviceContext());
+	// 알파 블렌딩을 켭니다.
+	m_Direct3D->EnableAlphaBlending();
 
-	// 테셀레이션 양
-	float tessellationAmount = 12.0f;
+	// 파티클 시스템 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
+	m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
 
-	// 색상 쉐이더를 사용하여 모델을 렌더링합니다.
-	if (!m_ColorShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, tessellationAmount))
+	// 텍스처 셰이더를 사용하여 모델을 렌더링합니다.
+	if (!m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_ParticleSystem->GetTexture()))
 	{
 		return false;
 	}
+
+	// 알파 블렌딩을 끕니다.
+	m_Direct3D->DisableAlphaBlending();
 
 	return 0;
 }
@@ -433,7 +465,7 @@ bool GraphicsClass::RenderText(int renderCount)
 	}
 
 	// 텍스트를 렌더링하기 전에 알파 블렌딩을 켠다.
-	m_Direct3D->TurnOnAlphaBlending();
+	m_Direct3D->EnableAlphaBlending();
 
 	// 텍스트 문자열을 렌더링 한다.
 	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
@@ -442,7 +474,7 @@ bool GraphicsClass::RenderText(int renderCount)
 	}
 
 	// 텍스트를 렌더링 한 후 알파 블렌딩을 해제한다.
-	m_Direct3D->TurnOffAlphaBlending();
+	m_Direct3D->DisableAlphaBlending();
 
 	m_Direct3D->EndScene();
 

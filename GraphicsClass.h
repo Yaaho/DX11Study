@@ -8,9 +8,12 @@ const float SCREEN_NEAR = 0.1f;
 class D3DClass;
 class CameraClass;
 class TextClass;
+
 class ModelClass;
 
-class ColorShaderClass;
+
+class ParticleShaderClass;
+class ParticleSystemClass;
 
 class RenderTextureClass;
 
@@ -43,8 +46,8 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
-	ModelClass* m_Model = nullptr;
-	ColorShaderClass* m_ColorShader = nullptr;
+	ParticleShaderClass* m_ParticleShader = nullptr;
+	ParticleSystemClass* m_ParticleSystem = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
