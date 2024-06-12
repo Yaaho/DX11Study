@@ -32,6 +32,7 @@ public:
 
 private:
 	bool Frame();
+	bool HandleInput(float);
 	void InitializeWindows(int&, int&);
 	void ShutdownWindows();
 

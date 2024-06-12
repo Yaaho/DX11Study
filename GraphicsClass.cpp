@@ -4,9 +4,9 @@
 #include "TextClass.h"
 #include "ModelClass.h"
 
-
-#include "ParticleShaderClass.h"
-#include "ParticleSystemClass.h"
+#include "LightClass.h"
+#include "DepthShaderClass.h"
+#include "ShadowShaderClass.h"
 
 
 #include "RenderTextureClass.h"
@@ -56,7 +56,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
-	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -3.0f));
+	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -10.0f));
 	m_Camera->Render();
 
 	m_Camera->RenderBaseViewMatrix();
@@ -79,64 +79,121 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	/*
-	// 모델 객체 생성
-	m_Model = new ModelClass;
-	if (!m_Model)
+
+	// 큐브 모델 오브젝트를 생성합니다.
+	m_CubeModel = new ModelClass;
+	if (!m_CubeModel)
 	{
 		return false;
 	}
 
-	// 모델 객체 초기화
-	if (!m_Model->Initialize(m_Direct3D->GetDevice()) 
-	|| !m_Model->LoadTextures(m_Direct3D->GetDevice(),
-		L"data/seafloor.dds"))
+	if (!m_CubeModel->Initialize(m_Direct3D->GetDevice(), "data/cube.txt") || !m_CubeModel->LoadTextures(m_Direct3D->GetDevice(), L"data/wall01.dds"))
 	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 		return false;
 	}
-	*/
+
+	// 큐브 모델의 위치를 ??설정 합니다.
+	m_CubeModel->SetPosition(-2.0f, 2.0f, 0.0f);
 
 
-
-	// 파티클 셰이더 개체를 만듭니다.
-	m_ParticleShader = new ParticleShaderClass;
-	if (!m_ParticleShader)
+	// 지면 모델 객체를 만듭니다.
+	m_GroundModel = new ModelClass;
+	if (!m_GroundModel)
 	{
 		return false;
 	}
 
-	// 파티클 셰이더 개체를 초기화합니다.
-	if (!m_ParticleShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	// 지면 모델 객체를 초기화합니다.
+	if (!m_GroundModel->Initialize(m_Direct3D->GetDevice(), "data/plane01.txt") || !m_GroundModel->LoadTextures(m_Direct3D->GetDevice(), L"data/metal001.dds"))
 	{
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// 파티클 시스템 객체를 만듭니다.
-	m_ParticleSystem = new ParticleSystemClass;
-	if (!m_ParticleSystem)
-	{
-		return false;
-	}
+	// 지면 모델의 위치를 ??설정합니다.
+	m_GroundModel->SetPosition(0.0f, 1.0f, 0.0f);
 
-	// 파티클 시스템 객체를 초기화합니다.
-	if (!m_ParticleSystem->Initialize(m_Direct3D->GetDevice(), L"data/star.dds"))
+
+	// 구형 모델 객체를 만듭니다.
+	m_SphereModel = new ModelClass;
+	if (!m_SphereModel)
 	{
 		return false;
 	}
 
+	// 구형 모델 객체를 초기화합니다.
+	if (!m_SphereModel->Initialize(m_Direct3D->GetDevice(), "data/sphere.txt") || !m_SphereModel->LoadTextures(m_Direct3D->GetDevice(), L"data/ice.dds"))
+	{
+		MessageBox(hwnd, L"Could not initialize the sphere model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// 구형 모델의 위치를 ??설정합니다.
+	m_SphereModel->SetPosition(2.0f, 2.0f, 0.0f);
 
 
 
-	/*
-	// m_Light 객체 초기화
+	// light 객체를 만듭니다.
+	m_Light = new LightClass;
+	if (!m_Light)
+	{
+		return false;
+	}
+
+	// 조명 객체를 초기화합니다.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
-	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetSpecularPower(16.0f);
-	*/
+	m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
+	m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+
+
+	// 깊이 셰이더 개체를 만듭니다.
+	m_DepthShader = new DepthShaderClass;
+	if (!m_DepthShader)
+	{
+		return false;
+	}
+
+	// 깊이 셰이더 개체를 초기화합니다.
+	if (!m_DepthShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// 그림자 셰이더 개체를 만듭니다.
+	m_ShadowShader = new ShadowShaderClass;
+	if (!m_ShadowShader)
+	{
+		return false;
+	}
+
+	// 그림자 쉐이더 객체를 초기화합니다.
+	if (!m_ShadowShader->Initialize(m_Direct3D->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the shadow shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+
+	// 렌더링을 텍스처 오브젝트에 생성한다.
+	m_DepthMapTexture = new RenderTextureClass;
+	if (!m_DepthMapTexture)
+	{
+		return false;
+	}
+
+	// 렌더링을 텍스처 오브젝트에 초기화한다.
+	if (!m_DepthMapTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
+		SCREEN_DEPTH, SCREEN_NEAR))
+	{
+		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+
+
 
 
 	// 페이드에 쓰이는 렌더 텍스쳐 객체를 생성한다.
@@ -222,41 +279,73 @@ void GraphicsClass::Shutdown()
 		m_FadeRenderTexture = 0;
 	}
 
-	/*
-	// m_Light 객체 반환
+
+	// 렌더 투 텍스쳐 객체를 해제합니다.
+	if (m_DepthMapTexture)
+	{
+		m_DepthMapTexture->Shutdown();
+		delete m_DepthMapTexture;
+		m_DepthMapTexture = 0;
+	}
+
+
+
+
+	// 그림자 쉐이더 객체를 해제합니다.
+	if (m_ShadowShader)
+	{
+		m_ShadowShader->Shutdown();
+		delete m_ShadowShader;
+		m_ShadowShader = 0;
+	}
+
+
+
+	// 깊이 셰이더 개체를 해제합니다.
+	if (m_DepthShader)
+	{
+		m_DepthShader->Shutdown();
+		delete m_DepthShader;
+		m_DepthShader = 0;
+	}
+
+
+
+
+	// 조명 객체를 해제합니다.
 	if (m_Light)
 	{
 		delete m_Light;
 		m_Light = 0;
 	}
-	*/
 
 
-	// 모델 객체를 해제합니다.
-	if (m_ParticleSystem)
+
+	// 구형 모델 객체를 해제합니다.
+	if (m_SphereModel)
 	{
-		m_ParticleSystem->Shutdown();
-		delete m_ParticleSystem;
-		m_ParticleSystem = 0;
+		m_SphereModel->Shutdown();
+		delete m_SphereModel;
+		m_SphereModel = 0;
 	}
 
-	// 모델 객체를 해제합니다.
-	if (m_ParticleShader)
+
+	// 지면 모델 객체를 해제합니다.
+	if (m_GroundModel)
 	{
-		m_ParticleShader->Shutdown();
-		delete m_ParticleShader;
-		m_ParticleShader = 0;
+		m_GroundModel->Shutdown();
+		delete m_GroundModel;
+		m_GroundModel = 0;
 	}
 
-	/*
-	// 모델 객체를 해제합니다.
-	if (m_Model)
+
+	// 큐브 모델 객체를 해제합니다.
+	if (m_CubeModel)
 	{
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = 0;
+		m_CubeModel->Shutdown();
+		delete m_CubeModel;
+		m_CubeModel = 0;
 	}
-	*/
 
 	// m_Text 객체 반환
 	if (m_Text)
@@ -282,7 +371,7 @@ void GraphicsClass::Shutdown()
 	}
 }
 
-bool GraphicsClass::Frame(XMFLOAT3& rotation, float frameTime)
+bool GraphicsClass::Frame(float frameTime, float posX, float posY, float posZ, float rotX, float rotY, float rotZ)
 {
 	if (!m_fadeDone)
 	{
@@ -305,11 +394,22 @@ bool GraphicsClass::Frame(XMFLOAT3& rotation, float frameTime)
 		}
 	}
 
-	// 파티클 시스템에 대한 프레임 처리를 실행한다.
-	m_ParticleSystem->Frame(frameTime, m_Direct3D->GetDeviceContext());
 
-	// 카메라의 위치를 설정한다.
-	m_Camera->SetRotation(rotation);
+	static float lightPositionX = -5.0f;
+
+	// 카메라 위치를 설정합니다.
+	m_Camera->SetPosition(XMFLOAT3(posX, posY, posZ));
+	m_Camera->SetRotation(XMFLOAT3(rotX, rotY, rotZ));
+
+	// 각 프레임의 조명 위치를 업데이트합니다.
+	lightPositionX += 0.05f;
+	if (lightPositionX > 5.0f)
+	{
+		lightPositionX = -5.0f;
+	}
+
+	// 빛의 위치를 ??업데이트합니다.
+	m_Light->SetPosition(lightPositionX, 8.0f, -5.0f);
 
 
 	/*
@@ -333,12 +433,12 @@ bool GraphicsClass::Render()
 {
 	bool result = false;
 
-	int renderCount;
+	RenderToDepthMapTexture();
 
 	if (m_fadeDone)
 	{
 		// 페이드 인이 완료되면 백 버퍼를 사용하여 장면을 정상적으로 렌더링합니다.
-		renderCount = RenderScene();
+		RenderScene();
 		m_Direct3D->EndScene();
 	}
 	else
@@ -346,12 +446,9 @@ bool GraphicsClass::Render()
 		// 페이드 인이 완료되지 않은 경우 장면을 텍스처로 렌더링하고 텍스처를 페이드 인합니다.
 		RenderToFadeTexture();
 
-		result = RenderFadingScene();
-		if (!result)
-		{
-			return false;
-		}
+		RenderFadingScene();
 	}
+
 
 	/*
 	if (!RenderText(renderCount))
@@ -364,41 +461,172 @@ bool GraphicsClass::Render()
 }
 
 
-int GraphicsClass::RenderScene()
+bool GraphicsClass::RenderScene()
 {
-	// 씬을 그리기 위해 버퍼를 지웁니다
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	XMMATRIX lightViewMatrix, lightProjectionMatrix;
+
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+
+
+	// 장면을 시작할 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// 카메라의 위치에 따라 뷰 행렬을 생성합니다
+	// 카메라의 위치에 따라 뷰 행렬을 생성합니다.
 	m_Camera->Render();
 
-	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져옵니다
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	m_Direct3D->GetWorldMatrix(worldMatrix);
+	// 조명의 위치에 따라 조명보기 행렬을 생성합니다.
+	m_Light->GenerateViewMatrix();
+
+	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져옵니다.
 	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// 알파 블렌딩을 켭니다.
-	m_Direct3D->EnableAlphaBlending();
+	// 라이트 오브젝트로부터 라이트의 뷰와 투영 행렬을 가져옵니다.
+	m_Light->GetViewMatrix(lightViewMatrix);
+	m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
-	// 파티클 시스템 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
-	m_ParticleSystem->Render(m_Direct3D->GetDeviceContext());
+	// 큐브 모델에 대한 변환 행렬을 설정하십시오.
+	m_CubeModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
 
-	// 텍스처 셰이더를 사용하여 모델을 렌더링합니다.
-	if (!m_ParticleShader->Render(m_Direct3D->GetDeviceContext(), m_ParticleSystem->GetIndexCount(), worldMatrix, viewMatrix,
-		projectionMatrix, m_ParticleSystem->GetTexture()))
+	// 큐브 모델 정점과 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
+	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
+
+	// 그림자 쉐이더를 사용하여 모델을 렌더링합니다.
+	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_CubeModel->GetTexture(0),
+		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
 	{
 		return false;
 	}
 
-	// 알파 블렌딩을 끕니다.
-	m_Direct3D->DisableAlphaBlending();
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
 
-	return 0;
+	// 구형 모델에 대한 변환 행렬을 설정합니다.
+	m_SphereModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
+	m_SphereModel->Render(m_Direct3D->GetDeviceContext());
+
+	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_SphereModel->GetTexture(0),
+		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+	{
+		return false;
+	}
+
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// ground 모델에 대한 변환 행렬을 설정합니다.
+	m_GroundModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 그림자 쉐이더를 사용하여 그라운드 모델을 렌더링합니다.
+	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+
+	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_GroundModel->GetTexture(0),
+		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+	{
+		return false;
+	}
+
+
+	return true;
 }
 
 
-int GraphicsClass::RenderToFadeTexture()
+bool GraphicsClass::RenderToDepthMapTexture()
+{
+	XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
+
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_DepthMapTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_DepthMapTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+	// 조명의 위치에 따라 조명보기 행렬을 생성합니다.
+	m_Light->GenerateViewMatrix();
+
+	// d3d 객체에서 세계 행렬을 가져옵니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// 라이트 오브젝트에서 뷰 및 정사각형 매트릭스를 가져옵니다.
+	m_Light->GetViewMatrix(lightViewMatrix);
+	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+
+	// 큐브 모델에 대한 변환 행렬을 설정하십시오.
+	m_CubeModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 큐브 모델을 렌더링합니다.
+	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
+	bool result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// 구형 모델에 대한 변환 행렬을 설정합니다.
+	m_SphereModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 구형 모델을 렌더링합니다.
+	m_SphereModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// ground 모델에 대한 변환 행렬을 설정합니다.
+	m_GroundModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 그라운드 모델을 렌더링합니다.
+	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	// 뷰포트를 원본으로 다시 설정합니다.
+	m_Direct3D->ResetViewport();
+
+	return true;
+}
+
+
+
+bool GraphicsClass::RenderToFadeTexture()
 {
 	// 렌더링 대상을 렌더링에 맞게 설정합니다.
 	m_FadeRenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
@@ -406,12 +634,12 @@ int GraphicsClass::RenderToFadeTexture()
 	// 렌더링을 텍스처에 지 웁니다.
 	m_FadeRenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	int renderCount = RenderScene();
+	bool Result = RenderScene();
 
 	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	return renderCount;
+	return Result;
 }
 
 

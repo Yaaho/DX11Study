@@ -42,72 +42,126 @@ void PositionClass::SetFrameTime(float time)
 }
 
 
-void PositionClass::MoveLeft(bool keydown)
+void PositionClass::MoveForward(bool keydown)
 {
 	// 키를 누르면 카메라가 왼쪽으로 돌아는 속도가 증가합니다. 회전 속도를 늦추지 않으면.
 	if (keydown)
 	{
-		m_leftSpeed += m_frameTime * 0.001f;
+		m_forwardSpeed += m_frameTime * 0.001f;
 
-		if (m_leftSpeed > (m_frameTime * 0.03f))
+		if (m_forwardSpeed > (m_frameTime * 0.03f))
 		{
-			m_leftSpeed = m_frameTime * 0.03f;
+			m_forwardSpeed = m_frameTime * 0.03f;
 		}
 	}
 	else
 	{
-		m_leftSpeed -= m_frameTime * 0.0007f;
+		m_forwardSpeed -= m_frameTime * 0.0007f;
 
-		if (m_leftSpeed < 0.0f)
+		if (m_forwardSpeed < 0.0f)
 		{
-			m_leftSpeed = 0.0f;
+			m_forwardSpeed = 0.0f;
 		}
 	}
 
-	// Convert degrees to radians.
+	// 값을 라디안으로 변환하십시오.
 	float radians = m_rotation.y * 0.0174532925f;
 
-	// Update the position.
-	m_position.x -= cosf(radians) * m_leftSpeed;
-	m_position.z -= sinf(radians) * m_leftSpeed;
+	// 위치를 업데이트 합니다.
+	m_position.x += sinf(radians) * m_forwardSpeed;
+	m_position.z += cosf(radians) * m_forwardSpeed;
 }
 
 
-void PositionClass::MoveRight(bool keydown)
+void PositionClass::MoveBackward(bool keydown)
 {
 	// 키를 누르면 카메라가 오른쪽으로 회전하는 속도가 증가합니다. 회전 속도를 늦추지 않으면.
 	if (keydown)
 	{
-		m_rightSpeed += m_frameTime * 0.001f;
+		m_backwardSpeed += m_frameTime * 0.001f;
 
-		if (m_rightSpeed > (m_frameTime * 0.03f))
+		if (m_backwardSpeed > (m_frameTime * 0.03f))
 		{
-			m_rightSpeed = m_frameTime * 0.03f;
+			m_backwardSpeed = m_frameTime * 0.03f;
 		}
 	}
 	else
 	{
-		m_rightSpeed -= m_frameTime * 0.0007f;
+		m_backwardSpeed -= m_frameTime * 0.0007f;
 
-		if (m_rightSpeed < 0.0f)
+		if (m_backwardSpeed < 0.0f)
 		{
-			m_rightSpeed = 0.0f;
+			m_backwardSpeed = 0.0f;
 		}
 	}
 
-	// Convert degrees to radians.
+	// 값을 라디안으로 변환하십시오.
 	float radians = m_rotation.y * 0.0174532925f;
 
-	// Update the position.
-	m_position.x += cosf(radians) * m_rightSpeed;
-	m_position.z += sinf(radians) * m_rightSpeed;
+	// 위치를 업데이트 합니다.
+	m_position.x -= sinf(radians) * m_backwardSpeed;
+	m_position.z -= cosf(radians) * m_backwardSpeed;
 }
 
 
-void PositionClass::TurnLeft(bool Keydown)
+void PositionClass::MoveUpward(bool keydown)
 {
-	// 키를 누르면 카메라가 왼쪽으로 돌아가는 속도가 증가한다.
-	if (Keydown)
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 상향 이동 속도를 갱신합니다.
+	if (keydown)
+	{
+		m_upwardSpeed += m_frameTime * 0.003f;
+
+		if (m_upwardSpeed > (m_frameTime * 0.03f))
+		{
+			m_upwardSpeed = m_frameTime * 0.03f;
+		}
+	}
+	else
+	{
+		m_upwardSpeed -= m_frameTime * 0.002f;
+
+		if (m_upwardSpeed < 0.0f)
+		{
+			m_upwardSpeed = 0.0f;
+		}
+	}
+
+	// 높이 위치를 업데이트 합니다.
+	m_position.y += m_upwardSpeed;
+}
+
+
+void PositionClass::MoveDownward(bool keydown)
+{
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 하향 이동 속도를 갱신합니다.
+	if (keydown)
+	{
+		m_downwardSpeed += m_frameTime * 0.003f;
+
+		if (m_downwardSpeed > (m_frameTime * 0.03f))
+		{
+			m_downwardSpeed = m_frameTime * 0.03f;
+		}
+	}
+	else
+	{
+		m_downwardSpeed -= m_frameTime * 0.002f;
+
+		if (m_downwardSpeed < 0.0f)
+		{
+			m_downwardSpeed = 0.0f;
+		}
+	}
+
+	// 높이 위치를 업데이트 합니다.
+	m_position.y -= m_downwardSpeed;
+}
+
+
+void PositionClass::TurnLeft(bool keydown)
+{
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 왼쪽 회전 속도를 갱신합니다.
+	if (keydown)
 	{
 		m_leftTurnSpeed += m_frameTime * 0.01f;
 
@@ -126,17 +180,20 @@ void PositionClass::TurnLeft(bool Keydown)
 		}
 	}
 
-	// 회전 속도를 사용하여 회전을 업데이트한다.
+	// 회전을 업데이트 합니다.
 	m_rotation.y -= m_leftTurnSpeed;
+
+	// 회전값의 범위를 0 ~360 에서 유지합니다.
 	if (m_rotation.y < 0.0f)
 	{
 		m_rotation.y += 360.0f;
 	}
 }
 
+
 void PositionClass::TurnRight(bool keydown)
 {
-	// 키를 누르면 카메라가 오른쪽으로 회전하는 속도가 증가한다.
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 오른쪽 회전 속도를 갱신합니다.
 	if (keydown)
 	{
 		m_rightTurnSpeed += m_frameTime * 0.01f;
@@ -156,10 +213,78 @@ void PositionClass::TurnRight(bool keydown)
 		}
 	}
 
-	// 회전 속도를 사용하여 회전을 업데이트한다.
+	// 회전을 업데이트 합니다.
 	m_rotation.y += m_rightTurnSpeed;
+
+	// 회전값의 범위를 0 ~360 에서 유지합니다.
 	if (m_rotation.y > 360.0f)
 	{
 		m_rotation.y -= 360.0f;
+	}
+}
+
+
+void PositionClass::LookUpward(bool keydown)
+{
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 위쪽 회전 속도를 갱신합니다.
+	if (keydown)
+	{
+		m_lookUpSpeed += m_frameTime * 0.01f;
+
+		if (m_lookUpSpeed > (m_frameTime * 0.15f))
+		{
+			m_lookUpSpeed = m_frameTime * 0.15f;
+		}
+	}
+	else
+	{
+		m_lookUpSpeed -= m_frameTime * 0.005f;
+
+		if (m_lookUpSpeed < 0.0f)
+		{
+			m_lookUpSpeed = 0.0f;
+		}
+	}
+
+	// 회전을 업데이트 합니다.
+	m_rotation.x -= m_lookUpSpeed;
+
+	// 회전은 최대 90 도로 유지 합니다.
+	if (m_rotation.x > 90.0f)
+	{
+		m_rotation.x = 90.0f;
+	}
+}
+
+
+void PositionClass::LookDownward(bool keydown)
+{
+	// 사용자가 키를 누르고 있는 프레임 시간에 따라 아래쪽 회전 속도를 갱신합니다.
+	if (keydown)
+	{
+		m_lookDownSpeed += m_frameTime * 0.01f;
+
+		if (m_lookDownSpeed > (m_frameTime * 0.15f))
+		{
+			m_lookDownSpeed = m_frameTime * 0.15f;
+		}
+	}
+	else
+	{
+		m_lookDownSpeed -= m_frameTime * 0.005f;
+
+		if (m_lookDownSpeed < 0.0f)
+		{
+			m_lookDownSpeed = 0.0f;
+		}
+	}
+
+	// 회전을 업데이트 합니다.
+	m_rotation.x += m_lookDownSpeed;
+
+	//회전은 최대 90 도로 유지 합니다.
+	if (m_rotation.x < -90.0f)
+	{
+		m_rotation.x = -90.0f;
 	}
 }

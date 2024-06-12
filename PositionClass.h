@@ -15,11 +15,15 @@ public:
 
 	void SetFrameTime(float);
 
-	void MoveLeft(bool);
-	void MoveRight(bool);
-	
+	void MoveForward(bool);
+	void MoveBackward(bool);
+	void MoveUpward(bool);
+	void MoveDownward(bool);
 	void TurnLeft(bool);
 	void TurnRight(bool);
+	void LookUpward(bool);
+	void LookDownward(bool);
+
 
 private:
 	XMFLOAT3 m_position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -27,9 +31,12 @@ private:
 
 	float m_frameTime = 0.0f;
 
-	float m_leftSpeed = 0;
-	float m_rightSpeed = 0;
-
-	float m_leftTurnSpeed = 0.0f;
-	float m_rightTurnSpeed = 0.0f;
+	float m_forwardSpeed = 0;
+	float m_backwardSpeed = 0;
+	float m_upwardSpeed = 0;
+	float m_downwardSpeed = 0;
+	float m_leftTurnSpeed = 0;
+	float m_rightTurnSpeed = 0;
+	float m_lookUpSpeed = 0;
+	float m_lookDownSpeed = 0;
 };

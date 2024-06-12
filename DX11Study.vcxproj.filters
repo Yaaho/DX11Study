@@ -132,6 +132,9 @@
     <ClInclude Include="ParticleShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -242,6 +245,9 @@
     <ClCompile Include="ParticleShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ShadowShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -274,6 +280,8 @@
     <FxCompile Include="ColorPS.HLSL" />
     <FxCompile Include="ParticleVS.HLSL" />
     <FxCompile Include="ParticlePS.HLSL" />
+    <FxCompile Include="ShadowVS.HLSL" />
+    <FxCompile Include="ShadowPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -299,6 +307,8 @@
     <Image Include="data\noise01.dds" />
     <Image Include="data\grid01.dds" />
     <Image Include="data\star.dds" />
+    <Image Include="data\ice.dds" />
+    <Image Include="data\metal001.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
@@ -311,5 +321,6 @@
     <Text Include="data\wall.txt" />
     <Text Include="data\water.txt" />
     <Text Include="data\square.txt" />
+    <Text Include="data\plane01.txt" />
   </ItemGroup>
 </Project>

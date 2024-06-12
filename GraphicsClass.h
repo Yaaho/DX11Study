@@ -2,8 +2,10 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+const float SCREEN_DEPTH = 100.0f;
+const float SCREEN_NEAR = 1.0f;
+const int SHADOWMAP_WIDTH = 1024;
+const int SHADOWMAP_HEIGHT = 1024;
 
 class D3DClass;
 class CameraClass;
@@ -11,9 +13,9 @@ class TextClass;
 
 class ModelClass;
 
-
-class ParticleShaderClass;
-class ParticleSystemClass;
+class LightClass;
+class DepthShaderClass;
+class ShadowShaderClass;
 
 class RenderTextureClass;
 
@@ -30,12 +32,14 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(XMFLOAT3&, float);
+	bool Frame(float, float, float, float, float, float, float);
 	bool Render();
 
 private:
-	int RenderScene();
-	int RenderToFadeTexture();
+	bool RenderScene();
+
+	bool RenderToDepthMapTexture();
+	bool RenderToFadeTexture();
 
 	bool RenderFadingScene();
 	bool RenderText(int renderCount);
@@ -46,8 +50,15 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
-	ParticleShaderClass* m_ParticleShader = nullptr;
-	ParticleSystemClass* m_ParticleSystem = nullptr;
+	ModelClass* m_CubeModel = nullptr;
+	ModelClass* m_GroundModel = nullptr;
+	ModelClass* m_SphereModel = nullptr;
+
+	LightClass* m_Light = nullptr;
+	DepthShaderClass* m_DepthShader = nullptr;
+	ShadowShaderClass* m_ShadowShader = nullptr;
+	RenderTextureClass* m_DepthMapTexture = nullptr;
+
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 

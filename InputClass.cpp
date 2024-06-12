@@ -181,6 +181,13 @@ void InputClass::ProcessInput()
 }
 
 
+void InputClass::GetMouseLocation(int& mouseX, int& mouseY)
+{
+	mouseX = m_mouseX;
+	mouseY = m_mouseY;
+}
+
+
 bool InputClass::IsEscapePressed()
 {
 	if (m_keyboardState[DIK_ESCAPE] & 0x80)
@@ -191,7 +198,8 @@ bool InputClass::IsEscapePressed()
 	return false;
 }
 
-bool InputClass::IsLeftArrowPressed()
+
+bool InputClass::IsLeftPressed()
 {
 	if (m_keyboardState[DIK_LEFT] & 0x80)
 	{
@@ -201,7 +209,8 @@ bool InputClass::IsLeftArrowPressed()
 	return false;
 }
 
-bool InputClass::IsRightArrowPressed()
+
+bool InputClass::IsRightPressed()
 {
 	if (m_keyboardState[DIK_RIGHT] & 0x80)
 	{
@@ -211,8 +220,68 @@ bool InputClass::IsRightArrowPressed()
 	return false;
 }
 
-void InputClass::GetMouseLocation(int& mouseX, int& mouseY)
+
+bool InputClass::IsUpPressed()
 {
-	mouseX = m_mouseX;
-	mouseY = m_mouseY;
+	if (m_keyboardState[DIK_UP] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool InputClass::IsDownPressed()
+{
+	if (m_keyboardState[DIK_DOWN] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool InputClass::IsAPressed()
+{
+	if (m_keyboardState[DIK_A] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool InputClass::IsZPressed()
+{
+	if (m_keyboardState[DIK_Z] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool InputClass::IsPgUpPressed()
+{
+	if (m_keyboardState[DIK_PGUP] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool InputClass::IsPgDownPressed()
+{
+	if (m_keyboardState[DIK_PGDN] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
 }

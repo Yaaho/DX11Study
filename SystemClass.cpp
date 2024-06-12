@@ -119,66 +119,102 @@ void SystemClass::Run()
 	// 사용자로부터 종료 메시지를 받을 때까지 메시지 루프를 돈다
 	while (true)
 	{
-		// 윈도우 메시지를 처리한다.
+		// 윈도우 메시지를 처리합니다
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			// 종료 메시지를 받을 경우 메시지 루프를 탈출한다
+			// 종료 메시지를 받을 경우 메시지 루프를 탈출합니다
 			if (msg.message == WM_QUIT)
-			{
 				break;
-			}
 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 		else
 		{
-			// 그 외에는 Frame 함수를 처리한다.
+			// 그 외에는 Frame 함수를 처리합니다.
 			if (!Frame())
 			{
-				MessageBox(m_hwnd, L"Frame Processing Failed", L"Error", MB_OK);
 				break;
 			}
-		}
-		
-		// 사용자가 ESC 키를 눌렀는지 확인 후 종료 처리함
-		if (m_Input->IsEscapePressed())
-		{
-			break;
 		}
 	}
 }
 
 bool SystemClass::Frame()
 {
-	XMFLOAT3 rotation(0.0f, 0.0f, 0.0f);
-
-	// 시스템 통계를 업데이트 한다.
-	m_Timer->Frame();
-	
-	// 입력 프레임 처리를 수행한다.
-	if (!m_Input->Frame())
+	// 사용자 입력을 읽습니다.
+	bool result = m_Input->Frame();
+	if (!result)
 	{
 		return false;
 	}
 
-	// 업데이트 된 위치를 계산하기 위한 프레임 시간을 설정한다.
-	m_Position->SetFrameTime(m_Timer->GetTime());
+	// 사용자가 ESC키를 눌렀는지 확인 후 종료 처리함
+	if (m_Input->IsEscapePressed() == true)
+	{
+		return false;
+	}
 
-	// 왼쪽 또는 오른쪽 화살표 키를 눌렀는지 확인하고 카메라를 회전시킨다.
-	m_Position->TurnLeft(m_Input->IsLeftArrowPressed());
-	m_Position->TurnRight(m_Input->IsRightArrowPressed());
+	// 시스템 상태를 갱신합니다.
+	m_Timer->Frame();
 
-	m_Position->GetRotation(rotation);
+	// 프레임 입력 처리를 수행합니다.
+	result = HandleInput(m_Timer->GetTime());
+	if (!result)
+	{
+		return false;
+	}
+
+	// 시점 위치 / 회전을 가져옵니다.
+	XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	m_Position->GetPosition(pos);
+	m_Position->GetRotation(rot);
 
 	// 그래픽 객체의 Frame 을 처리한다.
-	if (!m_Graphics->Frame(rotation, m_Timer->GetTime()))
+	if (!m_Graphics->Frame(m_Timer->GetTime(), pos.x, pos.y, pos.z, rot.x, rot.y, rot.z))
 	{
 		return false;
 	}
 
 	return m_Graphics->Render();
 }
+
+
+bool SystemClass::HandleInput(float frameTime)
+{
+	// 갱신된 위치를 계산하기 위한 프레임 시간을 설정 합니다.
+	m_Position->SetFrameTime(frameTime);
+
+	// 입력을 처리합니다.
+	bool keyDown = m_Input->IsLeftPressed();
+	m_Position->TurnLeft(keyDown);
+
+	keyDown = m_Input->IsRightPressed();
+	m_Position->TurnRight(keyDown);
+
+	keyDown = m_Input->IsUpPressed();
+	m_Position->MoveForward(keyDown);
+
+	keyDown = m_Input->IsDownPressed();
+	m_Position->MoveBackward(keyDown);
+
+	keyDown = m_Input->IsAPressed();
+	m_Position->MoveUpward(keyDown);
+
+	keyDown = m_Input->IsZPressed();
+	m_Position->MoveDownward(keyDown);
+
+	keyDown = m_Input->IsPgUpPressed();
+	m_Position->LookUpward(keyDown);
+
+	keyDown = m_Input->IsPgDownPressed();
+	m_Position->LookDownward(keyDown);
+
+	return true;
+}
+
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
