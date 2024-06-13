@@ -1,6 +1,7 @@
 Texture2D shaderTexture : register(t0);
 Texture2D depthMapTexture : register(t1);
- 
+Texture2D depthMapTexture2 : register(t2);
+
 SamplerState SampleTypeClamp : register(s0);
 SamplerState SampleTypeWrap : register(s1);
  
@@ -9,6 +10,7 @@ cbuffer LightBuffer
 {
     float4 ambientColor;
     float4 diffuseColor;
+    float4 diffuseColor2;
 };
  
 
@@ -19,6 +21,8 @@ struct PixelInputType
     float3 normal : NORMAL;
     float4 lightViewPosition : TEXCOORD1;
     float3 lightPos : TEXCOORD2;
+    float4 lightViewPosition2 : TEXCOORD3;
+    float3 lightPos2 : TEXCOORD4;
 };
  
  
@@ -49,7 +53,7 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
         // 투영 된 텍스처 좌표 위치에서 샘플러를 사용하여 깊이 텍스처에서 섀도우 맵 깊이 값을 샘플링합니다.
         depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
  
-        // 빛의 깊이를 계산합니다.
+        // 빛이 바라보는 시점에서 이 픽셀의 깊이를 계산한다.
         lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
  
         // lightDepthValue에서 바이어스를 뺍니다.
@@ -68,12 +72,33 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
             {
                 // 확산 색과 광 강도의 양에 따라 최종 확산 색을 결정합니다.
                 color += (diffuseColor * lightIntensity);
- 
-                // 최종 빛의 색상을 채웁니다.
-                color = saturate(color);
             }
         }
     }
+ 
+    // 두번째 조명
+    projectTexCoord.x = input.lightViewPosition2.x / input.lightViewPosition2.w / 2.0f + 0.5f;
+    projectTexCoord.y = -input.lightViewPosition2.y / input.lightViewPosition2.w / 2.0f + 0.5f;
+ 
+    if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+    {
+        depthValue = depthMapTexture2.Sample(SampleTypeClamp, projectTexCoord).r;
+ 
+        lightDepthValue = input.lightViewPosition2.z / input.lightViewPosition2.w;
+        lightDepthValue = lightDepthValue - bias;
+ 
+        if (lightDepthValue < depthValue)
+        {
+            lightIntensity = saturate(dot(input.normal, input.lightPos2));
+            if (lightIntensity > 0.0f)
+            {
+                color += (diffuseColor2 * lightIntensity);
+            }
+        }
+    }
+    
+    // 최종 빛의 색상을 채웁니다.
+    color = saturate(color);
  
     // 이 텍스처 좌표 위치에서 샘플러를 사용하여 텍스처에서 픽셀 색상을 샘플링합니다.
     textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);

@@ -38,7 +38,8 @@ public:
 private:
 	bool RenderScene();
 
-	bool RenderToDepthMapTexture();
+	bool RenderToDepthMapTexture1();
+	bool RenderToDepthMapTexture2();
 	bool RenderToFadeTexture();
 
 	bool RenderFadingScene();
@@ -54,11 +55,14 @@ private:
 	ModelClass* m_GroundModel = nullptr;
 	ModelClass* m_SphereModel = nullptr;
 
-	LightClass* m_Light = nullptr;
+	LightClass* m_Light1 = nullptr;
+	LightClass* m_Light2 = nullptr;
+
+
 	DepthShaderClass* m_DepthShader = nullptr;
 	ShadowShaderClass* m_ShadowShader = nullptr;
-	RenderTextureClass* m_DepthMapTexture = nullptr;
-
+	RenderTextureClass* m_DepthMapTexture1 = nullptr;
+	RenderTextureClass* m_DepthMapTexture2 = nullptr;
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 

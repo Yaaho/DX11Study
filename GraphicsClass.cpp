@@ -8,7 +8,6 @@
 #include "DepthShaderClass.h"
 #include "ShadowShaderClass.h"
 
-
 #include "RenderTextureClass.h"
 
 #include "OrthoWindowClass.h"
@@ -135,17 +134,32 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 	// light 객체를 만듭니다.
-	m_Light = new LightClass;
-	if (!m_Light)
+	m_Light1 = new LightClass;
+	if (!m_Light1)
 	{
 		return false;
 	}
 
 	// 조명 객체를 초기화합니다.
-	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
-	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetLookAt(0.0f, 0.0f, 0.0f);
-	m_Light->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+	m_Light1->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light1->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light1->SetLookAt(0.0f, 0.0f, 0.0f);
+	m_Light1->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+
+
+
+	// 두 번째 조명 객체를 만듭니다.
+	m_Light2 = new LightClass;
+	if (!m_Light2)
+	{
+		return false;
+	}
+
+	// 두 번째 조명 객체를 초기화합니다.
+	m_Light2->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light2->SetLookAt(0.0f, 0.0f, 0.0f);
+	m_Light2->GenerateProjectionMatrix(SCREEN_DEPTH, SCREEN_NEAR);
+
 
 
 	// 깊이 셰이더 개체를 만듭니다.
@@ -161,6 +175,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
 		return false;
 	}
+
 
 	// 그림자 셰이더 개체를 만듭니다.
 	m_ShadowShader = new ShadowShaderClass;
@@ -179,20 +194,36 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 	// 렌더링을 텍스처 오브젝트에 생성한다.
-	m_DepthMapTexture = new RenderTextureClass;
-	if (!m_DepthMapTexture)
+	m_DepthMapTexture1 = new RenderTextureClass;
+	if (!m_DepthMapTexture1)
 	{
 		return false;
 	}
 
 	// 렌더링을 텍스처 오브젝트에 초기화한다.
-	if (!m_DepthMapTexture->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
+	if (!m_DepthMapTexture1->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
 		SCREEN_DEPTH, SCREEN_NEAR))
 	{
 		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
+
+
+	// 렌더링을 텍스처 오브젝트에 생성한다.
+	m_DepthMapTexture2 = new RenderTextureClass;
+	if (!m_DepthMapTexture1)
+	{
+		return false;
+	}
+
+	// 렌더링을 텍스처 오브젝트에 초기화한다.
+	if (!m_DepthMapTexture2->Initialize(m_Direct3D->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
+		SCREEN_DEPTH, SCREEN_NEAR))
+	{
+		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+		return false;
+	}
 
 
 
@@ -281,14 +312,21 @@ void GraphicsClass::Shutdown()
 
 
 	// 렌더 투 텍스쳐 객체를 해제합니다.
-	if (m_DepthMapTexture)
+	if (m_DepthMapTexture2)
 	{
-		m_DepthMapTexture->Shutdown();
-		delete m_DepthMapTexture;
-		m_DepthMapTexture = 0;
+		m_DepthMapTexture2->Shutdown();
+		delete m_DepthMapTexture2;
+		m_DepthMapTexture2 = 0;
 	}
 
 
+	// 렌더 투 텍스쳐 객체를 해제합니다.
+	if (m_DepthMapTexture1)
+	{
+		m_DepthMapTexture1->Shutdown();
+		delete m_DepthMapTexture1;
+		m_DepthMapTexture1 = 0;
+	}
 
 
 	// 그림자 쉐이더 객체를 해제합니다.
@@ -311,12 +349,21 @@ void GraphicsClass::Shutdown()
 
 
 
+	// 조명 객체를 해제합니다.
+	if (m_Light2)
+	{
+		delete m_Light2;
+		m_Light2 = 0;
+	}
+
+
+
 
 	// 조명 객체를 해제합니다.
-	if (m_Light)
+	if (m_Light1)
 	{
-		delete m_Light;
-		m_Light = 0;
+		delete m_Light1;
+		m_Light1 = 0;
 	}
 
 
@@ -395,21 +442,15 @@ bool GraphicsClass::Frame(float frameTime, float posX, float posY, float posZ, f
 	}
 
 
-	static float lightPositionX = -5.0f;
-
 	// 카메라 위치를 설정합니다.
 	m_Camera->SetPosition(XMFLOAT3(posX, posY, posZ));
 	m_Camera->SetRotation(XMFLOAT3(rotX, rotY, rotZ));
 
-	// 각 프레임의 조명 위치를 업데이트합니다.
-	lightPositionX += 0.05f;
-	if (lightPositionX > 5.0f)
-	{
-		lightPositionX = -5.0f;
-	}
+	// 첫 번째 빛의 위치를 ??설정합니다.
+	m_Light1->SetPosition(5.0f, 8.0f, -5.0f);
 
-	// 빛의 위치를 ??업데이트합니다.
-	m_Light->SetPosition(lightPositionX, 8.0f, -5.0f);
+	// 두 번째 빛의 위치를 ??설정합니다.
+	m_Light2->SetPosition(-5.0f, 8.0f, -5.0f);
 
 
 	/*
@@ -433,7 +474,8 @@ bool GraphicsClass::Render()
 {
 	bool result = false;
 
-	RenderToDepthMapTexture();
+	RenderToDepthMapTexture1();
+	RenderToDepthMapTexture2();
 
 	if (m_fadeDone)
 	{
@@ -465,11 +507,11 @@ bool GraphicsClass::RenderScene()
 {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	XMMATRIX lightViewMatrix, lightProjectionMatrix;
+	XMMATRIX lightViewMatrix2, lightProjectionMatrix2;
 
 	float posX = 0;
 	float posY = 0;
 	float posZ = 0;
-
 
 	// 장면을 시작할 버퍼를 지운다.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -478,7 +520,10 @@ bool GraphicsClass::RenderScene()
 	m_Camera->Render();
 
 	// 조명의 위치에 따라 조명보기 행렬을 생성합니다.
-	m_Light->GenerateViewMatrix();
+	m_Light1->GenerateViewMatrix();
+
+	// 두 번째 빛에 대해서도 똑같이 설정합니다.
+	m_Light2->GenerateViewMatrix();
 
 	// 카메라 및 d3d 객체에서 월드, 뷰 및 투영 행렬을 가져옵니다.
 	m_Camera->GetViewMatrix(viewMatrix);
@@ -486,8 +531,12 @@ bool GraphicsClass::RenderScene()
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
 	// 라이트 오브젝트로부터 라이트의 뷰와 투영 행렬을 가져옵니다.
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	m_Light1->GetViewMatrix(lightViewMatrix);
+	m_Light1->GetProjectionMatrix(lightProjectionMatrix);
+
+	// 두 번째 빛에 대해서도 똑같이 설정합니다.
+	m_Light2->GetViewMatrix(lightViewMatrix2);
+	m_Light2->GetProjectionMatrix(lightProjectionMatrix2);
 
 	// 큐브 모델에 대한 변환 행렬을 설정하십시오.
 	m_CubeModel->GetPosition(posX, posY, posZ);
@@ -499,8 +548,10 @@ bool GraphicsClass::RenderScene()
 	// 그림자 쉐이더를 사용하여 모델을 렌더링합니다.
 	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_CubeModel->GetTexture(0),
-		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+		m_DepthMapTexture1->GetShaderResourceView(), m_Light1->GetPosition(),
+		m_Light1->GetAmbientColor(), m_Light1->GetDiffuseColor(), lightViewMatrix2,
+		lightProjectionMatrix2, m_DepthMapTexture2->GetShaderResourceView(),
+		m_Light2->GetPosition(), m_Light2->GetDiffuseColor()))
 	{
 		return false;
 	}
@@ -517,8 +568,10 @@ bool GraphicsClass::RenderScene()
 
 	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_SphereModel->GetTexture(0),
-		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+		m_DepthMapTexture1->GetShaderResourceView(), m_Light1->GetPosition(),
+		m_Light1->GetAmbientColor(), m_Light1->GetDiffuseColor(), lightViewMatrix2,
+		lightProjectionMatrix2, m_DepthMapTexture2->GetShaderResourceView(),
+		m_Light2->GetPosition(), m_Light2->GetDiffuseColor()))
 	{
 		return false;
 	}
@@ -535,18 +588,19 @@ bool GraphicsClass::RenderScene()
 
 	if (!m_ShadowShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix, viewMatrix,
 		projectionMatrix, lightViewMatrix, lightProjectionMatrix, m_GroundModel->GetTexture(0),
-		m_DepthMapTexture->GetShaderResourceView(), m_Light->GetPosition(),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor()))
+		m_DepthMapTexture1->GetShaderResourceView(), m_Light1->GetPosition(),
+		m_Light1->GetAmbientColor(), m_Light1->GetDiffuseColor(), lightViewMatrix2,
+		lightProjectionMatrix2, m_DepthMapTexture2->GetShaderResourceView(),
+		m_Light2->GetPosition(), m_Light2->GetDiffuseColor()))
 	{
 		return false;
 	}
-
 
 	return true;
 }
 
 
-bool GraphicsClass::RenderToDepthMapTexture()
+bool GraphicsClass::RenderToDepthMapTexture1()
 {
 	XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
 
@@ -555,20 +609,20 @@ bool GraphicsClass::RenderToDepthMapTexture()
 	float posZ = 0;
 
 	// 렌더링 대상을 렌더링에 맞게 설정합니다.
-	m_DepthMapTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	m_DepthMapTexture1->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
 	// 렌더링을 텍스처에 지웁니다.
-	m_DepthMapTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	m_DepthMapTexture1->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// 조명의 위치에 따라 조명보기 행렬을 생성합니다.
-	m_Light->GenerateViewMatrix();
+	m_Light1->GenerateViewMatrix();
 
 	// d3d 객체에서 세계 행렬을 가져옵니다.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
 	// 라이트 오브젝트에서 뷰 및 정사각형 매트릭스를 가져옵니다.
-	m_Light->GetViewMatrix(lightViewMatrix);
-	m_Light->GetProjectionMatrix(lightProjectionMatrix);
+	m_Light1->GetViewMatrix(lightViewMatrix);
+	m_Light1->GetProjectionMatrix(lightProjectionMatrix);
 
 	// 큐브 모델에 대한 변환 행렬을 설정하십시오.
 	m_CubeModel->GetPosition(posX, posY, posZ);
@@ -623,6 +677,87 @@ bool GraphicsClass::RenderToDepthMapTexture()
 
 	return true;
 }
+
+
+
+bool GraphicsClass::RenderToDepthMapTexture2()
+{
+	XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
+	float posX, posY, posZ;
+	bool result;
+
+
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_DepthMapTexture2->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_DepthMapTexture2->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+	// 조명의 위치에 따라 조명보기 행렬을 생성합니다.
+	m_Light2->GenerateViewMatrix();
+
+	// d3d 객체에서 월드 행렬을 가져옵니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// 라이트 오브젝트에서 뷰 및 정사각형 매트릭스를 가져옵니다.
+	m_Light2->GetViewMatrix(lightViewMatrix);
+	m_Light2->GetProjectionMatrix(lightProjectionMatrix);
+
+	// 큐브 모델에 대한 변환 행렬을 설정하십시오.
+	m_CubeModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 큐브 모델을 렌더링합니다.
+	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// 구형 모델에 대한 변환 행렬을 설정합니다.
+	m_SphereModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 구형 모델을 렌더링합니다.
+	m_SphereModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_SphereModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 월드 행렬을 재설정합니다.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+	// ground 모델에 대한 변환 행렬을 설정합니다.
+	m_GroundModel->GetPosition(posX, posY, posZ);
+	worldMatrix = XMMatrixTranslation(posX, posY, posZ);
+
+	// 깊이 셰이더로 그라운드 모델을 렌더링합니다.
+	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
+	result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
+		lightViewMatrix, lightProjectionMatrix);
+	if (!result)
+	{
+		return false;
+	}
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	// 뷰포트를 원본으로 다시 설정합니다.
+	m_Direct3D->ResetViewport();
+
+	return true;
+}
+
+
 
 
 

@@ -25,13 +25,17 @@ cbuffer MatrixBuffer
     matrix projectionMatrix;
     matrix lightViewMatrix;
     matrix lightProjectionMatrix;
+    matrix lightViewMatrix2;
+    matrix lightProjectionMatrix2;
 };
  
 
 cbuffer LightBuffer2
 {
     float3 lightPosition;
-    float padding;
+    float padding1;
+    float3 lightPosition2;
+    float padding2;
 };
  
 
@@ -49,6 +53,8 @@ struct PixelInputType
     float3 normal : NORMAL;
     float4 lightViewPosition : TEXCOORD1;
     float3 lightPos : TEXCOORD2;
+    float4 lightViewPosition2 : TEXCOORD3;
+    float3 lightPos2 : TEXCOORD4;
 };
 
 
@@ -70,6 +76,12 @@ PixelInputType ShadowVertexShader(VertexInputType input)
     output.lightViewPosition = mul(input.position, worldMatrix);
     output.lightViewPosition = mul(output.lightViewPosition, lightViewMatrix);
     output.lightViewPosition = mul(output.lightViewPosition, lightProjectionMatrix);
+    
+    // 두 번째 광원에서 보았을 때 vertice의 위치를 ??계산합니다.
+    output.lightViewPosition2 = mul(input.position, worldMatrix);
+    output.lightViewPosition2 = mul(output.lightViewPosition2, lightViewMatrix2);
+    output.lightViewPosition2 = mul(output.lightViewPosition2, lightProjectionMatrix2);
+    
  
     // 픽셀 쉐이더의 텍스처 좌표를 저장한다.
     output.tex = input.tex;
@@ -88,6 +100,12 @@ PixelInputType ShadowVertexShader(VertexInputType input)
  
     // 라이트 위치 벡터를 정규화합니다.
     output.lightPos = normalize(output.lightPos);
+    
+    // 빛의 위치와 세계의 정점 위치를 기반으로 두 번째 빛의 위치를 ??결정합니다.
+    output.lightPos2 = lightPosition2.xyz - worldPosition.xyz;
+ 
+    // 두 번째 라이트 위치 벡터를 정규화합니다.
+    output.lightPos2 = normalize(output.lightPos2);
  
     return output;
 }
