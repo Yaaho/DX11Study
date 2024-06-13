@@ -1,41 +1,44 @@
 #include "Stdafx.h"
-#include "HorizontalBlurShaderClass.h"
+#include "SoftShadowShaderClass.h"
 
 
-HorizontalBlurShaderClass::HorizontalBlurShaderClass()
+SoftShadowShaderClass::SoftShadowShaderClass()
 {
 }
 
 
-HorizontalBlurShaderClass::HorizontalBlurShaderClass(const HorizontalBlurShaderClass& other)
+SoftShadowShaderClass::SoftShadowShaderClass(const SoftShadowShaderClass& other)
 {
 }
 
 
-HorizontalBlurShaderClass::~HorizontalBlurShaderClass()
+SoftShadowShaderClass::~SoftShadowShaderClass()
 {
 }
 
 
-bool HorizontalBlurShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool SoftShadowShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
     // 정점 및 픽셀 쉐이더를 초기화합니다.
-    return InitializeShader(device, hwnd, L"HorizontalBlurVS.HLSL", L"HorizontalBlurPS.HLSL");
+    return InitializeShader(device, hwnd, L"SoftShadowVS.HLSL", L"SoftShadowPS.HLSL");
 }
 
 
-void HorizontalBlurShaderClass::Shutdown()
+void SoftShadowShaderClass::Shutdown()
 {
     // 버텍스 및 픽셀 쉐이더와 관련된 객체를 종료합니다.
     ShutdownShader();
 }
 
 
-bool HorizontalBlurShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
-    XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenWidth)
+bool SoftShadowShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
+    XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture,
+    ID3D11ShaderResourceView* shadowTexture, XMFLOAT3 lightPosition, XMFLOAT4 ambientColor,
+    XMFLOAT4 diffuseColor)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, screenWidth))
+    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, shadowTexture, lightPosition,
+        ambientColor, diffuseColor))
     {
         return false;
     }
@@ -47,7 +50,7 @@ bool HorizontalBlurShaderClass::Render(ID3D11DeviceContext* deviceContext, int i
 }
 
 
-bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const WCHAR* vsFilename,
+bool SoftShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const WCHAR* vsFilename,
     const WCHAR* psFilename)
 {
     HRESULT result;
@@ -55,8 +58,8 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
 
     // 버텍스 쉐이더 코드를 컴파일한다.
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "HorizontalBlurVertexShader", "vs_5_0",
-        D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
+    result = D3DCompileFromFile(vsFilename, NULL, NULL, "SoftShadowVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+        0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
         // 셰이더 컴파일 실패시 오류메시지를 출력합니다.
@@ -75,8 +78,8 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
 
     // 픽셀 쉐이더 코드를 컴파일한다.
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DCompileFromFile(psFilename, NULL, NULL, "HorizontalBlurPixelShader", "ps_5_0",
-        D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
+    result = D3DCompileFromFile(psFilename, NULL, NULL, "SoftShadowPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+        0, &pixelShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
         // 셰이더 컴파일 실패시 오류메시지를 출력합니다.
@@ -111,7 +114,7 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
 
     // 정점 입력 레이아웃 구조체를 설정합니다.
     // 이 설정은 ModelClass와 셰이더의 VertexType 구조와 일치해야합니다.
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -127,6 +130,14 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
     polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[1].InstanceDataStepRate = 0;
+
+    polygonLayout[2].SemanticName = "NORMAL";
+    polygonLayout[2].SemanticIndex = 0;
+    polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygonLayout[2].InputSlot = 0;
+    polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygonLayout[2].InstanceDataStepRate = 0;
 
     // 레이아웃의 요소 수를 가져옵니다.
     UINT numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -163,13 +174,25 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
     // 텍스처 샘플러 상태를 만듭니다.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+    result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
     if (FAILED(result))
     {
         return false;
     }
 
-    // 정점 셰이더에 있는 행렬 상수 버퍼의 구조체를 작성합니다.
+    // 클램프 텍스처 샘플러 상태 설명을 만듭니다.
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    // 텍스처 샘플러 상태를 만듭니다.
+    result = device->CreateSamplerState(&samplerDesc, &m_sampleStateClamp);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // 버텍스 쉐이더에 있는 동적 행렬 상수 버퍼의 구조체를 설정합니다.
     D3D11_BUFFER_DESC matrixBufferDesc;
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
@@ -187,16 +210,32 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
 
     // 픽셀 쉐이더에있는 광원 동적 상수 버퍼의 설명을 설정합니다.
     // D3D11_BIND_CONSTANT_BUFFER를 사용하면 ByteWidth가 항상 16의 배수 여야하며 그렇지 않으면 CreateBuffer가 실패합니다.
-    D3D11_BUFFER_DESC screenSizeBufferDesc;
-    screenSizeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    screenSizeBufferDesc.ByteWidth = sizeof(ScreenSizeBufferType);
-    screenSizeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    screenSizeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    screenSizeBufferDesc.MiscFlags = 0;
-    screenSizeBufferDesc.StructureByteStride = 0;
+    D3D11_BUFFER_DESC lightBufferDesc;
+    lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+    lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    lightBufferDesc.MiscFlags = 0;
+    lightBufferDesc.StructureByteStride = 0;
 
     // 이 클래스 내에서 정점 셰이더 상수 버퍼에 액세스 할 수 있도록 상수 버퍼 포인터를 만듭니다.
-    result = device->CreateBuffer(&screenSizeBufferDesc, NULL, &m_screenSizeBuffer);
+    result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // 버텍스 쉐이더에있는 광원 동적 상수 버퍼의 설명을 설정합니다.
+    D3D11_BUFFER_DESC lightBufferDesc2;
+    lightBufferDesc2.Usage = D3D11_USAGE_DYNAMIC;
+    lightBufferDesc2.ByteWidth = sizeof(LightBufferType2);
+    lightBufferDesc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    lightBufferDesc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    lightBufferDesc2.MiscFlags = 0;
+    lightBufferDesc2.StructureByteStride = 0;
+
+    // 이 클래스 내에서 정점 셰이더 상수 버퍼에 액세스 할 수 있도록 상수 버퍼 포인터를 만듭니다.
+    result = device->CreateBuffer(&lightBufferDesc2, NULL, &m_lightBuffer2);
     if (FAILED(result))
     {
         return false;
@@ -206,13 +245,19 @@ bool HorizontalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd
 }
 
 
-void HorizontalBlurShaderClass::ShutdownShader()
+void SoftShadowShaderClass::ShutdownShader()
 {
-    // 화면 크기 상수 버퍼를 해제합니다.
-    if (m_screenSizeBuffer)
+    // 광원 상수 버퍼를 해제합니다.
+    if (m_lightBuffer)
     {
-        m_screenSizeBuffer->Release();
-        m_screenSizeBuffer = 0;
+        m_lightBuffer->Release();
+        m_lightBuffer = 0;
+    }
+
+    if (m_lightBuffer2)
+    {
+        m_lightBuffer2->Release();
+        m_lightBuffer2 = 0;
     }
 
     // 행렬 상수 버퍼를 해제합니다.
@@ -223,10 +268,16 @@ void HorizontalBlurShaderClass::ShutdownShader()
     }
 
     // 샘플러 상태를 해제한다.
-    if (m_sampleState)
+    if (m_sampleStateWrap)
     {
-        m_sampleState->Release();
-        m_sampleState = 0;
+        m_sampleStateWrap->Release();
+        m_sampleStateWrap = 0;
+    }
+
+    if (m_sampleStateClamp)
+    {
+        m_sampleStateClamp->Release();
+        m_sampleStateClamp = 0;
     }
 
     // 레이아웃을 해제합니다.
@@ -252,7 +303,7 @@ void HorizontalBlurShaderClass::ShutdownShader()
 }
 
 
-void HorizontalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* shaderFilename)
+void SoftShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* shaderFilename)
 {
     // 에러 메시지를 출력창에 표시합니다.
     OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
@@ -265,8 +316,11 @@ void HorizontalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessag
     MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
-bool HorizontalBlurShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
-    XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenWidth)
+
+bool SoftShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
+    XMMATRIX viewMatrix, XMMATRIX projectionMatrix,
+    ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* shadowTexture,
+    XMFLOAT3 lightPosition, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -297,36 +351,59 @@ bool HorizontalBlurShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceC
     // 마지막으로 정점 셰이더의 상수 버퍼를 바뀐 값으로 바꿉니다.
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-    // m_screenSizeBuffer를 잠글 수 있도록 기록한다.
-    if (FAILED(deviceContext->Map(m_screenSizeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다.
+    deviceContext->PSSetShaderResources(0, 1, &texture);
+    deviceContext->PSSetShaderResources(1, 1, &shadowTexture);
+
+    // light constant buffer를 잠글 수 있도록 기록한다.
+    if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
     {
         return false;
     }
 
     // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
-    ScreenSizeBufferType* dataPtr2 = (ScreenSizeBufferType*)mappedResource.pData;
+    LightBufferType* dataPtr2 = (LightBufferType*)mappedResource.pData;
 
     // 조명 변수를 상수 버퍼에 복사합니다.
-    dataPtr2->screenWidth = screenWidth;
-    dataPtr2->padding = XMFLOAT3(0.0f, 0.0f, 0.0f);;
+    dataPtr2->ambientColor = ambientColor;
+    dataPtr2->diffuseColor = diffuseColor;
 
     // 상수 버퍼의 잠금을 해제합니다.
-    deviceContext->Unmap(m_screenSizeBuffer, 0);
+    deviceContext->Unmap(m_lightBuffer, 0);
 
     // 픽셀 쉐이더에서 광원 상수 버퍼의 위치를 ??설정합니다.
+    bufferNumber = 0;
+
+    // 마지막으로 업데이트 된 값으로 픽셀 쉐이더에서 광원 상수 버퍼를 설정합니다.
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
+    // 쓸 수 있도록 두 번째 빛 상수 버퍼를 잠급니다.
+    if (FAILED(deviceContext->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    {
+        return false;
+    }
+
+    // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
+    LightBufferType2* dataPtr3 = (LightBufferType2*)mappedResource.pData;
+
+    // 조명 변수를 상수 버퍼에 복사합니다.
+    dataPtr3->lightPosition = lightPosition;
+    dataPtr3->padding = 0.0f;
+
+    // 상수 버퍼의 잠금을 해제합니다.
+    deviceContext->Unmap(m_lightBuffer2, 0);
+
+    // 버텍스 쉐이더에서 라이트 상수 버퍼의 위치를 ??설정합니다.
     bufferNumber = 1;
 
-    // 이제 업데이트 된 값으로 버텍스 쉐이더에서 상수 버퍼를 설정합니다.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_screenSizeBuffer);
-
-    // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다.
-    deviceContext->PSSetShaderResources(0, 1, &texture);
+    // 마지막으로 업데이트 된 값으로 픽셀 쉐이더에서 광원 상수 버퍼를 설정합니다.
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer2);
 
     return true;
 }
 
 
-void HorizontalBlurShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void SoftShadowShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
     // 정점 입력 레이아웃을 설정합니다.
     deviceContext->IASetInputLayout(m_layout);
@@ -336,7 +413,8 @@ void HorizontalBlurShaderClass::RenderShader(ID3D11DeviceContext* deviceContext,
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
-    deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+    deviceContext->PSSetSamplers(0, 1, &m_sampleStateClamp);
+    deviceContext->PSSetSamplers(1, 1, &m_sampleStateWrap);
 
     // 삼각형을 그립니다.
     deviceContext->DrawIndexed(indexCount, 0, 0);

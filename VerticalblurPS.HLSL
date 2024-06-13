@@ -17,7 +17,7 @@ struct PixelInputType
 };
  
 
-float4 VerticalblurPixelShader(PixelInputType input) : SV_TARGET
+float4 VerticalBlurPixelShader(PixelInputType input) : SV_TARGET
 {
     float weight0, weight1, weight2, weight3, weight4;
     float normalization;

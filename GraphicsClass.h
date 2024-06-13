@@ -16,6 +16,11 @@ class ModelClass;
 class LightClass;
 class DepthShaderClass;
 class ShadowShaderClass;
+class TextureShaderClass;
+
+class HorizontalBlurShaderClass;
+class VerticalBlurShaderClass;
+class SoftShadowShaderClass;
 
 class RenderTextureClass;
 
@@ -38,8 +43,16 @@ public:
 private:
 	bool RenderScene();
 
-	bool RenderToDepthMapTexture1();
-	bool RenderToDepthMapTexture2();
+	bool RenderToDepthMapTexture();
+	bool RenderBlackAndWhiteShadows();
+	bool DownSampleTexture();
+	bool RenderHorizontalBlurToTexture(); 
+	bool RenderVerticalBlurToTexture();
+
+
+
+
+
 	bool RenderToFadeTexture();
 
 	bool RenderFadingScene();
@@ -55,18 +68,30 @@ private:
 	ModelClass* m_GroundModel = nullptr;
 	ModelClass* m_SphereModel = nullptr;
 
-	LightClass* m_Light1 = nullptr;
-	LightClass* m_Light2 = nullptr;
-
-
+	LightClass* m_Light = nullptr;
 	DepthShaderClass* m_DepthShader = nullptr;
 	ShadowShaderClass* m_ShadowShader = nullptr;
-	RenderTextureClass* m_DepthMapTexture1 = nullptr;
-	RenderTextureClass* m_DepthMapTexture2 = nullptr;
+	TextureShaderClass* m_TextureShader = nullptr;
+
+
+	HorizontalBlurShaderClass* m_HorizontalBlurShader = nullptr;
+	VerticalBlurShaderClass* m_VerticalBlurShader = nullptr;
+	SoftShadowShaderClass* m_SoftShadowShader = nullptr;
+
+
+	RenderTextureClass* m_DepthMapTexture = nullptr;
+	RenderTextureClass* m_BlackWhiteRenderTexture = nullptr;
+	RenderTextureClass* m_DownSampleTexure = nullptr;
+	RenderTextureClass* m_HorizontalBlurTexture = nullptr;
+	RenderTextureClass* m_VerticalBlurTexture = nullptr;
+
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
+	OrthoWindowClass* m_SmallWindow = nullptr;
+
+
 	FadeShaderClass* m_FadeShader = nullptr;
 
 	float m_fadeInTime = 0;

@@ -34,7 +34,7 @@ struct PixelInputType
 };
  
 
-PixelInputType VerticalblurVertexShader(VertexInputType input)
+PixelInputType VerticalBlurVertexShader(VertexInputType input)
 {
     PixelInputType output;
     float texelSize;

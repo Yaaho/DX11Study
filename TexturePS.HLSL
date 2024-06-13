@@ -11,5 +11,11 @@ struct PixelInputType
 
 float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 {
-    return shaderTexture.Sample(SampleType, input.tex);
+    float4 textureColor;
+
+
+    // 이 텍스처 좌표 위치에서 샘플러를 사용하여 텍스처에서 픽셀 색상을 샘플링합니다.
+    textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+    return textureColor;
 }

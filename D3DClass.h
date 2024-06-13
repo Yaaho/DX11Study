@@ -22,15 +22,15 @@ public:
 
 	void GetVideoCardInfo(char*, int&);
 
+	ID3D11DepthStencilView* GetDepthStencilView();
+	void SetBackBufferRenderTarget();
+	void ResetViewport();
+
 	void TurnZBufferOn();
 	void TurnZBufferOff();
 
 	void EnableAlphaBlending();
 	void DisableAlphaBlending();
-
-	ID3D11DepthStencilView* GetDepthStencilView();
-	void SetBackBufferRenderTarget();
-	void ResetViewport();
 
 private:
 	bool m_vsync_enabled = false;

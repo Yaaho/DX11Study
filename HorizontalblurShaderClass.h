@@ -1,7 +1,7 @@
 #pragma once
 #pragma once
 
-class HorizontalblurShaderClass
+class HorizontalBlurShaderClass
 {
 private:
     struct MatrixBufferType
@@ -17,9 +17,9 @@ private:
         XMFLOAT3 padding;
     };
 public:
-    HorizontalblurShaderClass();
-    HorizontalblurShaderClass(const HorizontalblurShaderClass&);
-    ~HorizontalblurShaderClass();
+    HorizontalBlurShaderClass();
+    HorizontalBlurShaderClass(const HorizontalBlurShaderClass&);
+    ~HorizontalBlurShaderClass();
 
     bool Initialize(ID3D11Device*, HWND);
     void Shutdown();

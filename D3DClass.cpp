@@ -307,7 +307,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	m_deviceContext->RSSetViewports(1, &m_viewport);
 
 	// 투영 행렬을 설정한다
-	float fieldOfView = 3.141592654f / 4.0f;
+	float fieldOfView = XM_PI / 4.0f;
 	float screenAspect = (float)screenWidth / (float)screenHeight;
 
 	// 3D 렌더링을 위한 투영 행렬을 만든다.
@@ -346,12 +346,12 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 		return false;
 	}
 
+
 	// 블렌드 상태 구조체를 초기화한다.
 	D3D11_BLEND_DESC blendStateDescription;
 	ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
 
 	// 알파블렌드 값을 설정한다.
-	/*
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -360,8 +360,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-	*/
 
+	// 기존 블렌드 상태
 	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
 	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
@@ -521,6 +521,28 @@ void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
 }
 
 
+
+ID3D11DepthStencilView* D3DClass::GetDepthStencilView()
+{
+	return m_depthStencilView;
+}
+
+void D3DClass::SetBackBufferRenderTarget()
+{
+	// 렌더 타겟 뷰와 깊이 스텐실 버퍼를 출력 렌더 파이프라인에 바인딩한다.
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+}
+
+
+void D3DClass::ResetViewport()
+{
+	// Set the viewport.
+	m_deviceContext->RSSetViewports(1, &m_viewport);
+}
+
+
+
+
 void D3DClass::TurnZBufferOn()
 {
 	m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
@@ -549,20 +571,3 @@ void D3DClass::DisableAlphaBlending()
 	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
 
-ID3D11DepthStencilView* D3DClass::GetDepthStencilView()
-{
-	return m_depthStencilView;
-}
-
-void D3DClass::SetBackBufferRenderTarget()
-{
-	// 렌더 타겟 뷰와 깊이 스텐실 버퍼를 출력 렌더 파이프라인에 바인딩한다.
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
-}
-
-
-void D3DClass::ResetViewport()
-{
-	// Set the viewport.
-	m_deviceContext->RSSetViewports(1, &m_viewport);
-}

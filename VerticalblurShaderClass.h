@@ -1,6 +1,6 @@
 #pragma once
 
-class VerticalblurShaderClass
+class VerticalBlurShaderClass
 {
 private:
     struct MatrixBufferType
@@ -16,9 +16,9 @@ private:
         XMFLOAT3 padding;
     };
 public:
-    VerticalblurShaderClass();
-    VerticalblurShaderClass(const VerticalblurShaderClass&);
-    ~VerticalblurShaderClass();
+    VerticalBlurShaderClass();
+    VerticalBlurShaderClass(const VerticalBlurShaderClass&);
+    ~VerticalBlurShaderClass();
 
     bool Initialize(ID3D11Device*, HWND);
     void Shutdown();

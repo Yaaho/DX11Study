@@ -117,7 +117,7 @@
     <ClInclude Include="DepthShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="HorizontalblurShaderClass.h">
+    <ClInclude Include="HorizontalBlurShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="VerticalblurShaderClass.h">
@@ -133,6 +133,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ShadowShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SoftShadowShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -230,7 +233,7 @@
     <ClCompile Include="DepthShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="HorizontalblurShaderClass.cpp">
+    <ClCompile Include="HorizontalBlurShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="VerticalblurShaderClass.cpp">
@@ -246,6 +249,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShadowShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SoftShadowShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -270,10 +276,10 @@
     <FxCompile Include="FirePS.HLSL" />
     <FxCompile Include="DepthVS.HLSL" />
     <FxCompile Include="DepthPS.HLSL" />
-    <FxCompile Include="HorizontalblurVS.HLSL" />
-    <FxCompile Include="HorizontalblurPS.HLSL" />
-    <FxCompile Include="VerticalblurVS.HLSL" />
-    <FxCompile Include="VerticalblurPS.HLSL" />
+    <FxCompile Include="HorizontalBlurVS.HLSL" />
+    <FxCompile Include="HorizontalBlurPS.HLSL" />
+    <FxCompile Include="VerticalBlurVS.HLSL" />
+    <FxCompile Include="VerticalBlurPS.HLSL" />
     <FxCompile Include="ColorVS.HLSL" />
     <FxCompile Include="ColorHS.HLSL" />
     <FxCompile Include="ColorDS.HLSL" />
@@ -282,6 +288,8 @@
     <FxCompile Include="ParticlePS.HLSL" />
     <FxCompile Include="ShadowVS.HLSL" />
     <FxCompile Include="ShadowPS.HLSL" />
+    <FxCompile Include="SoftShadowVS.HLSL" />
+    <FxCompile Include="SoftShadowPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />

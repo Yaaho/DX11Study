@@ -1,37 +1,37 @@
 #include "Stdafx.h"
-#include "VerticalblurShaderClass.h"
+#include "VerticalBlurShaderClass.h"
 
 
-VerticalblurShaderClass::VerticalblurShaderClass()
+VerticalBlurShaderClass::VerticalBlurShaderClass()
 {
 }
 
 
-VerticalblurShaderClass::VerticalblurShaderClass(const VerticalblurShaderClass& other)
+VerticalBlurShaderClass::VerticalBlurShaderClass(const VerticalBlurShaderClass& other)
 {
 }
 
 
-VerticalblurShaderClass::~VerticalblurShaderClass()
+VerticalBlurShaderClass::~VerticalBlurShaderClass()
 {
 }
 
 
-bool VerticalblurShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool VerticalBlurShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
     // 정점 및 픽셀 쉐이더를 초기화합니다.
-    return InitializeShader(device, hwnd, L"VerticalblurVS.HLSL", L"VerticalblurPS.HLSL");
+    return InitializeShader(device, hwnd, L"VerticalBlurVS.HLSL", L"VerticalBlurPS.HLSL");
 }
 
 
-void VerticalblurShaderClass::Shutdown()
+void VerticalBlurShaderClass::Shutdown()
 {
     // 버텍스 및 픽셀 쉐이더와 관련된 객체를 종료합니다.
     ShutdownShader();
 }
 
 
-bool VerticalblurShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
+bool VerticalBlurShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
     XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
@@ -47,7 +47,7 @@ bool VerticalblurShaderClass::Render(ID3D11DeviceContext* deviceContext, int ind
 }
 
 
-bool VerticalblurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const WCHAR* vsFilename,
+bool VerticalBlurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const WCHAR* vsFilename,
     const WCHAR* psFilename)
 {
     HRESULT result;
@@ -55,7 +55,7 @@ bool VerticalblurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, 
 
     // 버텍스 쉐이더 코드를 컴파일한다.
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "VerticalblurVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+    result = D3DCompileFromFile(vsFilename, NULL, NULL, "VerticalBlurVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
         0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
@@ -75,7 +75,7 @@ bool VerticalblurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, 
 
     // 픽셀 쉐이더 코드를 컴파일한다.
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DCompileFromFile(psFilename, NULL, NULL, "VerticalblurPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
+    result = D3DCompileFromFile(psFilename, NULL, NULL, "VerticalBlurPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS,
         0, &pixelShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
@@ -206,7 +206,7 @@ bool VerticalblurShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, 
 }
 
 
-void VerticalblurShaderClass::ShutdownShader()
+void VerticalBlurShaderClass::ShutdownShader()
 {
     // 화면 크기 상수 버퍼를 해제합니다.
     if (m_screenSizeBuffer)
@@ -252,7 +252,7 @@ void VerticalblurShaderClass::ShutdownShader()
 }
 
 
-void VerticalblurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* shaderFilename)
+void VerticalBlurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const WCHAR* shaderFilename)
 {
     // 에러 메시지를 출력창에 표시합니다.
     OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
@@ -265,7 +265,7 @@ void VerticalblurShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage,
     MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
-bool VerticalblurShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
+bool VerticalBlurShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix,
     XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
@@ -326,7 +326,7 @@ bool VerticalblurShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceCon
 }
 
 
-void VerticalblurShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void VerticalBlurShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
     // 정점 입력 레이아웃을 설정합니다.
     deviceContext->IASetInputLayout(m_layout);
