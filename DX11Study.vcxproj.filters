@@ -138,6 +138,12 @@
     <ClInclude Include="SoftShadowShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ProjectionShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewPointClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -254,6 +260,12 @@
     <ClCompile Include="SoftShadowShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectionShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewPointClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -290,6 +302,8 @@
     <FxCompile Include="ShadowPS.HLSL" />
     <FxCompile Include="SoftShadowVS.HLSL" />
     <FxCompile Include="SoftShadowPS.HLSL" />
+    <FxCompile Include="ProjectionVS.HLSL" />
+    <FxCompile Include="ProjectionPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -317,6 +331,8 @@
     <Image Include="data\star.dds" />
     <Image Include="data\ice.dds" />
     <Image Include="data\metal001.dds" />
+    <Image Include="data\dx11.dds" />
+    <Image Include="data\stone.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

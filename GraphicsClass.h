@@ -14,13 +14,10 @@ class TextClass;
 class ModelClass;
 
 class LightClass;
-class DepthShaderClass;
-class ShadowShaderClass;
-class TextureShaderClass;
+class ProjectionShaderClass;
+class TextureClass;
+class ViewPointClass;
 
-class HorizontalBlurShaderClass;
-class VerticalBlurShaderClass;
-class SoftShadowShaderClass;
 
 class RenderTextureClass;
 
@@ -43,13 +40,6 @@ public:
 private:
 	bool RenderScene();
 
-	bool RenderToDepthMapTexture();
-	bool RenderBlackAndWhiteShadows();
-	bool DownSampleTexture();
-	bool RenderHorizontalBlurToTexture(); 
-	bool RenderVerticalBlurToTexture();
-
-
 
 
 
@@ -66,31 +56,16 @@ private:
 
 	ModelClass* m_CubeModel = nullptr;
 	ModelClass* m_GroundModel = nullptr;
-	ModelClass* m_SphereModel = nullptr;
 
 	LightClass* m_Light = nullptr;
-	DepthShaderClass* m_DepthShader = nullptr;
-	ShadowShaderClass* m_ShadowShader = nullptr;
-	TextureShaderClass* m_TextureShader = nullptr;
-
-
-	HorizontalBlurShaderClass* m_HorizontalBlurShader = nullptr;
-	VerticalBlurShaderClass* m_VerticalBlurShader = nullptr;
-	SoftShadowShaderClass* m_SoftShadowShader = nullptr;
-
-
-	RenderTextureClass* m_DepthMapTexture = nullptr;
-	RenderTextureClass* m_BlackWhiteRenderTexture = nullptr;
-	RenderTextureClass* m_DownSampleTexure = nullptr;
-	RenderTextureClass* m_HorizontalBlurTexture = nullptr;
-	RenderTextureClass* m_VerticalBlurTexture = nullptr;
+	ProjectionShaderClass* m_ProjectionShader = nullptr;
+	TextureClass* m_ProjectionTexture = nullptr;
+	ViewPointClass* m_ViewPoint = nullptr;
 
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
-	OrthoWindowClass* m_SmallWindow = nullptr;
-
 
 	FadeShaderClass* m_FadeShader = nullptr;
 
