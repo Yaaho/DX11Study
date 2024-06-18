@@ -1,14 +1,12 @@
 #include "Stdafx.h"
 #include "D3DClass.h"
+#include "ShaderManagerClass.h"
 #include "CameraClass.h"
 #include "TextClass.h"
 #include "ModelClass.h"
+#include "BumpModelClass.h"
 
 #include "LightClass.h"
-#include "ProjectionShaderClass.h"
-#include "TextureClass.h"
-#include "ViewPointClass.h"
-
 
 
 #include "RenderTextureClass.h"
@@ -47,6 +45,20 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
 	{
 		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		return false;
+	}
+
+	// 셰이더 관리자 객체를 만듭니다.
+	m_ShaderManager = new ShaderManagerClass;
+	if (!m_ShaderManager)
+	{
+		return false;
+	}
+
+	// 셰이더 관리자 객체를 초기화합니다.
+	if (!m_ShaderManager->Initialize(m_Direct3D->GetDevice(), hwnd))
+	{
+		MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -97,20 +109,34 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// 지면 모델 객체를 만듭니다.
-	m_GroundModel = new ModelClass;
-	if (!m_GroundModel)
+	// 큐브 모델 오브젝트를 생성합니다.
+	m_Model2 = new ModelClass;
+	if (!m_Model2)
 	{
 		return false;
 	}
 
-	// 지면 모델 객체를 초기화합니다.
-	if (!m_GroundModel->Initialize(m_Direct3D->GetDevice(), "data/plane01.txt") || !m_GroundModel->LoadTextures(m_Direct3D->GetDevice(), L"data/stone.dds"))
+	if (!m_Model2->Initialize(m_Direct3D->GetDevice(), "data/cube.txt") || !m_Model2->LoadTextures(m_Direct3D->GetDevice(), L"data/metal.dds"))
 	{
-		MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 		return false;
 	}
 
+
+	// 법선 맵과 관련 벡터가있는 모델에 대해 세 번째 범프 모델 객체를 만듭니다.
+	m_Model3 = new BumpModelClass;
+	if (!m_Model3)
+	{
+		return false;
+	}
+
+	// 범프 모델 객체를 초기화합니다.
+	if (!m_Model3->Initialize(m_Direct3D->GetDevice(), "data/cube.txt", L"data/stone.dds",
+		L"data/normal.dds"))
+	{
+		MessageBox(hwnd, L"Could not initialize the third model object.", L"Error", MB_OK);
+		return false;
+	}
 
 
 
@@ -121,54 +147,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// 조명 객체를 초기화 합니다.
+	// 조명 객체를 초기화합니다.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetPosition(2.0f, 5.0f, -2.0f);
-
-
-
-	// 프로젝션 셰이더 개체를 만듭니다.
-	m_ProjectionShader = new ProjectionShaderClass;
-	if (!m_ProjectionShader)
-	{
-		return false;
-	}
-
-	// 프로젝션 셰이더 개체를 초기화합니다.
-	if (!m_ProjectionShader->Initialize(m_Direct3D->GetDevice(), hwnd))
-	{
-		MessageBox(hwnd, L"Could not initialize the projection shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// 투영 텍스처 객체를 만듭니다.
-	m_ProjectionTexture = new TextureClass;
-	if (!m_ProjectionTexture)
-	{
-		return false;
-	}
-
-	// 투영 텍스처 객체를 초기화합니다.
-	if (!m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), L"data/grate.dds"))
-	{
-		MessageBox(hwnd, L"Could not initialize the projection texture object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// 뷰 포인트 객체를 만듭니다.
-	m_ViewPoint = new ViewPointClass;
-	if (!m_ViewPoint)
-	{
-		return false;
-	}
-
-	// 뷰 포인트 객체를 초기화합니다.
-	m_ViewPoint->SetPosition(2.0f, 5.0f, -2.0f);
-	m_ViewPoint->SetLookAt(0.0f, 0.0f, 0.0f);
-	m_ViewPoint->SetProjectionParameters((float)(XM_PI / 2.0f), 1.0f, 0.1f, 100.0f);
-	m_ViewPoint->GenerateViewMatrix();
-	m_ViewPoint->GenerateProjectionMatrix();
+	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(64.0f);
 
 
 
@@ -262,31 +246,6 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// 뷰 포인트 객체를 해제합니다.
-	if (m_ViewPoint)
-	{
-		delete m_ViewPoint;
-		m_ViewPoint = 0;
-	}
-
-	// 투영 텍스처 객체를 해제합니다.
-	if (m_ProjectionTexture)
-	{
-		m_ProjectionTexture->Shutdown();
-		delete m_ProjectionTexture;
-		m_ProjectionTexture = 0;
-	}
-
-	// 투영 쉐이더 객체를 해제합니다.
-	if (m_ProjectionShader)
-	{
-		m_ProjectionShader->Shutdown();
-		delete m_ProjectionShader;
-		m_ProjectionShader = 0;
-	}
-
-
-
 	// 조명 객체를 해제합니다.
 	if (m_Light)
 	{
@@ -295,14 +254,20 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// 지면 모델 객체를 해제합니다.
-	if (m_GroundModel)
+	if (m_Model3)
 	{
-		m_GroundModel->Shutdown();
-		delete m_GroundModel;
-		m_GroundModel = 0;
+		m_Model3->Shutdown();
+		delete m_Model3;
+		m_Model3 = 0;
 	}
 
+
+	if (m_Model2)
+	{
+		m_Model2->Shutdown();
+		delete m_Model2;
+		m_Model2 = 0;
+	}
 
 	// 큐브 모델 객체를 해제합니다.
 	if (m_CubeModel)
@@ -415,8 +380,7 @@ bool GraphicsClass::Render()
 
 bool GraphicsClass::RenderScene()
 {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
-	XMMATRIX viewMatrix2, projectionMatrix2;
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, translateMatrix;
 
 	// 씬을 그리기 위해 버퍼를 지웁니다
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -429,35 +393,46 @@ bool GraphicsClass::RenderScene()
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	// 뷰 포인트 객체에서 뷰 및 투영 행렬을 가져옵니다.
-	m_ViewPoint->GetViewMatrix(viewMatrix2);
-	m_ViewPoint->GetProjectionMatrix(projectionMatrix2);
+	// 첫 번째 모델의 회전 및 평행 이동을 설정합니다.
+	translateMatrix = XMMatrixTranslation(-3.5f, 0.0f, 0.0f);
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	// ground 모델에 대한 번역을 설정합니다.
-	worldMatrix = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
+	// 텍스처 셰이더를 사용하여 첫 번째 모델을 렌더링합니다.
+	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
 
-	// 투영 셰이더를 사용하여 지상 모델을 렌더링합니다.
-	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
-
-	if (!m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_GroundModel->GetTexture(0), m_Light->GetAmbientColor(),
-		m_Light->GetDiffuseColor(), m_Light->GetPosition(), viewMatrix2, projectionMatrix2,
-		m_ProjectionTexture->GetTexture()))
+	if (!m_ShaderManager->RenderTextureShader(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix,
+		m_CubeModel->GetTexture(0)))
 	{
 		return false;
 	}
 
-	// 월드 행렬을 재설정하고 큐브 모델에 대한 변환을 설정합니다.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
-	worldMatrix = XMMatrixTranslation(0.0f, 2.0f, 0.0f);
+	translateMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
 
-	// 프로젝션 셰이더를 사용하여 큐브 모델을 렌더링합니다.
-	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
+	// 라이트 쉐이더를 사용하여 두 번째 모델을 렌더링합니다.
+	m_Model2->Render(m_Direct3D->GetDeviceContext());
 
-	if (!m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_CubeModel->GetTexture(0), m_Light->GetAmbientColor(),
-		m_Light->GetDiffuseColor(), m_Light->GetPosition(), viewMatrix2, projectionMatrix2,
-		m_ProjectionTexture->GetTexture()))
+	if (!m_ShaderManager->RenderLightShader(m_Direct3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_Model2->GetTexture(0), m_Light->GetDirection(),
+		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Camera->GetPosition(),
+		m_Light->GetSpecularColor(), m_Light->GetSpecularPower()))
+	{
+		return false;
+	}
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	translateMatrix = XMMatrixTranslation(3.5f, 0.0f, 0.0f);
+	worldMatrix = XMMatrixMultiply(worldMatrix, translateMatrix);
+
+	// 범프 맵 셰이더를 사용하여 세 번째 모델을 렌더링합니다.
+	m_Model3->Render(m_Direct3D->GetDeviceContext());
+
+	if (!m_ShaderManager->RenderBumpMapShader(m_Direct3D->GetDeviceContext(), m_Model3->GetIndexCount(), worldMatrix, viewMatrix,
+		projectionMatrix, m_Model3->GetColorTexture(), m_Model3->GetNormalMapTexture(),
+		m_Light->GetDirection(),
+		m_Light->GetDiffuseColor()))
 	{
 		return false;
 	}

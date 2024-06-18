@@ -16,12 +16,11 @@ LightClass::~LightClass()
 {
 }
 
-
 void LightClass::SetAmbientColor(float red, float green, float blue, float alpha)
 {
 	m_ambientColor = XMFLOAT4(red, green, blue, alpha);
+	return;
 }
-
 
 void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha)
 {
@@ -29,17 +28,26 @@ void LightClass::SetDiffuseColor(float red, float green, float blue, float alpha
 }
 
 
-void LightClass::SetPosition(float x, float y, float z)
+void LightClass::SetDirection(float x, float y, float z)
 {
-	m_position = XMFLOAT3(x, y, z);
+	m_direction = XMFLOAT3(x, y, z);
 }
 
+void LightClass::SetSpecularColor(float red, float green, float blue, float alpha)
+{
+	m_specularColor = XMFLOAT4(red, green, blue, alpha);
+}
+
+
+void LightClass::SetSpecularPower(float power)
+{
+	m_specularPower = power;
+}
 
 XMFLOAT4 LightClass::GetAmbientColor()
 {
 	return m_ambientColor;
 }
-
 
 XMFLOAT4 LightClass::GetDiffuseColor()
 {
@@ -47,7 +55,18 @@ XMFLOAT4 LightClass::GetDiffuseColor()
 }
 
 
-XMFLOAT3 LightClass::GetPosition()
+XMFLOAT3 LightClass::GetDirection()
 {
-	return m_position;
+	return m_direction;
+}
+
+XMFLOAT4 LightClass::GetSpecularColor()
+{
+	return m_specularColor;
+}
+
+
+float LightClass::GetSpecularPower()
+{
+	return m_specularPower;
 }

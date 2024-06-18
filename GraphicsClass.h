@@ -7,15 +7,19 @@ const float SCREEN_NEAR = 1.0f;
 
 
 class D3DClass;
+class ShaderManagerClass;
+
 class CameraClass;
 class TextClass;
 
+
 class ModelClass;
+class BumpModelClass;
+
 
 class LightClass;
-class ProjectionShaderClass;
-class TextureClass;
-class ViewPointClass;
+
+
 
 
 class RenderTextureClass;
@@ -50,16 +54,22 @@ private:
 
 private:
 	D3DClass* m_Direct3D = nullptr;
+	ShaderManagerClass* m_ShaderManager = nullptr;
+
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
+
+
 	ModelClass* m_CubeModel = nullptr;
-	ModelClass* m_GroundModel = nullptr;
+	ModelClass* m_Model2 = nullptr;
+	BumpModelClass* m_Model3 = nullptr;
 
 	LightClass* m_Light = nullptr;
-	ProjectionShaderClass* m_ProjectionShader = nullptr;
-	TextureClass* m_ProjectionTexture = nullptr;
-	ViewPointClass* m_ViewPoint = nullptr;
+
+
+
+
 
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
