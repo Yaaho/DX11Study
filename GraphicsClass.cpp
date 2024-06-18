@@ -90,7 +90,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	if (!m_CubeModel->Initialize(m_Direct3D->GetDevice(), "data/cube.txt") || !m_CubeModel->LoadTextures(m_Direct3D->GetDevice(), L"data/wall01.dds"))
+	if (!m_CubeModel->Initialize(m_Direct3D->GetDevice(), "data/cube.txt") || !m_CubeModel->LoadTextures(m_Direct3D->GetDevice(), L"data/seafloor.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the cube model object.", L"Error", MB_OK);
 		return false;
@@ -105,7 +105,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 지면 모델 객체를 초기화합니다.
-	if (!m_GroundModel->Initialize(m_Direct3D->GetDevice(), "data/plane01.txt") || !m_GroundModel->LoadTextures(m_Direct3D->GetDevice(), L"data/metal001.dds"))
+	if (!m_GroundModel->Initialize(m_Direct3D->GetDevice(), "data/plane01.txt") || !m_GroundModel->LoadTextures(m_Direct3D->GetDevice(), L"data/stone.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the ground model object.", L"Error", MB_OK);
 		return false;
@@ -114,18 +114,17 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 
-
-	// light 객체듭니다.
+	// 조명 객체를 생성합니다.
 	m_Light = new LightClass;
 	if (!m_Light)
 	{
 		return false;
 	}
 
-	// 조명 객체를 초기화합니다.
+	// 조명 객체를 초기화 합니다.
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(0.0f, -0.75f, 0.5f);
+	m_Light->SetPosition(2.0f, 5.0f, -2.0f);
 
 
 
@@ -151,7 +150,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// 투영 텍스처 객체를 초기화합니다.
-	if (!m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), L"data/dx11.dds"))
+	if (!m_ProjectionTexture->Initialize(m_Direct3D->GetDevice(), L"data/grate.dds"))
 	{
 		MessageBox(hwnd, L"Could not initialize the projection texture object.", L"Error", MB_OK);
 		return false;
@@ -170,10 +169,6 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	m_ViewPoint->SetProjectionParameters((float)(XM_PI / 2.0f), 1.0f, 0.1f, 100.0f);
 	m_ViewPoint->GenerateViewMatrix();
 	m_ViewPoint->GenerateProjectionMatrix();
-
-
-
-
 
 
 
@@ -445,9 +440,8 @@ bool GraphicsClass::RenderScene()
 	m_GroundModel->Render(m_Direct3D->GetDeviceContext());
 
 	if (!m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_GroundModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_GroundModel->GetTexture(0),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		m_Light->GetDirection(), viewMatrix2, projectionMatrix2,
+		viewMatrix, projectionMatrix, m_GroundModel->GetTexture(0), m_Light->GetAmbientColor(),
+		m_Light->GetDiffuseColor(), m_Light->GetPosition(), viewMatrix2, projectionMatrix2,
 		m_ProjectionTexture->GetTexture()))
 	{
 		return false;
@@ -461,9 +455,8 @@ bool GraphicsClass::RenderScene()
 	m_CubeModel->Render(m_Direct3D->GetDeviceContext());
 
 	if (!m_ProjectionShader->Render(m_Direct3D->GetDeviceContext(), m_CubeModel->GetIndexCount(), worldMatrix,
-		viewMatrix, projectionMatrix, m_CubeModel->GetTexture(0),
-		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(),
-		m_Light->GetDirection(), viewMatrix2, projectionMatrix2,
+		viewMatrix, projectionMatrix, m_CubeModel->GetTexture(0), m_Light->GetAmbientColor(),
+		m_Light->GetDiffuseColor(), m_Light->GetPosition(), viewMatrix2, projectionMatrix2,
 		m_ProjectionTexture->GetTexture()))
 	{
 		return false;

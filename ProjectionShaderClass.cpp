@@ -33,12 +33,12 @@ void ProjectionShaderClass::Shutdown()
 
 bool ProjectionShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
     XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture,
-    XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor, XMFLOAT3 lightDirection, XMMATRIX viewMatrix2,
+    XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor, XMFLOAT3 lightPosition, XMMATRIX viewMatrix2,
     XMMATRIX projectionMatrix2, ID3D11ShaderResourceView* projectionTexture)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
     if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, ambientColor, diffuseColor,
-        lightDirection, viewMatrix2, projectionMatrix2, projectionTexture))
+        lightPosition, viewMatrix2, projectionMatrix2, projectionTexture))
     {
         return false;
     }
@@ -213,12 +213,35 @@ bool ProjectionShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, co
         return false;
     }
 
+    // 버텍스 쉐이더에있는 라이트 위치 동적 상수 버퍼의 설명을 설정합니다.
+    D3D11_BUFFER_DESC lightPositionBufferDesc;
+    lightPositionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    lightPositionBufferDesc.ByteWidth = sizeof(LightPositionBufferType);
+    lightPositionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    lightPositionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    lightPositionBufferDesc.MiscFlags = 0;
+    lightPositionBufferDesc.StructureByteStride = 0;
+
+    // 이 클래스 내에서 정점 셰이더 상수 버퍼에 액세스 할 수 있도록 상수 버퍼 포인터를 만듭니다.
+    result = device->CreateBuffer(&lightPositionBufferDesc, NULL, &m_lightPositionBuffer);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
     return true;
 }
 
 
 void ProjectionShaderClass::ShutdownShader()
 {
+    // 라이트 위치 상수 버퍼를 해제한다.
+    if (m_lightPositionBuffer)
+    {
+        m_lightPositionBuffer->Release();
+        m_lightPositionBuffer = 0;
+    }
+
     // 광원 상수 버퍼를 해제합니다.
     if (m_lightBuffer)
     {
@@ -279,7 +302,7 @@ void ProjectionShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, H
 
 bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
     XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT4 ambientColor,
-    XMFLOAT4 diffuseColor, XMFLOAT3 lightDirection, XMMATRIX viewMatrix2,
+    XMFLOAT4 diffuseColor, XMFLOAT3 lightPosition, XMMATRIX viewMatrix2,
     XMMATRIX projectionMatrix2, ID3D11ShaderResourceView* projectionTexture)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
@@ -327,8 +350,6 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceConte
     // 조명 변수를 상수 버퍼에 복사합니다.
     dataPtr2->ambientColor = ambientColor;
     dataPtr2->diffuseColor = diffuseColor;
-    dataPtr2->lightDirection = lightDirection;
-    dataPtr2->padding = 0.0f;
 
     // 상수 버퍼의 잠금을 해제합니다.
     deviceContext->Unmap(m_lightBuffer, 0);
@@ -339,7 +360,29 @@ bool ProjectionShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceConte
     // 마지막으로 업데이트 된 값으로 픽셀 쉐이더에서 광원 상수 버퍼를 설정합니다.
     deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
-    // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다..
+    // 라이트 위치 상수 버퍼를 잠글 수 있으므로 쓸 수 있습니다.
+    if (FAILED(deviceContext->Map(m_lightPositionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    {
+        return false;
+    }
+
+    // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
+    LightPositionBufferType* dataPtr3 = (LightPositionBufferType*)mappedResource.pData;
+
+    // 조명 변수를 상수 버퍼에 복사합니다.
+    dataPtr3->lightPosition = lightPosition;
+    dataPtr3->padding = 0.0f;
+
+    // 상수 버퍼의 잠금을 해제합니다.
+    deviceContext->Unmap(m_lightPositionBuffer, 0);
+
+    // 버텍스 쉐이더에서 라이트 상수 버퍼의 위치를 ??설정합니다.
+    bufferNumber = 1;
+
+    // 마지막으로, 버텍스 쉐이더의 라이트 상수 버퍼를 업데이트 된 값으로 설정합니다.
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightPositionBuffer);
+
+    // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다.
     deviceContext->PSSetShaderResources(0, 1, &texture);
     deviceContext->PSSetShaderResources(1, 1, &projectionTexture);
 

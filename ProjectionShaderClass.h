@@ -12,13 +12,18 @@ private:
         XMMATRIX projection2;
     };
 
+    struct LightPositionBufferType
+    {
+        XMFLOAT3 lightPosition;
+        float padding;
+    };
+
     struct LightBufferType
     {
         XMFLOAT4 ambientColor;
         XMFLOAT4 diffuseColor;
-        XMFLOAT3 lightDirection;
-        float padding;
     };
+
 public:
     ProjectionShaderClass();
     ProjectionShaderClass(const ProjectionShaderClass&);
@@ -44,5 +49,6 @@ private:
     ID3D11InputLayout* m_layout = nullptr;
     ID3D11SamplerState* m_sampleState = nullptr;
     ID3D11Buffer* m_matrixBuffer = nullptr;
+    ID3D11Buffer* m_lightPositionBuffer = nullptr;
     ID3D11Buffer* m_lightBuffer = nullptr;
 };
