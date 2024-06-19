@@ -12,18 +12,17 @@ class ShaderManagerClass;
 class CameraClass;
 class TextClass;
 
-
-class ModelClass;
-class BumpModelClass;
-
-
-class LightClass;
+class TextureShaderClass;
+class BitmapClass;
+class HorizontalBlurShaderClass;
+class VerticalBlurShaderClass;
+class GlowMapShaderClass;
+class GlowShaderClass;
 
 
 
 
 class RenderTextureClass;
-
 class OrthoWindowClass;
 class FadeShaderClass;
 
@@ -44,6 +43,30 @@ private:
 	bool RenderScene();
 
 
+	bool RenderGlowMapToTexture();
+	bool DownSampleTexture();
+	bool RenderHorizontalBlurToTexture();
+	bool RenderVerticalBlurToTexture();
+	bool RenderUIElementsToTexture();
+	bool RenderGlowScene();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	bool RenderToFadeTexture();
@@ -59,22 +82,28 @@ private:
 	CameraClass* m_Camera = nullptr;
 	TextClass* m_Text = nullptr;
 
+	TextureShaderClass* m_TextureShader = nullptr;
+	BitmapClass* m_Bitmap = nullptr;
 
 
-	ModelClass* m_CubeModel = nullptr;
-	ModelClass* m_Model2 = nullptr;
-	BumpModelClass* m_Model3 = nullptr;
-
-	LightClass* m_Light = nullptr;
-
+	HorizontalBlurShaderClass* m_HorizontalBlurShader = nullptr;
+	VerticalBlurShaderClass* m_VerticalBlurShader = nullptr;
+	GlowMapShaderClass* m_GlowMapShader = nullptr;
+	GlowShaderClass* m_GlowShader = nullptr;
 
 
 
+	RenderTextureClass* m_RenderTexture = nullptr;
+	RenderTextureClass* m_DownSampleTexure = nullptr;
+	RenderTextureClass* m_HorizontalBlurTexture = nullptr;
+	RenderTextureClass* m_VerticalBlurTexture = nullptr;
 
 
 	RenderTextureClass* m_FadeRenderTexture = nullptr;
 
+
 	OrthoWindowClass* m_FullScreenWindow = nullptr;
+	OrthoWindowClass* m_SmallWindow = nullptr;
 
 	FadeShaderClass* m_FadeShader = nullptr;
 

@@ -120,7 +120,7 @@
     <ClInclude Include="HorizontalBlurShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="VerticalblurShaderClass.h">
+    <ClInclude Include="VerticalBlurShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ColorShaderClass.h">
@@ -151,6 +151,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="BumpModelClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BitmapClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GlowMapShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GlowShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -251,7 +260,7 @@
     <ClCompile Include="HorizontalBlurShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="VerticalblurShaderClass.cpp">
+    <ClCompile Include="VerticalBlurShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ColorShaderClass.cpp">
@@ -282,6 +291,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="BumpModelClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BitmapClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GlowMapShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GlowShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -324,6 +342,10 @@
     <FxCompile Include="ProjectionPS.HLSL" />
     <FxCompile Include="BumpMapVS.HLSL" />
     <FxCompile Include="BumpMapPS.HLSL" />
+    <FxCompile Include="GlowMapVS.HLSL" />
+    <FxCompile Include="GlowMapPS.HLSL" />
+    <FxCompile Include="GlowVS.HLSL" />
+    <FxCompile Include="GlowPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
