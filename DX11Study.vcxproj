@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlignedAllocationPolicy.h" />
+    <ClInclude Include="ApplicationClass.h" />
     <ClInclude Include="BitmapClass.h" />
     <ClInclude Include="BumpMapShaderClass.h" />
     <ClInclude Include="BumpModelClass.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="WaterShaderClass.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ApplicationClass.cpp" />
     <ClCompile Include="BitmapClass.cpp" />
     <ClCompile Include="BumpMapShaderClass.cpp" />
     <ClCompile Include="BumpModelClass.cpp" />
@@ -817,6 +819,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\alpha01.dds" />
+    <Image Include="data\blue.dds" />
     <Image Include="data\blue01.dds" />
     <Image Include="data\bump01.dds" />
     <Image Include="data\bump02.dds" />
@@ -826,21 +829,28 @@
     <Image Include="data\fire01.dds" />
     <Image Include="data\font.dds" />
     <Image Include="data\glass01.dds" />
+    <Image Include="data\glowmap.dds" />
+    <Image Include="data\grate.dds" />
     <Image Include="data\grid01.dds" />
     <Image Include="data\ground01.dds" />
     <Image Include="data\ice.dds" />
     <Image Include="data\ice01.dds" />
     <Image Include="data\icebump01.dds" />
     <Image Include="data\light01.dds" />
+    <Image Include="data\marble.dds" />
     <Image Include="data\marble01.dds" />
+    <Image Include="data\metal.dds" />
     <Image Include="data\metal001.dds" />
+    <Image Include="data\mouse.dds" />
     <Image Include="data\noise01.dds" />
+    <Image Include="data\normal.dds" />
     <Image Include="data\seafloor.dds" />
     <Image Include="data\spec02.dds" />
     <Image Include="data\star.dds" />
     <Image Include="data\stone.dds" />
     <Image Include="data\stone01.dds" />
     <Image Include="data\stone02.dds" />
+    <Image Include="data\test.dds" />
     <Image Include="data\wall01.dds" />
     <Image Include="data\water01.dds" />
   </ItemGroup>

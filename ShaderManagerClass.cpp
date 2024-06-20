@@ -110,7 +110,7 @@ bool ShaderManagerClass::RenderTextureShader(ID3D11DeviceContext* device, int in
     return m_TextureShader->Render(device, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture);
 }
 
-
+/*
 bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
     XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture,
     XMFLOAT3 lightDirection, XMFLOAT4 ambient, XMFLOAT4 diffuse, XMFLOAT3 cameraPosition,
@@ -120,7 +120,7 @@ bool ShaderManagerClass::RenderLightShader(ID3D11DeviceContext* deviceContext, i
     return m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture,
         lightDirection, ambient, diffuse, cameraPosition, specular, specularPower);
 }
-
+*/
 
 bool ShaderManagerClass::RenderBumpMapShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
     XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* colorTexture,

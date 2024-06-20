@@ -1,11 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Filename: light_vs.hlsl
-////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////
-// GLOBALS //
-/////////////
 cbuffer MatrixBuffer
 {
     matrix worldMatrix;
@@ -13,11 +5,6 @@ cbuffer MatrixBuffer
     matrix projectionMatrix;
 };
 
-cbuffer CameraBuffer
-{
-    float3 cameraPosition;
-    float padding;
-};
 
 struct VertexInputType
 {
@@ -31,13 +18,13 @@ struct PixelInputType
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
-    float3 viewDirection : TEXCOORD1;
 };
 
 
 PixelInputType LightVertexShader(VertexInputType input)
 {
-    PixelInputType output;
+    PixelInputType output = (PixelInputType) 0;
+    
 
 	// 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
     input.position.w = 1.0f;
@@ -47,23 +34,14 @@ PixelInputType LightVertexShader(VertexInputType input)
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	// 픽셀 쉐이더의 텍스처 좌표를 저장합니다.
+	// 픽셀 쉐이더의 텍스처 좌표를 저장한다.
     output.tex = input.tex;
     
-	// 세계 행렬에 대해서만 법선 벡터를 계산합니다.
+	// 월드 행렬에 대해서만 법선 벡터를 계산합니다.
     output.normal = mul(input.normal, (float3x3) worldMatrix);
-	
+
     // 법선 벡터를 정규화합니다.
     output.normal = normalize(output.normal);
-
-	// 월드 정점 위치를 계산합니다.
-    float4 worldPosition = mul(input.position, worldMatrix);
-
-    // 카메라의 위치와 월드의 정점 위치를 기준으로 보기 방향을 결정합니다.
-    output.viewDirection = cameraPosition.xyz - worldPosition.xyz;
-	
-    // 뷰 방향 벡터를 표준화합니다.
-    output.viewDirection = normalize(output.viewDirection);
 
     return output;
 }

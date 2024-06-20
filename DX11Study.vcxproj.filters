@@ -162,6 +162,9 @@
     <ClInclude Include="GlowShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ApplicationClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -302,6 +305,9 @@
     <ClCompile Include="GlowShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ApplicationClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -375,6 +381,14 @@
     <Image Include="data\metal001.dds" />
     <Image Include="data\dx11.dds" />
     <Image Include="data\stone.dds" />
+    <Image Include="data\blue.dds" />
+    <Image Include="data\glowmap.dds" />
+    <Image Include="data\grate.dds" />
+    <Image Include="data\marble.dds" />
+    <Image Include="data\metal.dds" />
+    <Image Include="data\mouse.dds" />
+    <Image Include="data\normal.dds" />
+    <Image Include="data\test.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />

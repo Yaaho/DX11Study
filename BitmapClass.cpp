@@ -17,8 +17,7 @@ BitmapClass::~BitmapClass()
 }
 
 
-bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, const WCHAR* textureFilename,
-    const WCHAR* glowMapFilename, int bitmapWidth, int bitmapHeight)
+bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHeight, const WCHAR* textureFilename, int bitmapWidth, int bitmapHeight)
 {
     // 화면 크기를 멤버변수에 저장
     m_screenWidth = screenWidth;
@@ -39,7 +38,7 @@ bool BitmapClass::Initialize(ID3D11Device* device, int screenWidth, int screenHe
     }
 
     // 이 모델의 텍스처를 로드합니다.
-    return LoadTextures(device, textureFilename, glowMapFilename);
+    return LoadTextures(device, textureFilename);
 }
 
 
@@ -78,13 +77,6 @@ ID3D11ShaderResourceView* BitmapClass::GetTexture()
 {
     return m_Texture->GetTexture();
 }
-
-
-ID3D11ShaderResourceView* BitmapClass::GetGlowMap()
-{
-    return m_GlowMap->GetTexture();
-}
-
 
 bool BitmapClass::InitializeBuffers(ID3D11Device* device)
 {
@@ -284,7 +276,7 @@ void BitmapClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 }
 
 
-bool BitmapClass::LoadTextures(ID3D11Device* device, const WCHAR* filename, const WCHAR* glowMapFilename)
+bool BitmapClass::LoadTextures(ID3D11Device* device, const WCHAR* filename)
 {
     // 텍스처 오브젝트를 생성한다.
     m_Texture = new TextureClass;
@@ -295,19 +287,6 @@ bool BitmapClass::LoadTextures(ID3D11Device* device, const WCHAR* filename, cons
 
     // 텍스처 오브젝트를 초기화한다.
     if (!m_Texture->Initialize(device, filename))
-    {
-        return false;
-    }
-
-    // 글로우 맵 텍스처 객체를 만듭니다.
-    m_GlowMap = new TextureClass;
-    if (!m_GlowMap)
-    {
-        return false;
-    }
-
-    // 글로우 맵 텍스처 객체를 초기화합니다.
-    if (!m_GlowMap->Initialize(device, glowMapFilename))
     {
         return false;
     }
@@ -324,12 +303,5 @@ void BitmapClass::ReleaseTextures()
         m_Texture->Shutdown();
         delete m_Texture;
         m_Texture = 0;
-    }
-
-    if (m_GlowMap)
-    {
-        m_GlowMap->Shutdown();
-        delete m_GlowMap;
-        m_GlowMap = 0;
     }
 }

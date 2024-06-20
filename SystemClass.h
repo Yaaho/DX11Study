@@ -6,12 +6,9 @@
 // 이때 주의점이 있는데 전방선언 시 객체는 포인터로만 선언해야 한다. 
 // 전방 선언 만으로는 해당 객체의 크기를 파악할 수 없기 때문
 
-// 입력을 처리하는 클래스
-class InputClass;
-// 그래픽을 처리하는 클래스
-class GraphicsClass;
+
+class ApplicationClass;
 class TimerClass;
-class PositionClass;
 
 
 // WinAPI 윈도우 프로그래밍을 클래스 화 한 것
@@ -32,7 +29,6 @@ public:
 
 private:
 	bool Frame();
-	bool HandleInput(float);
 	void InitializeWindows(int&, int&);
 	void ShutdownWindows();
 
@@ -40,11 +36,9 @@ private:
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
-
-	InputClass* m_Input = nullptr;
-	GraphicsClass* m_Graphics = nullptr;
+	
+	ApplicationClass* m_Application = nullptr;
 	TimerClass* m_Timer = nullptr;
-	PositionClass* m_Position = nullptr;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

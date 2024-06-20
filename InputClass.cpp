@@ -285,3 +285,14 @@ bool InputClass::IsPgDownPressed()
 
 	return false;
 }
+
+bool InputClass::IsLeftMouseButtonDown()
+{
+	// 마우스 왼쪽 버튼이 현재 눌러져 있는지 확인합니다.
+	if (m_mouseState.rgbButtons[0] & 0x80)
+	{
+		return true;
+	}
+
+	return false;
+}

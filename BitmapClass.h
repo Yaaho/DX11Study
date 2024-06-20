@@ -16,13 +16,12 @@ public:
     BitmapClass(const BitmapClass&);
     ~BitmapClass();
 
-    bool Initialize(ID3D11Device*, int, int, const WCHAR*, const WCHAR*, int, int);
+    bool Initialize(ID3D11Device*, int, int, const WCHAR*, int, int);
     void Shutdown();
     bool Render(ID3D11DeviceContext*, int, int);
 
     int GetIndexCount();
     ID3D11ShaderResourceView* GetTexture();
-    ID3D11ShaderResourceView* GetGlowMap();
 
 private:
     bool InitializeBuffers(ID3D11Device*);
@@ -30,7 +29,7 @@ private:
     bool UpdateBuffers(ID3D11DeviceContext*, int, int);
     void RenderBuffers(ID3D11DeviceContext*);
 
-    bool LoadTextures(ID3D11Device*, const WCHAR*, const WCHAR*);
+    bool LoadTextures(ID3D11Device*, const WCHAR*);
     void ReleaseTextures();
 
 private:
@@ -39,7 +38,6 @@ private:
     int m_vertexCount = 0;
     int m_indexCount = 0;
     TextureClass* m_Texture = nullptr;
-    TextureClass* m_GlowMap = nullptr;
     int m_screenWidth = 0;
     int m_screenHeight = 0;
     int m_bitmapWidth = 0;

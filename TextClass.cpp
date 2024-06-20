@@ -55,13 +55,13 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
     }
 
     // 첫번째 문장을 초기화한다.
-    if (!InitializeSentence(&m_sentence1, 16, device))
+    if (!InitializeSentence(&m_sentence1, 32, device))
     {
         return false;
     }
 
     // 문장 정점 버퍼를 새 문자열 정보로 업데이트한다.
-    if (!UpdateSentence(m_sentence1, "Render Count: ", 20, 20, 1.0f, 1.0f, 1.0f, deviceContext))
+    if (!UpdateSentence(m_sentence1, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, deviceContext))
     {
         return false;
     }
@@ -311,18 +311,21 @@ bool TextClass::RenderSentence(ID3D11DeviceContext* deviceContext, SentenceType*
     return true;
 }
 
-bool TextClass::SetRenderCount(int count, ID3D11DeviceContext* deviceContext)
+bool TextClass::SetIntersection(bool intersection, ID3D11DeviceContext* deviceContext)
 {
-    char tempString[32] = { 0, };
-    char countString[32] = { 0, };
+    char intersectionString[32] = { 0, };
+    bool result = false;
 
-    // count 정수를 문자열 형식으로 변환한다.
-    _itoa_s(count, tempString, 10);
+    if (intersection)
+    {
+        strcpy_s(intersectionString, "Intersection: Yes");
+        result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 0.0f, 1.0f, 0.0f, deviceContext);
+    }
+    else
+    {
+        strcpy_s(intersectionString, "Intersection: No");
+        result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, deviceContext);
+    }
 
-    // render count 문자열 설정
-    strcpy_s(countString, "Render Count: ");
-    strcat_s(countString, tempString);
-
-    // 정점 버퍼를 새 문자열 정보로 설정한다.
-    return UpdateSentence(m_sentence1, countString, 20, 20, 1.0f, 1.0f, 1.0f, deviceContext);
+    return result;
 }

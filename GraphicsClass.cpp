@@ -134,6 +134,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	/*
 	// 비트 맵 객체를 초기화합니다.
 	if (!m_Bitmap->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, L"data/test.dds",
 		L"data/glowmap.dds", 256, 32))
@@ -141,7 +142,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
 	}
-
+	*/
 
 	// 수평 블러 쉐이더 객체를 만듭니다.
 	m_HorizontalBlurShader = new HorizontalBlurShaderClass;
@@ -644,9 +645,12 @@ bool GraphicsClass::RenderGlowMapToTexture()
 		return false;
 	}
 
+	/*
 	// 글로우 맵 셰이더를 사용하여 비트 맵을 렌더링합니다.
 	m_GlowMapShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix,
 		orthoMatrix, m_Bitmap->GetTexture(), m_Bitmap->GetGlowMap());
+	*/
+
 
 	//모든 2D 렌더링이 완료되었으므로 Z 버퍼를 다시 켜십시오.
 	m_Direct3D->TurnZBufferOn();
@@ -991,11 +995,13 @@ bool GraphicsClass::RenderText(int renderCount)
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
+	/*
 	// 이 프레임에서 실제로 렌더링 된 모델의 수를 설정한다.
 	if (!m_Text->SetRenderCount(renderCount, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
 	}
+	*/
 
 	// 텍스트를 렌더링하기 전에 알파 블렌딩을 켠다.
 	m_Direct3D->EnableAlphaBlending();
