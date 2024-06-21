@@ -31,14 +31,14 @@ void ShadowShaderClass::Shutdown()
 }
 
 
-bool ShadowShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
-    XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix,
-    XMMATRIX lightProjectionMatrix, ID3D11ShaderResourceView* depthMapTexture,
-    XMFLOAT3 lightPosition)
+bool ShadowShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
+    XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix,
+    ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture,
+    XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix,
-        lightProjectionMatrix, depthMapTexture, lightPosition))
+    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, lightViewMatrix, lightProjectionMatrix,
+        texture, depthMapTexture, lightDirection, ambientColor, diffuseColor))
     {
         return false;
     }
@@ -159,9 +159,9 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const 
     // 텍스처 샘플러 상태 구조체를 생성 및 설정합니다.
     D3D11_SAMPLER_DESC samplerDesc;
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -173,13 +173,24 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const 
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
     // 텍스처 샘플러 상태를 만듭니다.
+    result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // 클램프 텍스처 샘플러 상태 설명을 만듭니다.
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    // 텍스처 샘플러 상태를 만듭니다.
     result = device->CreateSamplerState(&samplerDesc, &m_sampleStateClamp);
     if (FAILED(result))
     {
         return false;
     }
 
-    // 버텍스 쉐이더에있는 동적 매트릭스 상수 버퍼에 대한 구조체를 설정합니다.
     D3D11_BUFFER_DESC matrixBufferDesc;
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
@@ -195,17 +206,18 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const 
         return false;
     }
 
-    // 버텍스 쉐이더에있는 광원 동적 상수 버퍼의 설명을 설정합니다.
-    D3D11_BUFFER_DESC lightBufferDesc2;
-    lightBufferDesc2.Usage = D3D11_USAGE_DYNAMIC;
-    lightBufferDesc2.ByteWidth = sizeof(LightBufferType2);
-    lightBufferDesc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    lightBufferDesc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    lightBufferDesc2.MiscFlags = 0;
-    lightBufferDesc2.StructureByteStride = 0;
+    // 픽셀 쉐이더에있는 광원 동적 상수 버퍼의 설명을 설정합니다.
+    // D3D11_BIND_CONSTANT_BUFFER를 사용하면 ByteWidth가 항상 16의 배수 여야하며 그렇지 않으면 CreateBuffer가 실패합니다.
+    D3D11_BUFFER_DESC lightBufferDesc;
+    lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+    lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    lightBufferDesc.MiscFlags = 0;
+    lightBufferDesc.StructureByteStride = 0;
 
     // 이 클래스 내에서 정점 셰이더 상수 버퍼에 액세스 할 수 있도록 상수 버퍼 포인터를 만듭니다.
-    result = device->CreateBuffer(&lightBufferDesc2, NULL, &m_lightBuffer2);
+    result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
     if (FAILED(result))
     {
         return false;
@@ -218,10 +230,10 @@ bool ShadowShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const 
 void ShadowShaderClass::ShutdownShader()
 {
     // 광원 상수 버퍼를 해제합니다.
-    if (m_lightBuffer2)
+    if (m_lightBuffer)
     {
-        m_lightBuffer2->Release();
-        m_lightBuffer2 = 0;
+        m_lightBuffer->Release();
+        m_lightBuffer = 0;
     }
 
     // 행렬 상수 버퍼를 해제합니다.
@@ -232,6 +244,12 @@ void ShadowShaderClass::ShutdownShader()
     }
 
     // 샘플러 상태를 해제한다.
+    if (m_sampleStateWrap)
+    {
+        m_sampleStateWrap->Release();
+        m_sampleStateWrap = 0;
+    }
+
     if (m_sampleStateClamp)
     {
         m_sampleStateClamp->Release();
@@ -276,9 +294,9 @@ void ShadowShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND 
 
 
 bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-    XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix,
-    XMMATRIX lightProjectionMatrix, ID3D11ShaderResourceView* depthMapTexture,
-    XMFLOAT3 lightPosition)
+    XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix,
+    ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* depthMapTexture,
+    XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -314,29 +332,32 @@ bool ShadowShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다.
-    deviceContext->PSSetShaderResources(0, 1, &depthMapTexture);
+    deviceContext->PSSetShaderResources(0, 1, &texture);
+    deviceContext->PSSetShaderResources(1, 1, &depthMapTexture);
 
-    // 쓸 수 있도록 두 번째 빛 상수 버퍼를 잠급니다.
-    if (FAILED(deviceContext->Map(m_lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    // light constant buffer를 잠글 수 있도록 기록한다.
+    if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
     {
         return false;
     }
 
     // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
-    LightBufferType2* dataPtr3 = (LightBufferType2*)mappedResource.pData;
+    LightBufferType* dataPtr2 = (LightBufferType*)mappedResource.pData;
 
     // 조명 변수를 상수 버퍼에 복사합니다.
-    dataPtr3->lightPosition = lightPosition;
-    dataPtr3->padding = 0.0f;
+    dataPtr2->ambientColor = ambientColor;
+    dataPtr2->diffuseColor = diffuseColor;
+    dataPtr2->lightDirection = lightDirection;
+    dataPtr2->padding = 0.0f;
 
     // 상수 버퍼의 잠금을 해제합니다.
-    deviceContext->Unmap(m_lightBuffer2, 0);
+    deviceContext->Unmap(m_lightBuffer, 0);
 
-    // 버텍스 쉐이더에서 라이트 상수 버퍼의 위치를 ??설정합니다.
-    bufferNumber = 1;
+    // 픽셀 쉐이더에서 광원 상수 버퍼의 위치를 ??설정합니다.
+    bufferNumber = 0;
 
     // 마지막으로 업데이트 된 값으로 픽셀 쉐이더에서 광원 상수 버퍼를 설정합니다.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer2);
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
     return true;
 }
@@ -353,6 +374,7 @@ void ShadowShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int ind
 
     // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
     deviceContext->PSSetSamplers(0, 1, &m_sampleStateClamp);
+    deviceContext->PSSetSamplers(1, 1, &m_sampleStateWrap);
 
     // 삼각형을 그립니다.
     deviceContext->DrawIndexed(indexCount, 0, 0);

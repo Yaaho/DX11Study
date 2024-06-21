@@ -3,21 +3,21 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+const float SCREEN_DEPTH = 100.0f;
+const float SCREEN_NEAR = 1.0f;
+const int SHADOWMAP_WIDTH = 1024;
+const int SHADOWMAP_HEIGHT = 1024;
+const float SHADOWMAP_DEPTH = 50.0f;
+const float SHADOWMAP_NEAR = 1.0f;
 
 
 class D3DClass;
-class InputClass;
 class CameraClass;
 class ModelClass;
-class TextureShaderClass;
-class BitmapClass;
-class LightShaderClass;
 class LightClass;
-class TextClass;
-
-
+class RenderTextureClass;
+class DepthShaderClass;
+class ShadowShaderClass;
 
 
 class ApplicationClass
@@ -32,30 +32,17 @@ public:
     bool Frame(float);
 
 private:
-    bool HandleInput();
+    bool RenderSceneToTexture();
     bool Render();
 
-
-    void TestIntersection(int, int);
-    bool RaySphereIntersect(XMFLOAT3, XMFLOAT3, float);
-
-
-
-
 private:
-    InputClass* m_Input = nullptr;
     D3DClass* m_D3D = nullptr;
-    CameraClass* m_Camera = nullptr;
-    ModelClass* m_Model = nullptr;
-    TextureShaderClass* m_TextureShader = nullptr;
-    LightShaderClass* m_LightShader = nullptr;
+    CameraClass* m_Camera = nullptr;;
+    ModelClass* m_CubeModel = nullptr;
+    ModelClass* m_GroundModel = nullptr;
+    ModelClass* m_SphereModel = nullptr;
     LightClass* m_Light = nullptr;
-    TextClass* m_Text = nullptr;
-    BitmapClass* m_Bitmap = nullptr;
-
-
-
-    bool m_beginCheck = false;
-    int m_screenWidth = 0;
-    int m_screenHeight = 0;
+    RenderTextureClass* m_RenderTexture = nullptr;
+    DepthShaderClass* m_DepthShader = nullptr;
+    ShadowShaderClass* m_ShadowShader = nullptr;
 };
