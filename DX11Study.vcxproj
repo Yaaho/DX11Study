@@ -174,6 +174,8 @@
     <ClInclude Include="TextureClass.h" />
     <ClInclude Include="TextureShaderClass.h" />
     <ClInclude Include="TimerClass.h" />
+    <ClInclude Include="TransparentDepthShaderClass.h" />
+    <ClInclude Include="TreeClass.h" />
     <ClInclude Include="VerticalBlurShaderClass.h" />
     <ClInclude Include="ViewPointClass.h" />
     <ClInclude Include="WaterShaderClass.h" />
@@ -223,6 +225,8 @@
     <ClCompile Include="TextureClass.cpp" />
     <ClCompile Include="TextureShaderClass.cpp" />
     <ClCompile Include="TimerClass.cpp" />
+    <ClCompile Include="TransparentDepthShaderClass.cpp" />
+    <ClCompile Include="TreeClass.cpp" />
     <ClCompile Include="VerticalBlurShaderClass.cpp" />
     <ClCompile Include="ViewPointClass.cpp" />
     <ClCompile Include="WaterShaderClass.cpp" />
@@ -760,6 +764,34 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="TransparentDepthPS.HLSL">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TransparentDepthPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TransparentDepthPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TransparentDepthPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TransparentDepthPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="TransparentDepthVS.HLSL">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TransparentDepthVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TransparentDepthVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TransparentDepthVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TransparentDepthVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="VerticalBlurPS.HLSL">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VerticalBlurPixelShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -824,6 +856,7 @@
     <Image Include="data\bump01.dds" />
     <Image Include="data\bump02.dds" />
     <Image Include="data\bump03.dds" />
+    <Image Include="data\dirt.dds" />
     <Image Include="data\dirt01.dds" />
     <Image Include="data\dx11.dds" />
     <Image Include="data\fire01.dds" />
@@ -851,6 +884,8 @@
     <Image Include="data\stone01.dds" />
     <Image Include="data\stone02.dds" />
     <Image Include="data\test.dds" />
+    <Image Include="data\trees\leaf001.dds" />
+    <Image Include="data\trees\trunk001.dds" />
     <Image Include="data\wall01.dds" />
     <Image Include="data\water01.dds" />
   </ItemGroup>
@@ -864,6 +899,8 @@
     <Text Include="data\plane01.txt" />
     <Text Include="data\sphere.txt" />
     <Text Include="data\square.txt" />
+    <Text Include="data\trees\leaf001.txt" />
+    <Text Include="data\trees\trunk001.txt" />
     <Text Include="data\wall.txt" />
     <Text Include="data\water.txt" />
   </ItemGroup>

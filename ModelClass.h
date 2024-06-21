@@ -46,7 +46,7 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, char*);
+	bool Initialize(ID3D11Device*, char*, float);
 	bool LoadTextures(ID3D11Device*, WCHAR*);
 	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*);
 	bool LoadTextures(ID3D11Device*, WCHAR*, WCHAR*, WCHAR*);
@@ -59,11 +59,11 @@ public:
 	ID3D11ShaderResourceView* GetTexture(int index);
 	ID3D11ShaderResourceView** GetTextureArray();
 
-	void SetPosition(float, float, float);
-	void GetPosition(float&, float&, float&);
+	void SetPosition(XMFLOAT3);
+	void GetPosition(XMFLOAT3&);
 
 private:
-	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffers(ID3D11Device*, float);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 

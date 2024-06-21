@@ -18,7 +18,7 @@ ModelClass::~ModelClass()
 }
 
 
-bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename)
+bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, float scale)
 {
 	// 모델 데이터를 로드한다.
 	if (!LoadModel(modelFilename))
@@ -30,7 +30,7 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename)
 	CalculateModelVectors();
 
 	// 정점 및 인덱스 버퍼를 초기화한다.
-	if (!InitializeBuffers(device))
+	if (!InitializeBuffers(device, scale))
 	{
 		return false;
 	}
@@ -82,20 +82,19 @@ ID3D11ShaderResourceView** ModelClass::GetTextureArray()
 }
 
 
-void ModelClass::SetPosition(float x, float y, float z)
+void ModelClass::SetPosition(XMFLOAT3 pos)
 {
-	m_position = { x, y, z };
-}
-
-void ModelClass::GetPosition(float& x, float& y, float& z)
-{
-	x = m_position.x;
-	y = m_position.y;
-	z = m_position.z;
+	m_position = pos;
 }
 
 
-bool ModelClass::InitializeBuffers(ID3D11Device* device)
+void ModelClass::GetPosition(XMFLOAT3& pos)
+{
+	pos = m_position;
+}
+
+
+bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 {
 	// 정점 배열을 만든다.
 	VertexType* vertices = new VertexType[m_vertexCount];
@@ -114,7 +113,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device)
 	// 정점 배열과 인덱스 배열을 데이터로 읽어온다.
 	for (int i = 0; i < m_vertexCount; i++)
 	{
-		vertices[i].position = XMFLOAT3(m_model[i].x, m_model[i].y, m_model[i].z);
+		vertices[i].position = XMFLOAT3(m_model[i].x * scale, m_model[i].y * scale, m_model[i].z * scale);
 		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
 		vertices[i].tangent = XMFLOAT3(m_model[i].tx, m_model[i].ty, m_model[i].tz);

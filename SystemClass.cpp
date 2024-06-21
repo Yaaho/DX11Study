@@ -1,6 +1,5 @@
 #include "Stdafx.h"
 #include "ApplicationClass.h"
-#include "TimerClass.h"
 #include "SystemClass.h"
 
 
@@ -37,30 +36,11 @@ bool SystemClass::Initialize()
 		return false;
 	}
 
-	m_Timer = new TimerClass;
-	if (!m_Timer)
-	{
-		return true;
-	}
-
-	if (!m_Timer->Initialize())
-	{
-		MessageBox(m_hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
-		return false;
-	}
-
 	return true;
 }
 
 void SystemClass::Shutdown()
 {
-	// 타이머 객체를 해제한다.
-	if (m_Timer)
-	{
-		delete m_Timer;
-		m_Timer = 0;
-	}
-
 	if (m_Application)
 	{
 		m_Application->Shutdown();
@@ -105,10 +85,8 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
-	// 시스템 상태를 갱신합니다.
-	m_Timer->Frame();
-
-	return m_Application->Frame(m_Timer->GetTime());
+	// 응용 프로그램 개체에 대한 프레임 처리를 수행합니다.
+	return m_Application->Frame();
 }
 
 
@@ -116,6 +94,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 {
 	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
+
 
 void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 {
@@ -126,7 +105,7 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// 프로그램 이름을 지정합니다
-	m_applicationName = L"Dx11Demo_47";
+	m_applicationName = L"Dx11Demo_49";
 
 	// windows 클래스를 아래와 같이 설정합니다.
 	WNDCLASSEX wc;
@@ -181,23 +160,18 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// 윈도우를 생성하고 핸들을 구합니다.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-		WS_POPUP,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 
 	// 윈도우를 화면에 표시하고 포커스를 지정합니다
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);
 	SetFocus(m_hwnd);
-
-	// Hide the mouse cursor.
-	ShowCursor(false);
 }
+
 
 void SystemClass::ShutdownWindows()
 {
-	// Show the mouse cursor.
-	ShowCursor(true);
-
 	// 풀스크린 모드였다면 디스플레이 설정을 초기화합니다.
 	if (FULL_SCREEN)
 	{
@@ -215,6 +189,7 @@ void SystemClass::ShutdownWindows()
 	// 외부포인터 참조를 초기화합니다
 	ApplicationHandle = NULL;
 }
+
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
@@ -241,6 +216,4 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	}
 	}
 }
-
-
 

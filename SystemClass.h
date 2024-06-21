@@ -8,8 +8,6 @@
 
 
 class ApplicationClass;
-class TimerClass;
-
 
 // WinAPI 윈도우 프로그래밍을 클래스 화 한 것
 class SystemClass
@@ -38,7 +36,6 @@ private:
 	HWND m_hwnd;
 	
 	ApplicationClass* m_Application = nullptr;
-	TimerClass* m_Timer = nullptr;
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

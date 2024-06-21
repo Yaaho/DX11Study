@@ -20,7 +20,6 @@ struct PixelInputType
 PixelInputType DepthVertexShader(VertexInputType input)
 {
     PixelInputType output;
-    
 
 	// 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
     input.position.w = 1.0f;

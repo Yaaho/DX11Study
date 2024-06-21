@@ -165,6 +165,12 @@
     <ClInclude Include="ApplicationClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TransparentDepthShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -308,6 +314,12 @@
     <ClCompile Include="ApplicationClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="TransparentDepthShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -352,6 +364,8 @@
     <FxCompile Include="GlowMapPS.HLSL" />
     <FxCompile Include="GlowVS.HLSL" />
     <FxCompile Include="GlowPS.HLSL" />
+    <FxCompile Include="TransparentDepthVS.HLSL" />
+    <FxCompile Include="TransparentDepthPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -389,6 +403,9 @@
     <Image Include="data\mouse.dds" />
     <Image Include="data\normal.dds" />
     <Image Include="data\test.dds" />
+    <Image Include="data\dirt.dds" />
+    <Image Include="data\trees\leaf001.dds" />
+    <Image Include="data\trees\trunk001.dds" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\model.txt" />
@@ -402,5 +419,7 @@
     <Text Include="data\water.txt" />
     <Text Include="data\square.txt" />
     <Text Include="data\plane01.txt" />
+    <Text Include="data\trees\leaf001.txt" />
+    <Text Include="data\trees\trunk001.txt" />
   </ItemGroup>
 </Project>
