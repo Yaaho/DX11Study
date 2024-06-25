@@ -171,6 +171,12 @@
     <ClInclude Include="TreeClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DeferredBuffersClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DeferredShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -320,6 +326,12 @@
     <ClCompile Include="TreeClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DeferredBuffersClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DeferredShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -366,6 +378,8 @@
     <FxCompile Include="GlowPS.HLSL" />
     <FxCompile Include="TransparentDepthVS.HLSL" />
     <FxCompile Include="TransparentDepthPS.HLSL" />
+    <FxCompile Include="DeferredVS.HLSL" />
+    <FxCompile Include="DeferredPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
