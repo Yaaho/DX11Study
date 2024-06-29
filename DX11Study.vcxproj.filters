@@ -45,9 +45,6 @@
     <ClInclude Include="CameraClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TextureClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -102,19 +99,10 @@
     <ClInclude Include="WaterShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RefractionShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LightShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="GlassShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FireShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HorizontalBlurShaderClass.h">
@@ -126,16 +114,7 @@
     <ClInclude Include="ColorShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystemClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ShadowShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SoftShadowShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ProjectionShaderClass.h">
@@ -145,12 +124,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManagerClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BumpMapShaderClass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BumpModelClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="BitmapClass.h">
@@ -168,10 +141,13 @@
     <ClInclude Include="TransparentDepthShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TreeClass.h">
+    <ClInclude Include="TextureClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DeferredBuffersClass.h">
+    <ClInclude Include="GBufferShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GBuffersClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DeferredShaderClass.h">
@@ -198,9 +174,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CameraClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp">
@@ -257,19 +230,10 @@
     <ClCompile Include="WaterShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="RefractionShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LightShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="GlassShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FireShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="HorizontalBlurShaderClass.cpp">
@@ -281,16 +245,7 @@
     <ClCompile Include="ColorShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystemClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SoftShadowShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ProjectionShaderClass.cpp">
@@ -300,12 +255,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManagerClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BumpMapShaderClass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BumpModelClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="BitmapClass.cpp">
@@ -323,10 +272,13 @@
     <ClCompile Include="TransparentDepthShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TreeClass.cpp">
+    <ClCompile Include="TextureClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DeferredBuffersClass.cpp">
+    <ClCompile Include="GBufferShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GBuffersClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DeferredShaderClass.cpp">
@@ -344,16 +296,12 @@
     <FxCompile Include="FadePS.HLSL" />
     <FxCompile Include="WaterVS.HLSL" />
     <FxCompile Include="WaterPS.HLSL" />
-    <FxCompile Include="RefractionPS.HLSL" />
-    <FxCompile Include="RefractionVS.HLSL" />
-    <FxCompile Include="LightVS.HLSL" />
-    <FxCompile Include="LightPS.HLSL" />
+    <FxCompile Include="DeferredVS.HLSL" />
+    <FxCompile Include="DeferredPS.HLSL" />
     <FxCompile Include="GlassVS.HLSL" />
     <FxCompile Include="GlassPS.HLSL" />
     <FxCompile Include="FireVS.HLSL" />
     <FxCompile Include="FirePS.HLSL" />
-    <FxCompile Include="DepthVS.HLSL" />
-    <FxCompile Include="DepthPS.HLSL" />
     <FxCompile Include="HorizontalBlurVS.HLSL" />
     <FxCompile Include="HorizontalBlurPS.HLSL" />
     <FxCompile Include="VerticalBlurVS.HLSL" />
@@ -362,24 +310,18 @@
     <FxCompile Include="ColorHS.HLSL" />
     <FxCompile Include="ColorDS.HLSL" />
     <FxCompile Include="ColorPS.HLSL" />
-    <FxCompile Include="ParticleVS.HLSL" />
-    <FxCompile Include="ParticlePS.HLSL" />
     <FxCompile Include="ShadowVS.HLSL" />
     <FxCompile Include="ShadowPS.HLSL" />
-    <FxCompile Include="SoftShadowVS.HLSL" />
-    <FxCompile Include="SoftShadowPS.HLSL" />
     <FxCompile Include="ProjectionVS.HLSL" />
     <FxCompile Include="ProjectionPS.HLSL" />
-    <FxCompile Include="BumpMapVS.HLSL" />
-    <FxCompile Include="BumpMapPS.HLSL" />
     <FxCompile Include="GlowMapVS.HLSL" />
     <FxCompile Include="GlowMapPS.HLSL" />
     <FxCompile Include="GlowVS.HLSL" />
     <FxCompile Include="GlowPS.HLSL" />
     <FxCompile Include="TransparentDepthVS.HLSL" />
     <FxCompile Include="TransparentDepthPS.HLSL" />
-    <FxCompile Include="DeferredVS.HLSL" />
-    <FxCompile Include="DeferredPS.HLSL" />
+    <FxCompile Include="GBufferVS.HLSL" />
+    <FxCompile Include="GBufferPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />

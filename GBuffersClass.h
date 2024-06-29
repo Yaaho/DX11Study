@@ -1,14 +1,13 @@
 #pragma once
 
-
 const int BUFFER_COUNT = 2;
 
-class DeferredBuffersClass
+class GBuffersClass
 {
 public:
-	DeferredBuffersClass();
-	DeferredBuffersClass(const DeferredBuffersClass&);
-	~DeferredBuffersClass();
+	GBuffersClass();
+	GBuffersClass(const GBuffersClass&);
+	~GBuffersClass();
 
 	bool Initialize(ID3D11Device*, int, int, float, float);
 	void Shutdown();

@@ -4,28 +4,25 @@ cbuffer MatrixBuffer
     matrix viewMatrix;
     matrix projectionMatrix;
 };
- 
 
 struct VertexInputType
 {
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
 };
  
 struct PixelInputType
 {
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
-    float3 normal : NORMAL;
 };
  
 
 PixelInputType DeferredVertexShader(VertexInputType input)
 {
-    PixelInputType output;
+    PixelInputType output = (PixelInputType) 0;
     
-    
+ 
     // 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
     input.position.w = 1.0f;
  
@@ -37,11 +34,5 @@ PixelInputType DeferredVertexShader(VertexInputType input)
     // 픽셀 쉐이더의 텍스처 좌표를 저장한다.
     output.tex = input.tex;
     
-    // 법선 벡터를 월드 좌표계로 변환
-    output.normal = mul(input.normal, (float3x3) worldMatrix);
-    
-    // 법선 벡터를 정규화합니다.
-    output.normal = normalize(output.normal);
- 
     return output;
 }

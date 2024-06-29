@@ -1,30 +1,30 @@
 #include "Stdafx.h"
-#include "DeferredBuffersClass.h"
+#include "GBuffersClass.h"
 
-DeferredBuffersClass::DeferredBuffersClass()
+GBuffersClass::GBuffersClass()
 {
-	for (int i = 0; i < BUFFER_COUNT; i++)
-	{
-		m_renderTargetTextureArray[i] = 0;
-		m_renderTargetViewArray[i] = 0;
-		m_shaderResourceViewArray[i] = 0;
-	}
+    for (int i = 0; i < BUFFER_COUNT; i++)
+    {
+        m_renderTargetTextureArray[i] = 0;
+        m_renderTargetViewArray[i] = 0;
+        m_shaderResourceViewArray[i] = 0;
+    }
 
-	m_depthStencilBuffer = 0;
-	m_depthStencilView = 0;
+    m_depthStencilBuffer = 0;
+    m_depthStencilView = 0;
 }
 
-DeferredBuffersClass::DeferredBuffersClass(const DeferredBuffersClass& other)
-{
-
-}
-
-DeferredBuffersClass::~DeferredBuffersClass()
+GBuffersClass::GBuffersClass(const GBuffersClass& other)
 {
 
 }
 
-bool DeferredBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth,
+GBuffersClass::~GBuffersClass()
+{
+
+}
+
+bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth,
     float screenNear)
 {
 
@@ -147,7 +147,7 @@ bool DeferredBuffersClass::Initialize(ID3D11Device* device, int textureWidth, in
 }
 
 
-void DeferredBuffersClass::Shutdown()
+void GBuffersClass::Shutdown()
 {
     if (m_depthStencilView)
     {
@@ -184,7 +184,7 @@ void DeferredBuffersClass::Shutdown()
 }
 
 
-void DeferredBuffersClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
+void GBuffersClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
 {
     // 렌더링 대상 뷰 배열 및 깊이 스텐실 버퍼를 출력 렌더 파이프 라인에 바인딩 합니다.
     deviceContext->OMSetRenderTargets(BUFFER_COUNT, m_renderTargetViewArray, m_depthStencilView);
@@ -194,7 +194,7 @@ void DeferredBuffersClass::SetRenderTargets(ID3D11DeviceContext* deviceContext)
 }
 
 
-void DeferredBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext, float red, float green, float blue,
+void GBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext, float red, float green, float blue,
     float alpha)
 {
     // 버퍼를 지울 색을 설정합니다.
@@ -211,7 +211,7 @@ void DeferredBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext
 }
 
 
-ID3D11ShaderResourceView* DeferredBuffersClass::GetShaderResourceView(int view)
+ID3D11ShaderResourceView* GBuffersClass::GetShaderResourceView(int view)
 {
     return m_shaderResourceViewArray[view];
 }

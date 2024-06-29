@@ -66,11 +66,6 @@ int ModelClass::GetIndexCount()
 	return m_indexCount;
 }
 
-int ModelClass::GetInstanceCount()
-{
-	return m_instanceCount;
-}
-
 ID3D11ShaderResourceView* ModelClass::GetTexture(int index)
 {
 	return m_TextureArray->GetTexture(index);
@@ -171,62 +166,11 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 	delete[] indices;
 	indices = 0;
 
-
-	// 배열의 인스턴스 수를 설정합니다.
-	m_instanceCount = 4;
-
-	// 인스턴스 배열을 만듭니다.
-	InstanceType* instances = new InstanceType[m_instanceCount];
-	if (!instances)
-	{
-		return false;
-	}
-
-	// 데이터로 인스턴스 배열을 로드합니다.
-	instances[0].position = XMFLOAT3(-1.5f, -1.5f, 5.0f);
-	instances[1].position = XMFLOAT3(-1.5f, 1.5f, 5.0f);
-	instances[2].position = XMFLOAT3(1.5f, -1.5f, 5.0f);
-	instances[3].position = XMFLOAT3(1.5f, 1.5f, 5.0f);
-
-	// 인스턴스 버퍼의 설명을 설정합니다.
-	D3D11_BUFFER_DESC instanceBufferDesc;
-	instanceBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	instanceBufferDesc.ByteWidth = sizeof(InstanceType) * m_instanceCount;
-	instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	instanceBufferDesc.CPUAccessFlags = 0;
-	instanceBufferDesc.MiscFlags = 0;
-	instanceBufferDesc.StructureByteStride = 0;
-
-	// 하위 리소스 구조에 인스턴스 데이터에 대한 포인터를 제공합니다.
-	D3D11_SUBRESOURCE_DATA instanceData;
-	instanceData.pSysMem = instances;
-	instanceData.SysMemPitch = 0;
-	instanceData.SysMemSlicePitch = 0;
-
-	// 인스턴스 버퍼를 만듭니다.
-	if (FAILED(device->CreateBuffer(&instanceBufferDesc, &instanceData, &m_instanceBuffer)))
-	{
-		return false;
-	}
-
-	// 인스턴스 버퍼가 생성되고로드되었으므로 인스턴스 배열을 해제합니다.
-	delete[] instances;
-	instances = 0;
-
-
 	return true;
-
 }
 
 void ModelClass::ShutdownBuffers()
 {
-	// 인스턴스 버퍼를 해제합니다.
-	if (m_instanceBuffer)
-	{
-		m_instanceBuffer->Release();
-		m_instanceBuffer = 0;
-	}
-
 	// 인덱스 버퍼를 해제한다.
 	if (m_indexBuffer)
 	{
@@ -245,14 +189,15 @@ void ModelClass::ShutdownBuffers()
 void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
 	// 정점 버퍼의 단위와 오프셋을 설정한다.
-	unsigned int strides[2] = {sizeof(VertexType), sizeof(InstanceType)};
-	unsigned int offsets[2] = {0, 0};
+	unsigned int stride;
+	unsigned int offset;
 
-	// 포인터의 배열을 정점 버퍼와 인스턴스 버퍼로 설정합니다.
-	ID3D11Buffer* bufferPointers[2] = { m_vertexBuffer, m_instanceBuffer };
+	// Set vertex buffer stride and offset.
+	stride = sizeof(VertexType);
+	offset = 0;
 
 	// 렌더링 할 수 있도록 입력 어셈블러에서 정점 버퍼를 활성으로 설정한다.
-	deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
 	// 렌더링 할 수 있도록 입력 어셈블러에서 인덱스 버퍼를 활성으로 설정한다.
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
@@ -261,7 +206,7 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1)
+bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1)
 {
 	// 텍스쳐 오브젝트를 생성한다.
 	m_TextureArray = new TextureArrayClass;
@@ -274,7 +219,7 @@ bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1)
 	return m_TextureArray->Initialize(device, filename1);
 }
 
-bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2)
+bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2)
 {
 	// 텍스쳐 오브젝트를 생성한다.
 	m_TextureArray = new TextureArrayClass;
@@ -287,7 +232,7 @@ bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1, WCHAR* fil
 	return m_TextureArray->Initialize(device, filename1, filename2);
 }
 
-bool ModelClass::LoadTextures(ID3D11Device* device, WCHAR* filename1, WCHAR* filename2, WCHAR* filename3)
+bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3)
 {
 	// 텍스쳐 오브젝트를 생성한다.
 	m_TextureArray = new TextureArrayClass;
@@ -311,7 +256,7 @@ void ModelClass::ReleaseTexture()
 	}
 }
 
-bool ModelClass::LoadModel(char* filename)
+bool ModelClass::LoadModel(const char* filename)
 {
 	// 모델 파일을 연다.
 	ifstream fin;

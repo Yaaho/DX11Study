@@ -1,6 +1,6 @@
 #pragma once
 
-class ParticleShaderClass : public AlignedAllocationPolicy<16>
+class GBufferShaderClass
 {
 private:
     struct MatrixBufferType
@@ -11,9 +11,9 @@ private:
     };
 
 public:
-    ParticleShaderClass();
-    ParticleShaderClass(const ParticleShaderClass&);
-    ~ParticleShaderClass();
+    GBufferShaderClass();
+    GBufferShaderClass(const GBufferShaderClass&);
+    ~GBufferShaderClass();
 
     bool Initialize(ID3D11Device*, HWND);
     void Shutdown();
@@ -32,5 +32,5 @@ private:
     ID3D11PixelShader* m_pixelShader = nullptr;
     ID3D11InputLayout* m_layout = nullptr;
     ID3D11Buffer* m_matrixBuffer = nullptr;
-    ID3D11SamplerState* m_sampleState = nullptr;
+    ID3D11SamplerState* m_sampleStateWrap = nullptr;
 };
