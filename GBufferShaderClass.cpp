@@ -30,11 +30,17 @@ void GBufferShaderClass::Shutdown()
 }
 
 
-bool GBufferShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix,
-    XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool GBufferShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
+    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+    ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* texture3, ID3D11ShaderResourceView* texture4, ID3D11ShaderResourceView* texture5,
+    XMFLOAT4 gAlbedo, float gMetallic, float gRoughness, 
+    int gUseAlbedoMap, int gUseOccMetalRough, int gUseAoMap, int gUseEmmisive, int gNormalState, int gConvertToLinear)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture))
+    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, 
+        texture1, texture2, texture3, texture4, texture5,
+        gAlbedo, gMetallic, gRoughness,
+        gUseAlbedoMap, gUseOccMetalRough, gUseAoMap, gUseEmmisive, gNormalState, gConvertToLinear))
     {
         return false;
     }
@@ -73,7 +79,8 @@ bool GBufferShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const
 
     // 픽셀 쉐이더 코드를 컴파일한다.
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DCompileFromFile(psFilename, NULL, NULL, "GBufferPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+    // 세이더 파일 내에 include 가 있으면 D3D_COMPILE_STANDARD_FILE_INCLUDE 를 사용해야 한다.
+    result = D3DCompileFromFile(psFilename, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "GBufferPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
         &pixelShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
@@ -109,7 +116,7 @@ bool GBufferShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const
 
     // 정점 입력 레이아웃 구조체를 설정합니다.
     // 이 설정은 ModelClass와 셰이더의 VertexType 구조와 일치해야합니다.
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -134,6 +141,23 @@ bool GBufferShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const
     polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[2].InstanceDataStepRate = 0;
 
+    polygonLayout[3].SemanticName = "TANGENT";
+    polygonLayout[3].SemanticIndex = 0;
+    polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygonLayout[3].InputSlot = 0;
+    polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygonLayout[3].InstanceDataStepRate = 0;
+
+    polygonLayout[4].SemanticName = "BINORMAL";
+    polygonLayout[4].SemanticIndex = 0;
+    polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+    polygonLayout[4].InputSlot = 0;
+    polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygonLayout[4].InstanceDataStepRate = 0;
+
+
     // 레이아웃의 요소 수를 가져옵니다.
     unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -152,29 +176,6 @@ bool GBufferShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const
     pixelShaderBuffer->Release();
     pixelShaderBuffer = 0;
 
-    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
-    D3D11_SAMPLER_DESC samplerDesc;
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.MipLODBias = 0.0f;
-    samplerDesc.MaxAnisotropy = 1;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    samplerDesc.BorderColor[0] = 0;
-    samplerDesc.BorderColor[1] = 0;
-    samplerDesc.BorderColor[2] = 0;
-    samplerDesc.BorderColor[3] = 0;
-    samplerDesc.MinLOD = 0;
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-    //텍스처 샘플러 상태를 만듭니다.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleStateWrap);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
     // 버텍스 쉐이더에있는 동적 행렬 상수 버퍼의 구조체를 설정합니다.
     D3D11_BUFFER_DESC matrixBufferDesc;
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -191,12 +192,94 @@ bool GBufferShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, const
         return false;
     }
 
+    D3D11_BUFFER_DESC PBRMaterialBufferDesc;
+    PBRMaterialBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    PBRMaterialBufferDesc.ByteWidth = sizeof(PBRMaterialBufferType);
+    PBRMaterialBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    PBRMaterialBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    PBRMaterialBufferDesc.MiscFlags = 0;
+    PBRMaterialBufferDesc.StructureByteStride = 0;
+
+    // 이 클래스 내에서 픽셀 셰이더 상수 버퍼에 엑세스 할 수 있록 상수 버퍼 포인터를 만든다.
+    if (FAILED(device->CreateBuffer(&PBRMaterialBufferDesc, NULL, &m_PBRMaterialBuffer)))
+    {
+        return false;
+    }
+
+    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
+    D3D11_SAMPLER_DESC LinearSamplerDesc;
+    LinearSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    LinearSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    LinearSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    LinearSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    LinearSamplerDesc.MipLODBias = 0.0f;
+    LinearSamplerDesc.MaxAnisotropy = 1;
+    LinearSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    LinearSamplerDesc.BorderColor[0] = 0;
+    LinearSamplerDesc.BorderColor[1] = 0;
+    LinearSamplerDesc.BorderColor[2] = 0;
+    LinearSamplerDesc.BorderColor[3] = 0;
+    LinearSamplerDesc.MinLOD = 0;
+    LinearSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    //텍스처 샘플러 상태를 만듭니다.
+    result = device->CreateSamplerState(&LinearSamplerDesc, &m_LinearSamplerState);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+
+    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
+    D3D11_SAMPLER_DESC PointSamplerDesc;
+    PointSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    PointSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    PointSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    PointSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    PointSamplerDesc.MipLODBias = 0.0f;
+    PointSamplerDesc.MaxAnisotropy = 1;
+    PointSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    PointSamplerDesc.BorderColor[0] = 0;
+    PointSamplerDesc.BorderColor[1] = 0;
+    PointSamplerDesc.BorderColor[2] = 0;
+    PointSamplerDesc.BorderColor[3] = 0;
+    PointSamplerDesc.MinLOD = 0;
+    PointSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    //텍스처 샘플러 상태를 만듭니다.
+    result = device->CreateSamplerState(&PointSamplerDesc, &m_PointSamplerState);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+
     return true;
 }
 
 
 void GBufferShaderClass::ShutdownShader()
 {
+    // 샘플러 상태를 해제한다.
+    if (m_PointSamplerState)
+    {
+        m_PointSamplerState->Release();
+        m_PointSamplerState = 0;
+    }
+
+    // 샘플러 상태를 해제한다.
+    if (m_LinearSamplerState)
+    {
+        m_LinearSamplerState->Release();
+        m_LinearSamplerState = 0;
+    }
+
+    if (m_PBRMaterialBuffer)
+    {
+        m_PBRMaterialBuffer->Release();
+        m_PBRMaterialBuffer = 0;
+    }
+
     // 행렬 상수 버퍼를 해제합니다.
     if (m_matrixBuffer)
     {
@@ -204,12 +287,6 @@ void GBufferShaderClass::ShutdownShader()
         m_matrixBuffer = 0;
     }
 
-    // 샘플러 상태를 해제한다.
-    if (m_sampleStateWrap)
-    {
-        m_sampleStateWrap->Release();
-        m_sampleStateWrap = 0;
-    }
     // 레이아웃을 해제합니다.
     if (m_layout)
     {
@@ -246,10 +323,14 @@ void GBufferShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND
     MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
-bool GBufferShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-    XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool GBufferShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+    ID3D11ShaderResourceView* texture1, ID3D11ShaderResourceView* texture2, ID3D11ShaderResourceView* texture3, ID3D11ShaderResourceView* texture4, ID3D11ShaderResourceView* texture5,
+    XMFLOAT4 gAlbedo, float gMetallic, float gRoughness,
+    int gUseAlbedoMap, int gUseOccMetalRough, int gUseAoMap, int gUseEmmisive, int gNormalState, int gConvertToLinear)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
+    // GPU가 열우선이기 때문에, CPU에서 보내기 전에 열우선으로 만들어서 보내주면 된다.
     worldMatrix = XMMatrixTranspose(worldMatrix);
     viewMatrix = XMMatrixTranspose(viewMatrix);
     projectionMatrix = XMMatrixTranspose(projectionMatrix);
@@ -278,8 +359,43 @@ bool GBufferShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     // 마지막으로 정점 셰이더의 상수 버퍼를 바뀐 값으로 바꿉니다.
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-    // 픽셀 셰이더에서 셰이더 텍스처 리소스를 설정합니다.
-    deviceContext->PSSetShaderResources(0, 1, &texture);
+
+    // light constant buffer 를 기록할 수 있도록 잠근다
+    if (FAILED(deviceContext->Map(m_PBRMaterialBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+    {
+        return false;
+    }
+
+    // constant 버퍼의 데이터에 대한 포인터를 가져온다.
+    PBRMaterialBufferType* dataptr2 = (PBRMaterialBufferType*)mappedResource.pData;
+
+    // 조명 변수를 constant 버퍼에 복사한다.
+    dataptr2->gAlbedo = gAlbedo;
+    dataptr2->gMetallic = gMetallic;
+    dataptr2->gRoughness = gRoughness;
+    dataptr2->gUseAlbedoMap = gUseAlbedoMap;
+    dataptr2->gUseOccMetalRough = gUseOccMetalRough;
+    dataptr2->gUseAoMap = gUseAoMap;
+    dataptr2->gUseEmmisive = gUseEmmisive;
+    dataptr2->gNormalState = gNormalState;
+    dataptr2->gConvertToLinear = gConvertToLinear;
+
+
+    // constant 버퍼의 잠금을 해제한다.
+    deviceContext->Unmap(m_PBRMaterialBuffer, 0);
+
+    // 픽셀 셰이더에서 광원 constant 버퍼의 위치를 설정한다.
+    bufferNumber = 0;
+
+    // 마지막으로 업데이트 된 값으로 픽셀 셰이더에서 광원 상수 버퍼를 설정한다.
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_PBRMaterialBuffer);
+
+
+    deviceContext->PSSetShaderResources(0, 1, &texture1);
+    deviceContext->PSSetShaderResources(1, 1, &texture2);
+    deviceContext->PSSetShaderResources(2, 1, &texture3);
+    deviceContext->PSSetShaderResources(3, 1, &texture4);
+    deviceContext->PSSetShaderResources(4, 1, &texture5);
 
     return true;
 }
@@ -295,7 +411,8 @@ void GBufferShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int in
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
-    deviceContext->PSSetSamplers(0, 1, &m_sampleStateWrap);
+    deviceContext->PSSetSamplers(0, 1, &m_LinearSamplerState);
+    deviceContext->PSSetSamplers(1, 1, &m_PointSamplerState);
 
     // 삼각형을 그립니다.
     deviceContext->DrawIndexed(indexCount, 0, 0);

@@ -75,6 +75,71 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1,
 	return true;
 }
 
+bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4)
+{
+	// 첫번째 텍스쳐를 파일로부터 읽어온다
+	if (FAILED(CreateDDSTextureFromFile(device, filename1, nullptr, &m_texture[0])))
+	{
+		return false;
+	}
+
+	// 두번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename2, nullptr, &m_texture[1])))
+	{
+		return false;
+	}
+
+	// 세번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename3, nullptr, &m_texture[2])))
+	{
+		return false;
+	}
+
+	// 네번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename4, nullptr, &m_texture[3])))
+	{
+		return false;
+	}
+
+	textureCount = 4;
+}
+
+bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4, const WCHAR* filename5)
+{
+	// 첫번째 텍스쳐를 파일로부터 읽어온다
+	if (FAILED(CreateDDSTextureFromFile(device, filename1, nullptr, &m_texture[0])))
+	{
+		return false;
+	}
+
+	// 두번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename2, nullptr, &m_texture[1])))
+	{
+		return false;
+	}
+
+	// 세번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename3, nullptr, &m_texture[2])))
+	{
+		return false;
+	}
+
+	// 네번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename4, nullptr, &m_texture[3])))
+	{
+		return false;
+	}
+
+	// 다섯번째 텍스쳐를 파일로부터 읽어온다.
+	if (FAILED(CreateDDSTextureFromFile(device, filename5, nullptr, &m_texture[4])))
+	{
+		return false;
+	}
+
+	textureCount = 5;
+}
+
+
 void TextureArrayClass::Shutdown()
 {
 	for (int i = 0; i < textureCount; i++)

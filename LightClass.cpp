@@ -16,38 +16,36 @@ LightClass::~LightClass()
 {
 }
 
-
-void LightClass::SetAmbientColor(XMFLOAT4 color)
+bool LightClass::CreateBuffer(ID3D11Device* device)
 {
-	m_ambientColor = color;
+	D3D11_BUFFER_DESC lightsBufferDesc;
+	lightsBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightsBufferDesc.ByteWidth = sizeof(LightProperties);
+	lightsBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightsBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightsBufferDesc.MiscFlags = 0;
+	lightsBufferDesc.StructureByteStride = 0;
+
+	if (FAILED(device->CreateBuffer(&lightsBufferDesc, NULL, &m_lightsBuffer)))
+	{
+		return false;
+	}
+
+	return true;
 }
 
-
-void LightClass::SetDiffuseColor(XMFLOAT4 color)
+void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 {
-	m_diffuseColor = color;
+	deviceContext->UpdateSubresource(m_lightsBuffer, 0, nullptr, &m_lightProps, 0, 0);
 }
 
-
-void LightClass::SetDirection(XMFLOAT3 direction)
+void LightClass::Use(ID3D11DeviceContext* deviceContext, int slot)
 {
-	m_direction = direction;
+	deviceContext->PSSetConstantBuffers(slot, 1, &m_lightsBuffer);
 }
 
-
-XMFLOAT4 LightClass::GetAmbientColor()
+void LightClass::Shutdown()
 {
-	return m_ambientColor;
-}
-
-
-XMFLOAT4 LightClass::GetDiffuseColor()
-{
-	return m_diffuseColor;
-}
-
-
-XMFLOAT3 LightClass::GetDirection()
-{
-	return m_direction;
+	m_lightsBuffer->Release();
+	m_lightsBuffer = 0;
 }

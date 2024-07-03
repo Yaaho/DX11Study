@@ -8,7 +8,7 @@ private:
 	struct  VertexType
 	{
 		XMFLOAT3 position;
-		XMFLOAT2 texture;
+		XMFLOAT2 texCoord;
 		XMFLOAT3 normal;
 		XMFLOAT3 tangent;
 		XMFLOAT3 binormal;
@@ -44,6 +44,8 @@ public:
 	bool LoadTextures(ID3D11Device*, const WCHAR*);
 	bool LoadTextures(ID3D11Device*, const WCHAR*, const WCHAR*);
 	bool LoadTextures(ID3D11Device*, const WCHAR*, const WCHAR*, const WCHAR*);
+	bool LoadTextures(ID3D11Device*, const WCHAR*, const WCHAR*, const WCHAR*, const WCHAR*);
+	bool LoadTextures(ID3D11Device*, const WCHAR*, const WCHAR*, const WCHAR*, const WCHAR*, const WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 

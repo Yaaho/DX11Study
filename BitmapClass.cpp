@@ -218,23 +218,23 @@ bool BitmapClass::UpdateBuffers(ID3D11DeviceContext* deviceContext, int position
     // 정점 배열에 데이터를로드합니다.
     // 첫 번째 삼각형
     vertices[0].position = XMFLOAT3(left, top, 0.0f);  // Top left.
-    vertices[0].texture = XMFLOAT2(0.0f, 0.0f);
+    vertices[0].texCoord = XMFLOAT2(0.0f, 0.0f);
 
     vertices[1].position = XMFLOAT3(right, bottom, 0.0f);  // Bottom right.
-    vertices[1].texture = XMFLOAT2(1.0f, 1.0f);
+    vertices[1].texCoord = XMFLOAT2(1.0f, 1.0f);
 
     vertices[2].position = XMFLOAT3(left, bottom, 0.0f);  // Bottom left.
-    vertices[2].texture = XMFLOAT2(0.0f, 1.0f);
+    vertices[2].texCoord = XMFLOAT2(0.0f, 1.0f);
 
     // 두 번째 삼각형
     vertices[3].position = XMFLOAT3(left, top, 0.0f);  // Top left.
-    vertices[3].texture = XMFLOAT2(0.0f, 0.0f);
+    vertices[3].texCoord = XMFLOAT2(0.0f, 0.0f);
 
     vertices[4].position = XMFLOAT3(right, top, 0.0f);  // Top right.
-    vertices[4].texture = XMFLOAT2(1.0f, 0.0f);
+    vertices[4].texCoord = XMFLOAT2(1.0f, 0.0f);
 
     vertices[5].position = XMFLOAT3(right, bottom, 0.0f);  // Bottom right.
-    vertices[5].texture = XMFLOAT2(1.0f, 1.0f);
+    vertices[5].texCoord = XMFLOAT2(1.0f, 1.0f);
 
     // 버텍스 버퍼를 쓸 수 있도록 잠급니다.
     result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
     matrix viewMatrix;
@@ -9,15 +9,21 @@ cbuffer MatrixBuffer
 struct VertexInputType
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+    float2 texCoord : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
  
 struct PixelInputType
 {
     float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float4 pos : POSITION0;
+    float4 wPosition : POSITION1;
+    float2 texCoord : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
  
 
@@ -27,20 +33,25 @@ PixelInputType GBufferVertexShader(VertexInputType input)
     
     // 적절한 행렬 계산을 위해 위치 벡터를 4 단위로 변경합니다.
     input.position.w = 1.0f;
- 
-    // 월드, 뷰 및 투영 행렬에 대한 정점의 위치를 ??계산합니다.
-    output.position = mul(input.position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
+    
+    // 픽셀 셰이더로 나갈 wPosition 구함
+    output.wPosition = mul(input.position, worldMatrix);
+    
+    // 픽셀 셰이더로 나갈 position 구함
+    output.position = mul(output.wPosition, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-    // 픽셀 쉐이더의 텍스처 좌표를 저장한다.
-    output.tex = input.tex;
+    // 픽셀 셰이더로 나갈 pos 구함
+    output.pos = output.position;
     
-    // 법선 벡터를 월드 좌표계로 변환
-    output.normal = mul(input.normal, (float3x3) worldMatrix);
+    // 픽셀 셰이더로 나갈 tex 구함
+    output.texCoord = input.texCoord;
     
-    // 법선 벡터를 정규화합니다.
-    output.normal = normalize(output.normal);
+    
+    // 픽셀 셰이더로 나갈 노말, 탄젠트, 바이노말 구함.
+    output.normal = normalize(mul(input.normal, (float3x3) worldMatrix));
+    output.tangent = normalize(mul(input.tangent, (float3x3) worldMatrix));
+    output.binormal = normalize(mul(input.binormal, (float3x3) worldMatrix));
  
     return output;
 }

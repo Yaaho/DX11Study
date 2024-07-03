@@ -109,7 +109,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 	for (int i = 0; i < m_vertexCount; i++)
 	{
 		vertices[i].position = XMFLOAT3(m_model[i].x * scale, m_model[i].y * scale, m_model[i].z * scale);
-		vertices[i].texture = XMFLOAT2(m_model[i].tu, m_model[i].tv);
+		vertices[i].texCoord = XMFLOAT2(m_model[i].tu, m_model[i].tv);
 		vertices[i].normal = XMFLOAT3(m_model[i].nx, m_model[i].ny, m_model[i].nz);
 		vertices[i].tangent = XMFLOAT3(m_model[i].tx, m_model[i].ty, m_model[i].tz);
 		vertices[i].binormal = XMFLOAT3(m_model[i].bx, m_model[i].by, m_model[i].bz);
@@ -243,6 +243,32 @@ bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, cons
 
 	// 텍스쳐 오브젝트를 초기화한다.
 	return m_TextureArray->Initialize(device, filename1, filename2, filename3);
+}
+
+bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4)
+{
+	// 텍스쳐 오브젝트를 생성한다.
+	m_TextureArray = new TextureArrayClass;
+	if (!m_TextureArray)
+	{
+		return false;
+	}
+
+	// 텍스쳐 오브젝트를 초기화한다.
+	return m_TextureArray->Initialize(device, filename1, filename2, filename3, filename4);
+}
+
+bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4, const WCHAR* filename5)
+{
+	// 텍스쳐 오브젝트를 생성한다.
+	m_TextureArray = new TextureArrayClass;
+	if (!m_TextureArray)
+	{
+		return false;
+	}
+
+	// 텍스쳐 오브젝트를 초기화한다.
+	return m_TextureArray->Initialize(device, filename1, filename2, filename3, filename4, filename5);
 }
 
 void ModelClass::ReleaseTexture()

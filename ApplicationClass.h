@@ -14,10 +14,12 @@ class CameraClass;
 class LightClass;
 class ModelClass;
 class OrthoWindowClass;
-
 class GBuffersClass;
 class GBufferShaderClass;
 class DeferredShaderClass;
+
+
+class TextureShaderClass;
 
 
 
@@ -50,4 +52,7 @@ private:
     GBuffersClass* m_GBuffers = nullptr;
     GBufferShaderClass* m_GBufferShader = nullptr;
     DeferredShaderClass* m_DeferredShader = nullptr;
+
+    TextureShaderClass* m_TextureShader = nullptr;
+
 };

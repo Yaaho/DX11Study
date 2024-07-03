@@ -27,7 +27,6 @@ GBuffersClass::~GBuffersClass()
 bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth,
     float screenNear)
 {
-
     HRESULT result = S_OK;
 
     // 렌더 텍스처의 폭과 높이를 저장한다.
