@@ -150,6 +150,12 @@
     <ClInclude Include="DeferredShaderClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SamplerClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -278,6 +284,12 @@
     <ClCompile Include="DeferredShaderClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SamplerClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -314,6 +326,8 @@
     <FxCompile Include="TransparentDepthPS.HLSL" />
     <FxCompile Include="GBufferVS.HLSL" />
     <FxCompile Include="GBufferPS.HLSL" />
+    <FxCompile Include="DepthVS.HLSL" />
+    <FxCompile Include="DepthPS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -374,5 +388,6 @@
     <None Include="Shading.HLSLi" />
     <None Include="Sampler.HLSLi" />
     <None Include="Lighting.HLSLi" />
+    <None Include="BRDF.HLSLi" />
   </ItemGroup>
 </Project>

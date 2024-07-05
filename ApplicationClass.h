@@ -12,15 +12,14 @@ class TimerClass;
 class PositionClass;
 class CameraClass;
 class LightClass;
+class SamplerClass;
 class ModelClass;
 class OrthoWindowClass;
+class RenderTextureClass;
+class DepthShaderClass;
 class GBuffersClass;
 class GBufferShaderClass;
 class DeferredShaderClass;
-
-
-class TextureShaderClass;
-
 
 
 class ApplicationClass
@@ -37,7 +36,8 @@ public:
 private:
     bool HandleMovementInput(float);
     bool Render();
-    bool RenderSceneToTexture();
+    bool RenderGBuffer();
+    bool RenderDepthMap();
 
 private:
     InputClass* m_Input = nullptr;
@@ -46,13 +46,19 @@ private:
     PositionClass* m_Position = nullptr;
     CameraClass* m_Camera = nullptr;
     LightClass* m_Light = nullptr;
-    ModelClass* m_Model = nullptr;
+    SamplerClass* m_Sampler = nullptr;
+
+
+    ModelClass* m_Cube = nullptr;
+    ModelClass* m_Plane = nullptr;
+
+
     OrthoWindowClass* m_FullScreenWindow = nullptr;
+
+    RenderTextureClass* m_DepthMapTexture;
+    DepthShaderClass* m_DepthShader;
 
     GBuffersClass* m_GBuffers = nullptr;
     GBufferShaderClass* m_GBufferShader = nullptr;
     DeferredShaderClass* m_DeferredShader = nullptr;
-
-    TextureShaderClass* m_TextureShader = nullptr;
-
 };

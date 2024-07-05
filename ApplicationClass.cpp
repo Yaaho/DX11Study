@@ -5,19 +5,14 @@
 #include "PositionClass.h"
 #include "CameraClass.h"
 #include "LightClass.h"
+#include "SamplerClass.h"
 #include "ModelClass.h"
 #include "OrthoWindowClass.h"
+#include "RenderTextureClass.h"
+#include "DepthShaderClass.h"
 #include "GBuffersClass.h"
 #include "GBufferShaderClass.h"
 #include "DeferredShaderClass.h"
-
-
-
-#include "TextureShaderClass.h"
-
-
-
-
 #include "ApplicationClass.h"
 
 
@@ -113,33 +108,60 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 
     // 조명 객체를 생성합니다.
     m_Light = new LightClass;
-    if (!m_Light->CreateBuffer(m_Direct3D->GetDevice()))
+    if (!m_Light->Initialize(m_Direct3D->GetDevice()))
+    {
+        return false;
+    }
+
+    m_Light->m_lightProps.m_GlobalAmbient;
+    m_Light->m_lightProps.m_Lights;
+
+
+    m_Sampler = new SamplerClass;
+    if (!m_Sampler->Initialize(m_Direct3D->GetDevice()))
     {
         return false;
     }
 
 
-    // m_Light->m_lightProps
-    // 여기서 m_Light 를 설정하자.
-
-
     // 모델 객체를 생성합니다.
-    m_Model = new ModelClass;
-    if (!m_Model)
+    m_Cube = new ModelClass;
+    if (!m_Cube)
     {
         return false;
     }
 
 
     // 그라운드 모델의 위치를 ?설정합니다.
-    result = m_Model->Initialize(m_Direct3D->GetDevice(), "data/cube.txt", 1.0f);
-    result = m_Model->LoadTextures(m_Direct3D->GetDevice(), 
+    result = m_Cube->Initialize(m_Direct3D->GetDevice(), "data/cube.txt", 1.0f);
+    result = m_Cube->LoadTextures(m_Direct3D->GetDevice(), 
         L"data/stone01.dds", L"data/normal.dds", L"data/normal.dds", L"data/normal.dds", L"data/normal.dds");
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
         return false;
     }
+
+    m_Cube->SetPosition(XMFLOAT3(-2.0f, 2.0f, 0.0f));
+
+
+    m_Plane = new ModelClass;
+    if (!m_Plane)
+    {
+        return false;
+    }
+
+    result = m_Plane->Initialize(m_Direct3D->GetDevice(), "data/plane01.txt", 1.0f);
+    result = m_Plane->LoadTextures(m_Direct3D->GetDevice(),
+        L"data/stone01.dds", L"data/normal.dds", L"data/normal.dds", L"data/normal.dds", L"data/normal.dds");
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_Plane->SetPosition(XMFLOAT3(0.0f, 1.0f, 0.0f));
+
 
     // 전체 화면 ortho window 객체를 생성합니다.
     m_FullScreenWindow = new OrthoWindowClass;
@@ -153,6 +175,35 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
+        return false;
+    }
+
+
+    // 렌더링을 텍스처 오브젝트에 생성한다.
+    m_DepthMapTexture = new RenderTextureClass;
+    if (!m_DepthMapTexture)
+    {
+        return false;
+    }
+
+    // 렌더링을 텍스처 오브젝트에 초기화한다.
+    if (!m_DepthMapTexture->Initialize(m_Direct3D->GetDevice(), 1024, 1024,
+        100.0f, 1.0f))
+    {
+        MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_DepthShader = new DepthShaderClass;
+    if (!m_DepthShader)
+    {
+        return false;
+    }
+
+    result = m_DepthShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the depth shader object.", L"Error", MB_OK);
         return false;
     }
 
@@ -201,33 +252,12 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
-
-    m_TextureShader = new TextureShaderClass;
-    if (!m_TextureShader)
-    {
-        return false;
-    }
-
-    result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-        return false;
-    }
-
     return true;
 }
 
 
 void ApplicationClass::Shutdown()
 {
-    if (m_TextureShader)
-    {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = 0;
-    }
-
     // 조명 쉐이더 객체를 해제합니다.
     if (m_DeferredShader)
     {
@@ -252,6 +282,20 @@ void ApplicationClass::Shutdown()
         m_GBuffers = 0;
     }
 
+    if (m_DepthShader)
+    {
+        m_DepthShader->Shutdown();
+        delete m_DepthShader;
+        m_DepthShader = 0;
+    }
+
+    if (m_DepthMapTexture)
+    {
+        m_DepthMapTexture->Shutdown();
+        delete m_DepthMapTexture;
+        m_DepthMapTexture = 0;
+    }
+
     // 전체 화면 ortho window 객체를 해제합니다.
     if (m_FullScreenWindow)
     {
@@ -260,12 +304,26 @@ void ApplicationClass::Shutdown()
         m_FullScreenWindow = 0;
     }
 
-    // 모델 객체를 해제합니다.
-    if (m_Model)
+    if (m_Plane)
     {
-        m_Model->Shutdown();
-        delete m_Model;
-        m_Model = 0;
+        m_Plane->Shutdown();
+        delete m_Plane;
+        m_Plane = 0;
+    }
+
+    // 모델 객체를 해제합니다.
+    if (m_Cube)
+    {
+        m_Cube->Shutdown();
+        delete m_Cube;
+        m_Cube = 0;
+    }
+
+    if (m_Sampler)
+    {
+        m_Sampler->Shutdown();
+        delete m_Sampler;
+        m_Sampler = 0;
     }
 
     // 조명 객체를 해제합니다.
@@ -339,12 +397,12 @@ bool ApplicationClass::Frame()
 
     if (m_Light)
     {
+        m_Light->m_lightProps.m_EyePosition = XMFLOAT4(m_Camera->GetPosition().x, m_Camera->GetPosition().y, m_Camera->GetPosition().z, 1.0f);
         m_Light->UpdateBuffer(m_Direct3D->GetDeviceContext());
     }
 
-
     // 그래픽을 렌더링 합니다.
-    return RenderSceneToTexture();
+    return Render();
 
     /*
     초당 프레임 수를 설정한다.
@@ -399,7 +457,7 @@ bool ApplicationClass::Render()
     XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 
     // 먼저 장면을 텍스처로 렌더링합니다.
-    if (!RenderSceneToTexture())
+    if (!RenderGBuffer())
     {
         return false;
     }
@@ -418,6 +476,18 @@ bool ApplicationClass::Render()
     // 그래픽 파이프 라인에 전체 화면 직교 윈도우 버텍스와 인덱스 버퍼를 배치하여 그리기를 준비합니다.
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
+
+    m_Sampler->UseLinear(m_Direct3D->GetDeviceContext(), 0);
+    m_Sampler->UsePoint(m_Direct3D->GetDeviceContext(), 1);
+
+    m_Light->UseLightBuffer(m_Direct3D->GetDeviceContext(), 1);
+
+
+
+
+
+
+
     // 지연 조명 쉐이더와 렌더링 버퍼를 사용하여 전체 화면 정사영 윈도우를 렌더링합니다.
     m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix,
         orthoMatrix, m_GBuffers->GetShaderResourceView(0), m_GBuffers->GetShaderResourceView(1),
@@ -434,9 +504,12 @@ bool ApplicationClass::Render()
 }
 
 
-bool ApplicationClass::RenderSceneToTexture()
+bool ApplicationClass::RenderGBuffer()
 {
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+
+    XMFLOAT3 Pos;
+
 
     // 렌더링 대상을 텍스처에 렌더링으로 설정합니다.
     m_GBuffers->SetRenderTargets(m_Direct3D->GetDeviceContext());
@@ -451,6 +524,11 @@ bool ApplicationClass::RenderSceneToTexture()
     m_Camera->GetViewMatrix(viewMatrix);
     m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
+    
+
+
+
+
     // 각 프레임의 rotation 변수를 업데이트합니다.
     static float rotation = 0.0f;
     rotation += (float)XM_PI * 0.007f;
@@ -462,29 +540,85 @@ bool ApplicationClass::RenderSceneToTexture()
     // 회전값으로 월드 행렬을 회전하여 큐브가 회전하도록 합니다.
     worldMatrix = XMMatrixRotationY(rotation);
 
+    m_Cube->GetPosition(Pos);
+    worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
+
+
     // 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
-    m_Model->Render(m_Direct3D->GetDeviceContext());
+    m_Cube->Render(m_Direct3D->GetDeviceContext());
 
     // 광원 CBuffer 는 1번 버퍼 슬롯을 사용
-    m_Light->Use(m_Direct3D->GetDeviceContext(), 1);
+    m_Light->UseLightBuffer(m_Direct3D->GetDeviceContext(), 1);
+
+    m_Sampler->UseLinear(m_Direct3D->GetDeviceContext(), 0);
+    m_Sampler->UsePoint(m_Direct3D->GetDeviceContext(), 1);
 
 
     XMFLOAT4 gAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
     float gMetallic = 0.5;
     float gRoughness = 0.5;
 
+    // 알베도 맵 사용
     int gUseAlbedoMap = 1;
     int gUseOccMetalRough = 0;
     int gUseAoMap = 0;
     int gUseEmmisive = 0;
+    // 노말 맵 사용
     int gNormalState = 1;
     int gConvertToLinear = 0;
 
 
     // 지연된 셰이더를 사용하여 모델을 렌더링합니다.
-    m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-        m_Model->GetTexture(0), m_Model->GetTexture(1), m_Model->GetTexture(2), m_Model->GetTexture(3), m_Model->GetTexture(4),
+    m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+        m_Cube->GetTexture(0), m_Cube->GetTexture(1), m_Cube->GetTexture(2), m_Cube->GetTexture(3), m_Cube->GetTexture(4),
         gAlbedo, gMetallic, gRoughness, gUseAlbedoMap, gUseOccMetalRough, gUseAoMap, gUseEmmisive, gNormalState, gConvertToLinear);
+
+
+
+
+
+
+
+
+
+
+    // 회전값으로 월드 행렬을 회전하여 큐브가 회전하도록 합니다.
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+
+
+    m_Plane->GetPosition(Pos);
+    worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
+
+
+    // 모델 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 드로잉을 준비합니다.
+    m_Plane->Render(m_Direct3D->GetDeviceContext());
+
+    // 광원 CBuffer 는 1번 버퍼 슬롯을 사용
+    m_Light->UseLightBuffer(m_Direct3D->GetDeviceContext(), 1);
+
+    m_Sampler->UseLinear(m_Direct3D->GetDeviceContext(), 0);
+    m_Sampler->UsePoint(m_Direct3D->GetDeviceContext(), 1);
+
+
+    XMFLOAT4 gAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+    float gMetallic = 0.5;
+    float gRoughness = 0.5;
+
+    // 알베도 맵 사용
+    int gUseAlbedoMap = 1;
+    int gUseOccMetalRough = 0;
+    int gUseAoMap = 0;
+    int gUseEmmisive = 0;
+    // 노말 맵 사용
+    int gNormalState = 1;
+    int gConvertToLinear = 0;
+
+
+    // 지연된 셰이더를 사용하여 모델을 렌더링합니다.
+    m_GBufferShader->Render(m_Direct3D->GetDeviceContext(), m_Plane->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+        m_Plane->GetTexture(0), m_Plane->GetTexture(1), m_Plane->GetTexture(2), m_Plane->GetTexture(3), m_Plane->GetTexture(4),
+        gAlbedo, gMetallic, gRoughness, gUseAlbedoMap, gUseOccMetalRough, gUseAoMap, gUseEmmisive, gNormalState, gConvertToLinear);
+
 
 
     // 렌더 버퍼가 아닌 원래의 백 버퍼로 렌더링 타겟을 다시 설정합니다.
@@ -493,40 +627,62 @@ bool ApplicationClass::RenderSceneToTexture()
     // 뷰포트를 원본으로 다시 설정합니다.
     m_Direct3D->ResetViewport();
 
-
-
-
-
-    // 장면을 시작할 버퍼를 지운다.
-    m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
-
-
-    XMMATRIX baseViewMatrix, orthoMatrix;
-    m_Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
-    m_Direct3D->GetOrthoMatrix(orthoMatrix);
-
-    // 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
-    m_Direct3D->TurnZBufferOff();
-
-    // 비트 맵 버텍스와 인덱스 버퍼를 그래픽 파이프 라인에 배치하여 그리기를 준비합니다.
-    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-    
-    m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
-        m_GBuffers->GetShaderResourceView(2));
-
-
-    // 모든 2D 렌더링이 완료되었으므로 Z 버퍼를 다시 켜십시오.
-    m_Direct3D->TurnZBufferOn();
-
-    // 렌더링 된 장면을 화면에 표시합니다.
-    m_Direct3D->EndScene();
-
-
-
-
-
-
     return true;
+}
+
+
+
+bool ApplicationClass::RenderDepthMap()
+{
+    XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
+
+    XMFLOAT3 Pos;
+
+    // 렌더링 대상을 렌더링에 맞게 설정합니다.
+    m_DepthMapTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+    // 렌더링을 텍스처에 지웁니다.
+    m_DepthMapTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    lightViewMatrix = m_Light->m_shadowMapProps.m_lightViewMatrix;
+    lightProjectionMatrix = m_Light->m_shadowMapProps.m_lightProjectionMatrix;
+
+
+    m_Cube->GetPosition(Pos);
+    worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
+
+
+    // 깊이 셰이더로 큐브 모델을 렌더링합니다.
+    m_Cube->Render(m_Direct3D->GetDeviceContext());
+    bool result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix,
+        lightViewMatrix, lightProjectionMatrix);
+    if (!result)
+    {
+        return false;
+    }
+
+
+    // 월드 행렬을 재설정합니다.
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+
+
+    m_Plane->GetPosition(Pos);
+    worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
+
+
+    // 깊이 셰이더로 그라운드 모델을 렌더링합니다.
+    m_Plane->Render(m_Direct3D->GetDeviceContext());
+    result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_Plane->GetIndexCount(), worldMatrix,
+        lightViewMatrix, lightProjectionMatrix);
+    if (!result)
+    {
+        return false;
+    }
+
+    // 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+    m_Direct3D->SetBackBufferRenderTarget();
+
+    // 뷰포트를 원본으로 다시 설정합니다.
+    m_Direct3D->ResetViewport();
 }

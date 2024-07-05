@@ -31,13 +31,22 @@ void DeferredShaderClass::Shutdown()
 }
 
 
-bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-    XMMATRIX projectionMatrix, ID3D11ShaderResourceView* colorTexture, ID3D11ShaderResourceView* normalTexture,
-    XMFLOAT3 lightDirection)
+bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
+    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+    XMFLOAT4X4 inverseProjection, XMFLOAT4X4 inverseView, int useAO, int useEnvMap,
+    ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
+    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO,
+    ID3D11ShaderResourceView* EnvMap, ID3D11ShaderResourceView* PrefilteredSpecMap, ID3D11ShaderResourceView* BrdfLUT,
+    ID3D11ShaderResourceView* Emissive)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-    if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, colorTexture, normalTexture,
-        lightDirection))
+    if (!SetShaderParameters(deviceContext, 
+        worldMatrix, viewMatrix, projectionMatrix,
+        inverseProjection, inverseView, useAO, useEnvMap,
+        DepthTexture, Diffuse, MetalRough,
+        Normals, AO,
+        EnvMap, PrefilteredSpecMap, BrdfLUT,
+        Emissive))
     {
         return false;
     }
@@ -76,7 +85,8 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     // 픽셀 쉐이더 코드를 컴파일한다.
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    result = D3DCompileFromFile(psFilename, NULL, NULL, "DeferredPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+    // 세이더 파일 내에 include 가 있으면 D3D_COMPILE_STANDARD_FILE_INCLUDE 를 사용해야 한다.
+    result = D3DCompileFromFile(psFilename, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "DeferredPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
         &pixelShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
@@ -147,29 +157,6 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
     pixelShaderBuffer->Release();
     pixelShaderBuffer = 0;
 
-    // 텍스처 샘플러 상태 구조체를 생성 및 설정합니다.
-    D3D11_SAMPLER_DESC samplerDesc;
-    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.MipLODBias = 0.0f;
-    samplerDesc.MaxAnisotropy = 1;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    samplerDesc.BorderColor[0] = 0;
-    samplerDesc.BorderColor[1] = 0;
-    samplerDesc.BorderColor[2] = 0;
-    samplerDesc.BorderColor[3] = 0;
-    samplerDesc.MinLOD = 0;
-    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-    // 텍스처 샘플러 상태를 만듭니다.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
     // 정점 셰이더에 있는 행렬 상수 버퍼의 구조체를 작성합니다.
     D3D11_BUFFER_DESC matrixBufferDesc;
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -186,22 +173,21 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
         return false;
     }
 
-    // 픽셀 쉐이더에있는 광원 동적 상수 버퍼의 구조체를 설정합니다.
-    // D3D11_BIND_CONSTANT_BUFFER를 사용하면 ByteWidth가 항상 16의 배수 여야하며 그렇지 않으면 CreateBuffer가 실패합니다.
-    D3D11_BUFFER_DESC lightBufferDesc;
-    lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    lightBufferDesc.ByteWidth = sizeof(LightBufferType);
-    lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    lightBufferDesc.MiscFlags = 0;
-    lightBufferDesc.StructureByteStride = 0;
 
-    // 이 클래스 내에서 정점 셰이더 상수 버퍼에 액세스 할 수 있도록 상수 버퍼 포인터를 만듭니다.
-    result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
+    D3D11_BUFFER_DESC deferredBufferDesc;
+    deferredBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    deferredBufferDesc.ByteWidth = sizeof(DeferredBufferType);
+    deferredBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    deferredBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    deferredBufferDesc.MiscFlags = 0;
+    deferredBufferDesc.StructureByteStride = 0;
+
+    result = device->CreateBuffer(&deferredBufferDesc, NULL, &m_deferredBuffer);
     if (FAILED(result))
     {
         return false;
     }
+
 
     return true;
 }
@@ -209,25 +195,18 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
 void DeferredShaderClass::ShutdownShader()
 {
-    // 광원 상수 버퍼를 해제합니다.
-    if (m_lightBuffer)
+    if (m_deferredBuffer)
     {
-        m_lightBuffer->Release();
-        m_lightBuffer = 0;
+        m_deferredBuffer->Release();
+        m_deferredBuffer = 0;
     }
+
 
     // 행렬 상수 버퍼를 해제합니다.
     if (m_matrixBuffer)
     {
         m_matrixBuffer->Release();
         m_matrixBuffer = 0;
-    }
-
-    // 샘플러 상태를 해제한다.
-    if (m_sampleState)
-    {
-        m_sampleState->Release();
-        m_sampleState = 0;
     }
 
     // 레이아웃을 해제합니다.
@@ -266,9 +245,13 @@ void DeferredShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
     MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
-bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-    XMMATRIX projectionMatrix, ID3D11ShaderResourceView* colorTexture, ID3D11ShaderResourceView* normalTexture,
-    XMFLOAT3 lightDirection)
+bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+    XMFLOAT4X4 inverseProjection, XMFLOAT4X4 inverseView, int useAO, int useEnvMap,
+    ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
+    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO,
+    ID3D11ShaderResourceView* EnvMap, ID3D11ShaderResourceView* PrefilteredSpecMap, ID3D11ShaderResourceView* BrdfLUT,
+    ID3D11ShaderResourceView* Emissive)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -299,31 +282,39 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     // 마지막으로 정점 셰이더의 상수 버퍼를 바뀐 값으로 바꿉니다.
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-    // Set shader texture resource in the pixel shader.
-    deviceContext->PSSetShaderResources(0, 1, &colorTexture);
-    deviceContext->PSSetShaderResources(1, 1, &normalTexture);
 
-    // light constant buffer를 잠글 수 있도록 기록한다.
-    if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+
+    if (FAILED(deviceContext->Map(m_deferredBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
     {
         return false;
     }
 
-    // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
-    LightBufferType* dataPtr2 = (LightBufferType*)mappedResource.pData;
+    DeferredBufferType* dataPtr2 = (DeferredBufferType*)mappedResource.pData;
 
-    // 조명 변수를 상수 버퍼에 복사합니다.
-    dataPtr2->lightDirection = lightDirection;
-    dataPtr2->padding = 0.0f;
+    dataPtr2->inverseProjection = inverseProjection;
+    dataPtr2->inverseView = inverseView;
+    dataPtr2->useAO = useAO;
+    dataPtr2->useEnvMap = useEnvMap;
 
-    // 상수 버퍼의 잠금을 해제합니다.
-    deviceContext->Unmap(m_lightBuffer, 0);
+    deviceContext->Unmap(m_deferredBuffer, 0);
 
-    // 픽셀 쉐이더에서 광원 상수 버퍼의 위치를 ??설정합니다.
-    bufferNumber = 0;
+    unsigned int bufferNumber = 3;
 
-    // 마지막으로 업데이트 된 값으로 픽셀 쉐이더에서 광원 상수 버퍼를 설정합니다.
-    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+    deviceContext->PSSetConstantBuffers(bufferNumber, 3, &m_deferredBuffer);
+
+
+    deviceContext->PSSetShaderResources(0, 1, &DepthTexture);
+    deviceContext->PSSetShaderResources(1, 1, &Diffuse);
+    deviceContext->PSSetShaderResources(2, 1, &MetalRough);
+    deviceContext->PSSetShaderResources(3, 1, &Normals);
+    // 4 는 섀도우 맵
+    deviceContext->PSSetShaderResources(5, 1, &AO);
+
+    deviceContext->PSSetShaderResources(6, 1, &EnvMap);
+    deviceContext->PSSetShaderResources(7, 1, &PrefilteredSpecMap);
+    deviceContext->PSSetShaderResources(8, 1, &BrdfLUT);
+    deviceContext->PSSetShaderResources(9, 1, &Emissive);
+
     return true;
 }
 
@@ -336,9 +327,6 @@ void DeferredShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int i
     // 삼각형을 그릴 정점 셰이더와 픽셀 셰이더를 설정합니다.
     deviceContext->VSSetShader(m_vertexShader, NULL, 0);
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
-
-    // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
-    deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
     // 삼각형을 그립니다.
     deviceContext->DrawIndexed(indexCount, 0, 0);

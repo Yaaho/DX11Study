@@ -38,6 +38,11 @@ struct LightProperties
 	Light m_Lights[MAX_LIGHTS];
 };
 
+struct ShadowMapProperties
+{
+	XMMATRIX m_lightViewMatrix;
+	XMMATRIX m_lightProjectionMatrix;
+};
 
 class LightClass
 {
@@ -46,13 +51,19 @@ public:
 	LightClass(const LightClass&);
 	~LightClass();
 
-	bool CreateBuffer(ID3D11Device*);
+	bool Initialize(ID3D11Device*, HWND);
 	void UpdateBuffer(ID3D11DeviceContext*);
 
-	void Use(ID3D11DeviceContext*, int);
+
+	void UseLightBuffer(ID3D11DeviceContext*, int);
+	void UseShaderMapBuffer(ID3D11DeviceContext*, int);
+
+
 	void Shutdown();
 
 	LightProperties m_lightProps;
+	ShadowMapProperties m_shadowMapProps;
 
 	ID3D11Buffer* m_lightsBuffer;
+	ID3D11Buffer* m_shadowMapBuffer;
 };
