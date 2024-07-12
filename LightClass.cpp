@@ -52,34 +52,34 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 	deviceContext->UpdateSubresource(m_lightsBuffer, 0, nullptr, &m_lightProps, 0, 0);
 
 
-
-
-
 	// 위쪽을 가리키는 벡터를 설정합니다.
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMFLOAT3 lookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	XMVECTOR upVector = XMLoadFloat3(&up);
-	XMVECTOR positionVector = 
-		XMLoadFloat3(&XMFLOAT3(
-			m_lightProps.m_Lights[0].m_Position.x, 
-			m_lightProps.m_Lights[0].m_Position.y,
-			m_lightProps.m_Lights[0].m_Position.z));
+
 
 	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
-
-	// 세 벡터로부터 뷰 행렬을 만듭니다.
-	m_shadowMapProps.m_lightViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-
-
 
 	// 정사각형 광원에 대한 시야 및 화면 비율을 설정합니다.
 	float fieldOfView = (float)XM_PI / 2.0f;
 	float screenAspect = 1.0f;
 
-	// 빛의 투영 행렬을 만듭니다.
-	m_shadowMapProps.m_lightProjectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, 100.0f, 1.0f);
 
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, 100.0f, 1.0f);
+
+
+	for (int i = 0; i < MAX_LIGHTS; i++)
+	{
+		XMVECTOR positionVector =
+			XMLoadFloat3(&XMFLOAT3(
+				m_lightProps.m_Lights[i].m_Position.x,
+				m_lightProps.m_Lights[i].m_Position.y,
+				m_lightProps.m_Lights[i].m_Position.z));
+
+		m_shadowMapProps.m_ShadowMaps[i].m_lightViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+		m_shadowMapProps.m_ShadowMaps[i].m_lightProjectionMatrix = projectionMatrix;
+	}
 
 	deviceContext->UpdateSubresource(m_shadowMapBuffer, 0, nullptr, &m_shadowMapProps, 0, 0);
 }

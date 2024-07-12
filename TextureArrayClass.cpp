@@ -102,6 +102,8 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1,
 	}
 
 	textureCount = 4;
+
+	return true;
 }
 
 bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4, const WCHAR* filename5)
@@ -137,6 +139,8 @@ bool TextureArrayClass::Initialize(ID3D11Device* device, const WCHAR* filename1,
 	}
 
 	textureCount = 5;
+	
+	return true;
 }
 
 

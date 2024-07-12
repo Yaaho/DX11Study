@@ -25,6 +25,9 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	m_textureHeight = textureHeight;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 
+	m_screenDepth = screenDepth;
+	m_screenNear = screenNear;
+
 	// 렌더 타겟 텍스처 설명을 설정합니다.
 	textureDesc.Width = textureWidth;
 	textureDesc.Height = textureHeight;
@@ -125,6 +128,8 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	// Create an orthographic projection matrix for 2D rendering.
 	m_orthoMatrix = XMMatrixOrthographicLH((float)textureWidth, (float)textureHeight, screenNear, screenDepth);
 
+
+
 	return true;
 }
 
@@ -167,10 +172,47 @@ void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* deviceContext)
 {
 	// 렌더링 대상 뷰와 깊이 스텐실 버퍼를 출력 렌더 파이프 라인에 바인딩합니다.
 	deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	
+	ResetViewports(deviceContext);
+}
 
+
+void RenderTextureClass::ResetViewports(ID3D11DeviceContext* deviceContext)
+{
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &m_viewport);
+
+	// Setup the projection matrix.
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(((float)XM_PI / 4.0f), ((float)m_textureWidth / (float)m_textureHeight), m_screenNear, m_screenDepth);
+
+	// Create an orthographic projection matrix for 2D rendering.
+	m_orthoMatrix = XMMatrixOrthographicLH((float)m_textureWidth, (float)m_textureHeight, m_screenNear, m_screenDepth);
 }
+
+
+
+void RenderTextureClass::SetViewports(ID3D11DeviceContext* deviceContext, float TopLeftX, float TopLeftY, float TextureRatio)
+{
+	D3D11_VIEWPORT newViewport;
+	
+	newViewport.TopLeftX = TopLeftX;
+	newViewport.TopLeftY = TopLeftY;
+	newViewport.Width = (float)(m_textureWidth / TextureRatio);
+	newViewport.Height = (float)(m_textureHeight / TextureRatio);
+
+	// Set the viewport.
+	deviceContext->RSSetViewports(1, &newViewport);
+
+
+	// Setup the projection matrix.
+	// 화면 비율만 구하면 되기 때문에 Ratio 변수는 넣지 않는다.
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(((float)XM_PI / 4.0f), (float)m_textureWidth / (float)m_textureHeight, m_screenNear, m_screenDepth);
+
+	// Create an orthographic projection matrix for 2D rendering.
+	// 화면 비율만 구하면 되기 때문에 Radio 변수는 넣지 않는다.
+	m_orthoMatrix = XMMatrixOrthographicLH((float)m_textureWidth, (float)m_textureHeight, m_screenNear, m_screenDepth);
+}
+
 
 
 void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, float red, float green, float blue, float alpha)

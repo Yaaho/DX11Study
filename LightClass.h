@@ -27,6 +27,10 @@ struct Light
 	float m_QuadAttenuation = 0.032f;
 	float m_SpotAngle;
 
+	float m_ShadowMapTopLeftX;
+	float m_ShadowMapTopLeftY;
+	float m_ShadowMapTextureRatio;
+
 	int m_LightType;
 	int m_Status = LightStatus::Enable;
 };
@@ -38,11 +42,17 @@ struct LightProperties
 	Light m_Lights[MAX_LIGHTS];
 };
 
-struct ShadowMapProperties
+struct ShadowMapMatrix
 {
 	XMMATRIX m_lightViewMatrix;
 	XMMATRIX m_lightProjectionMatrix;
 };
+
+struct ShadowMapProperties
+{
+	ShadowMapMatrix m_ShadowMaps[MAX_LIGHTS];
+};
+
 
 class LightClass
 {

@@ -14,6 +14,10 @@ struct Light
     float quadAtt;
     float spotAngle;
     
+    float shadowMapTopLeftX;
+    float shadowMapTopLeftY;
+    float shadowMapTextureRatio;
+    
     int lightType;
     int status;
 };
@@ -25,5 +29,19 @@ cbuffer LightProperties : register(b1)
     float4 globalAmbient;
     Light Lights[MAX_LIGHTS];
 }
+
+struct ShadowMapMatrix
+{
+    matrix m_lightViewMatrix;
+    matrix m_lightProjectionMatrix;
+};
+
+cbuffer ShadowMapProperties : register(b2)
+{
+    ShadowMapMatrix m_ShadowMaps[MAX_LIGHTS];
+};
+
+
+
 
 #endif

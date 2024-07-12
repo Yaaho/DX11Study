@@ -10,6 +10,7 @@ private:
         XMMATRIX projection;
     };
 
+
 public:
     DepthShaderClass();
     DepthShaderClass(const DepthShaderClass&);

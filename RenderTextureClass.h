@@ -11,6 +11,8 @@ public:
 	void Shutdown();
 
 	void SetRenderTarget(ID3D11DeviceContext*);
+	void ResetViewports(ID3D11DeviceContext*);
+	void SetViewports(ID3D11DeviceContext*, float TopLeftX, float TopLeftY, float TextureRatio);
 	void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 
@@ -22,6 +24,7 @@ public:
 
 private:
 	int m_textureWidth, m_textureHeight;
+	float m_screenDepth, m_screenNear;
 	ID3D11Texture2D* m_renderTargetTexture = nullptr;;
 	ID3D11RenderTargetView* m_renderTargetView = nullptr;;
 	ID3D11ShaderResourceView* m_shaderResourceView = nullptr;;

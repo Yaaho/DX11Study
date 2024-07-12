@@ -21,6 +21,8 @@ class GBuffersClass;
 class GBufferShaderClass;
 class DeferredShaderClass;
 
+class TextureShaderClass;
+
 
 class ApplicationClass
 {
@@ -60,5 +62,8 @@ private:
 
     GBuffersClass* m_GBuffers = nullptr;
     GBufferShaderClass* m_GBufferShader = nullptr;
-    DeferredShaderClass* m_DeferredShader = nullptr;
+
+    // DeferredShaderClass* m_DeferredShader = nullptr;
+
+    TextureShaderClass* m_TextureShader = nullptr;
 };

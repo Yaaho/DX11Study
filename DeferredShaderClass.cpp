@@ -298,7 +298,7 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 
     deviceContext->Unmap(m_deferredBuffer, 0);
 
-    unsigned int bufferNumber = 3;
+    bufferNumber = 3;
 
     deviceContext->PSSetConstantBuffers(bufferNumber, 3, &m_deferredBuffer);
 
