@@ -120,25 +120,25 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
     m_Light->m_lightProps.m_GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
     m_Light->m_lightProps.m_Lights[0].m_Position = XMFLOAT4(5.0f, 2.0f, 4.0f, 1.0f);
-    m_Light->m_lightProps.m_Lights[1].m_Position = XMFLOAT4(10.0f, 5.0f, 10.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[1].m_Position = XMFLOAT4(7.0f, 5.0f, 7.0f, 1.0f);
     m_Light->m_lightProps.m_Lights[2].m_Position = XMFLOAT4(-4.0f, 10.0f, -5.0f, 1.0f);
-    m_Light->m_lightProps.m_Lights[3].m_Position = XMFLOAT4(-20.0f, 3.0f, -11.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[3].m_Position = XMFLOAT4(-9.0f, 3.0f, -8.0f, 1.0f);
 
 
-    m_Light->m_lightProps.m_Lights[0].m_ShadowMapTopLeftX = -1.0f;
+    m_Light->m_lightProps.m_Lights[0].m_ShadowMapTopLeftX = 0.0f;
     m_Light->m_lightProps.m_Lights[0].m_ShadowMapTopLeftY = 0.0f;
     m_Light->m_lightProps.m_Lights[0].m_ShadowMapTextureRatio = 0.5f;
 
-    m_Light->m_lightProps.m_Lights[1].m_ShadowMapTopLeftX = 2048.0f;
+    m_Light->m_lightProps.m_Lights[1].m_ShadowMapTopLeftX = 0.5f;
     m_Light->m_lightProps.m_Lights[1].m_ShadowMapTopLeftY = 0.0f;
     m_Light->m_lightProps.m_Lights[1].m_ShadowMapTextureRatio = 0.5f;
 
     m_Light->m_lightProps.m_Lights[2].m_ShadowMapTopLeftX = 0.0f;
-    m_Light->m_lightProps.m_Lights[2].m_ShadowMapTopLeftY = 2048.0f;
+    m_Light->m_lightProps.m_Lights[2].m_ShadowMapTopLeftY = 0.5f;
     m_Light->m_lightProps.m_Lights[2].m_ShadowMapTextureRatio = 0.5f;
 
-    m_Light->m_lightProps.m_Lights[3].m_ShadowMapTopLeftX = 2048.0f;
-    m_Light->m_lightProps.m_Lights[3].m_ShadowMapTopLeftY = 2048.0f;
+    m_Light->m_lightProps.m_Lights[3].m_ShadowMapTopLeftX = 0.5f;
+    m_Light->m_lightProps.m_Lights[3].m_ShadowMapTopLeftY = 0.5f;
     m_Light->m_lightProps.m_Lights[3].m_ShadowMapTextureRatio = 0.5f;
 
 
@@ -714,10 +714,8 @@ bool ApplicationClass::RenderDepthMap()
         // 월드 행렬을 재설정합니다.
         m_Direct3D->GetWorldMatrix(worldMatrix);
 
-
         m_Plane->GetPosition(Pos);
         worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
-
 
         // 깊이 셰이더로 그라운드 모델을 렌더링합니다.
         m_Plane->Render(m_Direct3D->GetDeviceContext());

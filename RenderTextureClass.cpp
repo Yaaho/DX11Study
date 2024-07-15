@@ -195,14 +195,16 @@ void RenderTextureClass::SetViewports(ID3D11DeviceContext* deviceContext, float 
 {
 	D3D11_VIEWPORT newViewport;
 	
-	newViewport.TopLeftX = TopLeftX;
-	newViewport.TopLeftY = TopLeftY;
-	newViewport.Width = (float)(m_textureWidth / TextureRatio);
-	newViewport.Height = (float)(m_textureHeight / TextureRatio);
+	newViewport.TopLeftX = m_textureWidth * TopLeftX;
+	newViewport.TopLeftY = m_textureHeight * TopLeftY;
+	newViewport.Width = (float)(m_textureWidth * TextureRatio);
+	newViewport.Height = (float)(m_textureHeight * TextureRatio);
+	newViewport.MinDepth = 0.0f;
+	newViewport.MaxDepth = 1.0f;
 
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &newViewport);
-
+	
 
 	// Setup the projection matrix.
 	// 화면 비율만 구하면 되기 때문에 Ratio 변수는 넣지 않는다.
