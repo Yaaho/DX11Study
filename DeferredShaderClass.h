@@ -10,10 +10,10 @@ private:
         XMMATRIX projection;
     };
 
-    struct DeferredBufferType
+    struct DeferredCBufferType
     {
-        XMFLOAT4X4 inverseProjection;
-        XMFLOAT4X4 inverseView;
+        XMMATRIX inverseProjection;
+        XMMATRIX inverseView;
         int useAO;
         int useEnvMap;
     };
@@ -28,11 +28,9 @@ public:
     void Shutdown();
     bool Render(ID3D11DeviceContext*, int, 
         XMMATRIX, XMMATRIX, XMMATRIX,
-        XMFLOAT4X4, XMFLOAT4X4, int, int,
+        XMMATRIX, XMMATRIX, int, int,
         ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, 
-        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*,
-        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*,
-        ID3D11ShaderResourceView*);
+        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*);
 
 private:
     bool InitializeShader(ID3D11Device*, HWND, const WCHAR*, const WCHAR*);
@@ -41,11 +39,9 @@ private:
 
     bool SetShaderParameters(ID3D11DeviceContext*, 
         XMMATRIX, XMMATRIX, XMMATRIX,
-        XMFLOAT4X4, XMFLOAT4X4, int, int,
+        XMMATRIX, XMMATRIX, int, int,
         ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*,
-        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*,
-        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*,
-        ID3D11ShaderResourceView*);
+        ID3D11ShaderResourceView*, ID3D11ShaderResourceView*);
 
 
     void RenderShader(ID3D11DeviceContext*, int);

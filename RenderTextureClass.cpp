@@ -236,6 +236,12 @@ ID3D11ShaderResourceView* RenderTextureClass::GetShaderResourceView()
 }
 
 
+void RenderTextureClass::UseShaderResourceView(ID3D11DeviceContext* deviceContext, int textureSlot)
+{
+	deviceContext->PSSetShaderResources(textureSlot, 1, &m_shaderResourceView);
+}
+
+
 void RenderTextureClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;

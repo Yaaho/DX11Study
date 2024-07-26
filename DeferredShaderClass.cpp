@@ -33,20 +33,17 @@ void DeferredShaderClass::Shutdown()
 
 bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
     XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-    XMFLOAT4X4 inverseProjection, XMFLOAT4X4 inverseView, int useAO, int useEnvMap,
-    ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
-    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO,
-    ID3D11ShaderResourceView* EnvMap, ID3D11ShaderResourceView* PrefilteredSpecMap, ID3D11ShaderResourceView* BrdfLUT,
-    ID3D11ShaderResourceView* Emissive)
+    XMMATRIX inverseProjection, XMMATRIX inverseView, int useAO, int useEnvMap,
+    ID3D11ShaderResourceView* DepthTexture, 
+    ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
+    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
     if (!SetShaderParameters(deviceContext, 
         worldMatrix, viewMatrix, projectionMatrix,
         inverseProjection, inverseView, useAO, useEnvMap,
         DepthTexture, Diffuse, MetalRough,
-        Normals, AO,
-        EnvMap, PrefilteredSpecMap, BrdfLUT,
-        Emissive))
+        Normals, AO))
     {
         return false;
     }
@@ -176,7 +173,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     D3D11_BUFFER_DESC deferredBufferDesc;
     deferredBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    deferredBufferDesc.ByteWidth = sizeof(DeferredBufferType);
+    deferredBufferDesc.ByteWidth = sizeof(DeferredCBufferType);
     deferredBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     deferredBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     deferredBufferDesc.MiscFlags = 0;
@@ -247,11 +244,9 @@ void DeferredShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 
 bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
     XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
-    XMFLOAT4X4 inverseProjection, XMFLOAT4X4 inverseView, int useAO, int useEnvMap,
+    XMMATRIX inverseProjection, XMMATRIX inverseView, int useAO, int useEnvMap,
     ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
-    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO,
-    ID3D11ShaderResourceView* EnvMap, ID3D11ShaderResourceView* PrefilteredSpecMap, ID3D11ShaderResourceView* BrdfLUT,
-    ID3D11ShaderResourceView* Emissive)
+    ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO)
 {
     // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -289,7 +284,7 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
         return false;
     }
 
-    DeferredBufferType* dataPtr2 = (DeferredBufferType*)mappedResource.pData;
+    DeferredCBufferType* dataPtr2 = (DeferredCBufferType*)mappedResource.pData;
 
     dataPtr2->inverseProjection = inverseProjection;
     dataPtr2->inverseView = inverseView;
@@ -300,7 +295,7 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 
     bufferNumber = 3;
 
-    deviceContext->PSSetConstantBuffers(bufferNumber, 3, &m_deferredBuffer);
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_deferredBuffer);
 
 
     deviceContext->PSSetShaderResources(0, 1, &DepthTexture);
@@ -309,11 +304,6 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     deviceContext->PSSetShaderResources(3, 1, &Normals);
     // 4 는 섀도우 맵
     deviceContext->PSSetShaderResources(5, 1, &AO);
-
-    deviceContext->PSSetShaderResources(6, 1, &EnvMap);
-    deviceContext->PSSetShaderResources(7, 1, &PrefilteredSpecMap);
-    deviceContext->PSSetShaderResources(8, 1, &BrdfLUT);
-    deviceContext->PSSetShaderResources(9, 1, &Emissive);
 
     return true;
 }

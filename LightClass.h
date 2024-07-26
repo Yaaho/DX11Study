@@ -27,10 +27,6 @@ struct Light
 	float m_QuadAttenuation = 0.032f;
 	float m_SpotAngle;
 
-	float m_ShadowMapTopLeftX;
-	float m_ShadowMapTopLeftY;
-	float m_ShadowMapTextureRatio;
-
 	int m_LightType;
 	int m_Status = LightStatus::Enable;
 };
@@ -44,12 +40,22 @@ struct LightProperties
 
 struct ShadowMapMatrix
 {
+	float m_ShadowMapTopLeftX;
+	float m_ShadowMapTopLeftY;
+	float m_ShadowMapTextureRatio;
+	float padding;
+
 	XMMATRIX m_lightViewMatrix;
 	XMMATRIX m_lightProjectionMatrix;
 };
 
 struct ShadowMapProperties
 {
+	float m_MapWidth;
+	float m_MapHeight;
+	float padding1;
+	float padding2;
+
 	ShadowMapMatrix m_ShadowMaps[MAX_LIGHTS];
 };
 
@@ -61,12 +67,12 @@ public:
 	LightClass(const LightClass&);
 	~LightClass();
 
-	bool Initialize(ID3D11Device*, HWND);
+	bool Initialize(ID3D11Device*, HWND, float, float, float, float);
 	void UpdateBuffer(ID3D11DeviceContext*);
 
 
 	void UseLightBuffer(ID3D11DeviceContext*, int);
-	void UseShaderMapBuffer(ID3D11DeviceContext*, int);
+	void UseShadowMapBuffer(ID3D11DeviceContext*, int);
 
 
 	void Shutdown();
@@ -76,4 +82,10 @@ public:
 
 	ID3D11Buffer* m_lightsBuffer;
 	ID3D11Buffer* m_shadowMapBuffer;
+
+	float m_shadowMapWidth;
+	float m_shadowMapHeight;
+
+	float m_screenDepth;
+	float m_screenNear;
 };

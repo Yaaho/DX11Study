@@ -94,6 +94,15 @@ bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textu
         }
     }
 
+
+
+
+
+
+
+
+
+
     // 깊이 버퍼의 구조체를 초기화합니다.
     D3D11_TEXTURE2D_DESC depthBufferDesc;
     ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -103,11 +112,12 @@ bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textu
     depthBufferDesc.Height = textureHeight;
     depthBufferDesc.MipLevels = 1;
     depthBufferDesc.ArraySize = 1;
-    depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    // 이 리소스를 DSV 와 SRV 둘 다로 사용하기 위해서 이 포맷으로 설정 
+    depthBufferDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
     depthBufferDesc.SampleDesc.Count = 1;
     depthBufferDesc.SampleDesc.Quality = 0;
     depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
     depthBufferDesc.CPUAccessFlags = 0;
     depthBufferDesc.MiscFlags = 0;
 
@@ -134,6 +144,40 @@ bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textu
         return false;
     }
 
+
+    // 댑스 리소스 뷰의 설명을 설정합니다.
+    D3D11_SHADER_RESOURCE_VIEW_DESC depthResourceViewDesc;
+    depthResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+    depthResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    depthResourceViewDesc.Texture2D.MostDetailedMip = 0;
+    depthResourceViewDesc.Texture2D.MipLevels = 1;
+
+    // 댑스 리소스 뷰를 만듭니다.
+    result = device->CreateShaderResourceView(m_depthStencilBuffer, &depthResourceViewDesc, &m_depthResourceView);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // 렌더링을 위해 뷰포트를 설정합니다.
     m_viewport.Width = (float)textureWidth;
     m_viewport.Height = (float)textureHeight;
@@ -148,6 +192,12 @@ bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textu
 
 void GBuffersClass::Shutdown()
 {
+    if (m_depthResourceView)
+    {
+        m_depthResourceView->Release();
+        m_depthResourceView = 0;
+    }
+
     if (m_depthStencilView)
     {
         m_depthStencilView->Release();
@@ -207,6 +257,12 @@ void GBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext, float
 
     // 깊이 버퍼를 지웁니다.
     deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+
+ID3D11ShaderResourceView* GBuffersClass::GetDepthResourceView()
+{
+    return m_depthResourceView;
 }
 
 

@@ -2,8 +2,8 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+const float SCREEN_DEPTH = 100.0f;
+const float SCREEN_NEAR = 1.0f;
 
 
 class InputClass;
@@ -63,7 +63,5 @@ private:
     GBuffersClass* m_GBuffers = nullptr;
     GBufferShaderClass* m_GBufferShader = nullptr;
 
-    // DeferredShaderClass* m_DeferredShader = nullptr;
-
-    TextureShaderClass* m_TextureShader = nullptr;
+    DeferredShaderClass* m_DeferredShader = nullptr;
 };

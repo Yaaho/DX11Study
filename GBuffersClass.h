@@ -16,6 +16,7 @@ public:
 	void ClearRenderTargets(ID3D11DeviceContext*, float, float, float, float);
 
 	ID3D11ShaderResourceView* GetShaderResourceView(int);
+	ID3D11ShaderResourceView* GetDepthResourceView();
 
 private:
 	int m_textureWidth = 0;
@@ -25,6 +26,7 @@ private:
 	ID3D11ShaderResourceView* m_shaderResourceViewArray[BUFFER_COUNT] = { 0, };
 	ID3D11Texture2D* m_depthStencilBuffer = nullptr;
 	ID3D11DepthStencilView* m_depthStencilView = nullptr;
+	ID3D11ShaderResourceView* m_depthResourceView = nullptr;
 	D3D11_VIEWPORT m_viewport;
 
 };

@@ -16,13 +16,16 @@ LightClass::~LightClass()
 {
 }
 
-bool LightClass::Initialize(ID3D11Device* device, HWND hwnd)
+bool LightClass::Initialize(ID3D11Device* device, HWND hwnd, float shadowMapWidth, float shadowMapHeight, 
+	float screenDepth, float screenNear)
 {
 	D3D11_BUFFER_DESC lightsBufferDesc;
-	lightsBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	// UpdateSubresource 를 사용하기 위해서 Usage 를 DEFAULT 로 설정
+	lightsBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	lightsBufferDesc.ByteWidth = sizeof(LightProperties);
 	lightsBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightsBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	// Usage 가 DEFAULT 일 경우 CPUAccessFlags 는 0 이어야 함
+	lightsBufferDesc.CPUAccessFlags = 0;
 	lightsBufferDesc.MiscFlags = 0;
 	lightsBufferDesc.StructureByteStride = 0;
 
@@ -32,10 +35,12 @@ bool LightClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 
 	D3D11_BUFFER_DESC shadowMapBufferDesc;
-	shadowMapBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	// UpdateSubresource 를 사용하기 위해서 Usage 를 DEFAULT 로 설정
+	shadowMapBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	shadowMapBufferDesc.ByteWidth = sizeof(ShadowMapProperties);
 	shadowMapBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	shadowMapBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	// Usage 가 DEFAULT 일 경우 CPUAccessFlags 는 0 이어야 함
+	shadowMapBufferDesc.CPUAccessFlags = 0;
 	shadowMapBufferDesc.MiscFlags = 0;
 	shadowMapBufferDesc.StructureByteStride = 0;
 
@@ -44,14 +49,17 @@ bool LightClass::Initialize(ID3D11Device* device, HWND hwnd)
 		return false;
 	}
 
+	m_shadowMapWidth = shadowMapWidth;
+	m_shadowMapHeight = shadowMapHeight;
+
+	m_screenDepth = screenDepth;
+	m_screenNear = screenNear;
+
 	return true;
 }
 
 void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->UpdateSubresource(m_lightsBuffer, 0, nullptr, &m_lightProps, 0, 0);
-
-
 	// 위쪽을 가리키는 벡터를 설정합니다.
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMFLOAT3 lookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -65,8 +73,7 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 	float fieldOfView = (float)XM_PI / 2.0f;
 	float screenAspect = 1.0f;
 
-
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, 100.0f, 1.0f);
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, m_screenNear, m_screenDepth);
 
 
 	for (int i = 0; i < MAX_LIGHTS; i++)
@@ -77,11 +84,17 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 				m_lightProps.m_Lights[i].m_Position.y,
 				m_lightProps.m_Lights[i].m_Position.z));
 
+		m_shadowMapProps.m_MapWidth = m_shadowMapWidth;
+		m_shadowMapProps.m_MapHeight = m_shadowMapHeight;
+
 		m_shadowMapProps.m_ShadowMaps[i].m_lightViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
 		m_shadowMapProps.m_ShadowMaps[i].m_lightProjectionMatrix = projectionMatrix;
 	}
 
+
+	deviceContext->UpdateSubresource(m_lightsBuffer, 0, nullptr, &m_lightProps, 0, 0);
 	deviceContext->UpdateSubresource(m_shadowMapBuffer, 0, nullptr, &m_shadowMapProps, 0, 0);
+
 }
 
 void LightClass::UseLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBufferslot)
@@ -91,12 +104,10 @@ void LightClass::UseLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBu
 }
 
 
-void LightClass::UseShaderMapBuffer(ID3D11DeviceContext* deviceContext, int ShadowMapBufferslot)
+void LightClass::UseShadowMapBuffer(ID3D11DeviceContext* deviceContext, int ShadowMapBufferslot)
 {
 	// 셰도우 맵 버퍼는 픽셀 셰이더 b2 슬롯
-	deviceContext->PSSetConstantBuffers(ShadowMapBufferslot, 2, &m_shadowMapBuffer);
-
-	// 셰도우 맵 텍스쳐는 픽셀 셰이더 t4 슬롯
+	deviceContext->PSSetConstantBuffers(ShadowMapBufferslot, 1, &m_shadowMapBuffer);
 }
 
 
