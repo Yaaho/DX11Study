@@ -253,6 +253,11 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     viewMatrix = XMMatrixTranspose(viewMatrix);
     projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
+    // 왜 얘는 inverse 를 안해야 정상 작동할까
+    // inverseProjection = XMMatrixTranspose(inverseProjection);
+    // inverseView = XMMatrixTranspose(inverseView);
+
+
     // 상수 버퍼의 내용을 쓸 수 있도록 잠급니다.
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
@@ -290,6 +295,8 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     dataPtr2->inverseView = inverseView;
     dataPtr2->useAO = useAO;
     dataPtr2->useEnvMap = useEnvMap;
+    dataPtr2->deferredCBufferpadding1 = 0;
+    dataPtr2->deferredCBufferpadding2 = 0;
 
     deviceContext->Unmap(m_deferredBuffer, 0);
 

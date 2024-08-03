@@ -83,9 +83,11 @@ inline void CalcCommonLightInfo(SurfaceInfo surf, inout LightingInfo li)
 inline void EvalDirectionalLight(SurfaceInfo surf, Light light, inout LightingInfo li, int lightIndex)
 {
     li.L = normalize(-light.direction);
-    li.distance = -1;
+    li.distance = -1; // infinity
     li.attenuation = 1;
-    
+
+    // 빛이 LIGHT_ENABLED_W_SHADOWMAP 상태가 아니면 shadowFactor 값은 1
+    // 빛이 LIGHT_ENABLED_W_SHADOWMAP 상태이면 shadowFactor 값은 그림자 세기에 비례해 작아짐
     li.shadowFactor = (light.status == LIGHT_ENABLED_W_SHADOWMAP) ? 1 - ShadowFactor(surf.posW, lightIndex) : 1;
     CalcCommonLightInfo(surf, li);
 }

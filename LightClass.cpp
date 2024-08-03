@@ -62,39 +62,55 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 {
 	// 위쪽을 가리키는 벡터를 설정합니다.
 	XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3 lookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
 	XMVECTOR upVector = XMLoadFloat3(&up);
-
-
-	XMVECTOR lookAtVector = XMLoadFloat3(&lookAt);
 
 	// 정사각형 광원에 대한 시야 및 화면 비율을 설정합니다.
 	float fieldOfView = (float)XM_PI / 2.0f;
 	float screenAspect = 1.0f;
 
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, m_screenNear, m_screenDepth);
-
+	XMMATRIX orthoMatrix = XMMatrixOrthographicLH(20.0f, 20.0f, m_screenNear, m_screenDepth);
+	XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, m_screenNear, m_screenDepth);
+	
 
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
+		m_shadowMapProps.m_MapWidth = m_shadowMapWidth;
+		m_shadowMapProps.m_MapHeight = m_shadowMapHeight;
+
 		XMVECTOR positionVector =
 			XMLoadFloat3(&XMFLOAT3(
 				m_lightProps.m_Lights[i].m_Position.x,
 				m_lightProps.m_Lights[i].m_Position.y,
 				m_lightProps.m_Lights[i].m_Position.z));
 
-		m_shadowMapProps.m_MapWidth = m_shadowMapWidth;
-		m_shadowMapProps.m_MapHeight = m_shadowMapHeight;
+		XMVECTOR directionVector =
+			XMLoadFloat3(&XMFLOAT3(
+				m_lightProps.m_Lights[i].m_Direction.x,
+				m_lightProps.m_Lights[i].m_Direction.y,
+				m_lightProps.m_Lights[i].m_Direction.z));
 
-		m_shadowMapProps.m_ShadowMaps[i].m_lightViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-		m_shadowMapProps.m_ShadowMaps[i].m_lightProjectionMatrix = projectionMatrix;
+		XMMATRIX viewMatrix = XMMatrixLookToLH(positionVector, directionVector, upVector);
+
+
+		// 빛이 directional light 이면 ortho
+		// 빛이 point light 이면 projection matrix 를 사용한다.
+		if (m_lightProps.m_Lights[i].m_LightType == LightType::PointLight)
+		{
+			m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, perspectiveMatrix);
+		}
+		else if (m_lightProps.m_Lights[i].m_LightType == LightType::DirectionalLight)
+		{
+			// orthoMatrix 가 그려지는 거리가 너무 멀어서 임시로 perspectiveMatrix 를 사용한다.
+			// m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, orthoMatrix);
+
+			m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, perspectiveMatrix);
+		}
+
+		m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixTranspose(m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection);
 	}
-
 
 	deviceContext->UpdateSubresource(m_lightsBuffer, 0, nullptr, &m_lightProps, 0, 0);
 	deviceContext->UpdateSubresource(m_shadowMapBuffer, 0, nullptr, &m_shadowMapProps, 0, 0);
-
 }
 
 void LightClass::UseLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBufferslot)

@@ -1,8 +1,7 @@
 cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
-    matrix viewMatrix;
-    matrix projectionMatrix;
+    matrix viewprojectionMatrix;
 };
 
 struct VertexInputType
@@ -27,8 +26,7 @@ PixelInputType DepthVertexShader(VertexInputType input)
 
 	// 월드, 뷰 및 투영 행렬에 대한 정점의 위치를 ??계산합니다.
     output.position = mul(input.position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
+    output.position = mul(output.position, viewprojectionMatrix);
     
 	// 픽셀 쉐이더가 사용할 입력 색상을 저장합니다.
     output.depthPosition = output.position;

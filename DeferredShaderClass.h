@@ -16,6 +16,8 @@ private:
         XMMATRIX inverseView;
         int useAO;
         int useEnvMap;
+        int deferredCBufferpadding1 = 0;
+        int deferredCBufferpadding2 = 0;
     };
 
 

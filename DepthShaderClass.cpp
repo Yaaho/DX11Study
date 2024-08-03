@@ -32,10 +32,10 @@ void DepthShaderClass::Shutdown()
 
 
 bool DepthShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
-	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+	XMMATRIX worldMatrix, XMMATRIX viewprojectionMatrix)
 {
 	// 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-	if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix))
+	if (!SetShaderParameters(deviceContext, worldMatrix, viewprojectionMatrix))
 	{
 		return false;
 	}
@@ -192,12 +192,10 @@ void DepthShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 
 
 bool DepthShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-	XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+	XMMATRIX worldMatrix, XMMATRIX viewprojectionMatrix)
 {
 	// 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
 	worldMatrix = XMMatrixTranspose(worldMatrix);
-	viewMatrix = XMMatrixTranspose(viewMatrix);
-	projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
 	// 상수 버퍼의 내용을 쓸 수 있도록 잠급니다.
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -211,8 +209,7 @@ bool DepthShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	// 상수 버퍼에 행렬을 복사합니다.
 	dataPtr->world = worldMatrix;
-	dataPtr->view = viewMatrix;
-	dataPtr->projection = projectionMatrix;
+	dataPtr->viewprojection = viewprojectionMatrix;
 
 	// 상수 버퍼의 잠금을 풉니다.
 	deviceContext->Unmap(m_matrixBuffer, 0);

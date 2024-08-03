@@ -12,10 +12,12 @@ struct PixelInputType
 
 cbuffer DeferredCBuffer : register(b3)
 {
-    float4x4 inverseProjection;
-    float4x4 inverseView;
+    matrix inverseProjection;
+    matrix inverseView;
     int useAO;
     int useEnvMap;
+    int deferredCBufferpadding1;
+    int deferredCBufferpadding2;
 };
 
 Texture2D DepthTexture : register(t0);
@@ -24,6 +26,7 @@ Texture2D MetalRough : register(t2);
 Texture2D Normals : register(t3);
 // t4 : shadowMap
 Texture2D AO : register(t5);
+
 
 
 float3 CalculateWorldFromDepth(float depth, float2 texCoord)
@@ -45,8 +48,6 @@ float3 CalculateWorldFromDepth(float depth, float2 texCoord)
     float4 worldSpace = mul(inverseView, viewSpace);
     return worldSpace.xyz;
 }
-
-
 
 
 
@@ -85,7 +86,6 @@ float4 DeferredPixelShader(PixelInputType input) : SV_TARGET
         float NDF = DistributionGGX(saturate(li.NdotH), roughness);
         float G = GeometrySmith(saturate(surf.NdotV), saturate(li.NdotL), roughness);
         float3 F = fresnelSchlick(saturate(dot(li.H, surf.V)), F0);
-        
         float3 kS = F;
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
         kD *= 1.0 - metallic;
@@ -101,8 +101,10 @@ float4 DeferredPixelShader(PixelInputType input) : SV_TARGET
     
     float ambient = globalAmbient.rgb * albedo;
     
+    
     float ao = useAO ? AO.Sample(PointSampler, input.tex).r : 1.0;
     ambient *= ao * occlusion;
+
     float3 colour = ambient + Lo;
     
     return float4(colour, 1.0);

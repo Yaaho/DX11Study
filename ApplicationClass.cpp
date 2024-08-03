@@ -105,53 +105,51 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
+    XMFLOAT3 pos;
+
+    m_Position->GetPosition(pos);
+
     // 카메라의 초기 위치를 설정하고 렌더링에 필요한 행렬을 만듭니다.
-    m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
+    m_Camera->SetPosition(pos);
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
 
     // 조명 객체를 생성합니다.
     m_Light = new LightClass;
-    if (!m_Light->Initialize(m_Direct3D->GetDevice(), hwnd, screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR))
+    if (!m_Light->Initialize(m_Direct3D->GetDevice(), hwnd, 4096, 4096, SCREEN_DEPTH, SCREEN_NEAR))
     {
         return false;
     }
 
-    m_Light->m_lightProps.m_GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+    m_Light->m_lightProps.m_GlobalAmbient = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 
-    m_Light->m_lightProps.m_Lights[0].m_Position = XMFLOAT4(5.0f, 2.0f, 4.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[0].m_Position = XMFLOAT4(0.0f, 7.0f, -10.0f, 1.0f);
     m_Light->m_lightProps.m_Lights[1].m_Position = XMFLOAT4(7.0f, 5.0f, 7.0f, 1.0f);
     m_Light->m_lightProps.m_Lights[2].m_Position = XMFLOAT4(-4.0f, 5.0f, -5.0f, 1.0f);
     m_Light->m_lightProps.m_Lights[3].m_Position = XMFLOAT4(-9.0f, 3.0f, -8.0f, 1.0f);
 
 
-    // direction 을 설정하자.
-    // 그림자를 드리울 수 있는건 directional light 뿐이지만
-    // directional light 의 위치와 그림자 맵은 어떻게 따질까
+    m_Light->m_lightProps.m_Lights[0].m_Direction = XMFLOAT4(0.0f, -0.5f, 0.5f, 1.0f);
+    m_Light->m_lightProps.m_Lights[1].m_Direction = XMFLOAT4(-7.0f, -5.0f, -7.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[2].m_Direction = XMFLOAT4(4.0f, -5.0f, 5.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[3].m_Direction = XMFLOAT4(9.0f, -3.0f, 8.0f, 1.0f);
 
 
-
-
-
-    m_Light->m_lightProps.m_Lights[0].m_Color = XMFLOAT4(0.9, 0.5, 0.7, 1.0);
-    m_Light->m_lightProps.m_Lights[1].m_Color = XMFLOAT4(0.3, 0.9, 0.2, 1.0);
-    m_Light->m_lightProps.m_Lights[2].m_Color = XMFLOAT4(0.3, 0.4, 0.9, 1.0);
-    m_Light->m_lightProps.m_Lights[3].m_Color = XMFLOAT4(0.9, 0.9, 0.9, 1.0);
+    m_Light->m_lightProps.m_Lights[0].m_Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[1].m_Color = XMFLOAT4(0.4f, 0.9f, 0.6f, 1.0f);
+    m_Light->m_lightProps.m_Lights[2].m_Color = XMFLOAT4(0.7f, 0.8f, 0.9f, 1.0f);
+    m_Light->m_lightProps.m_Lights[3].m_Color = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 
     m_Light->m_lightProps.m_Lights[0].m_LightType = LightType::DirectionalLight;
-    m_Light->m_lightProps.m_Lights[1].m_LightType = LightType::DirectionalLight;
-    m_Light->m_lightProps.m_Lights[2].m_LightType = LightType::DirectionalLight;
-    m_Light->m_lightProps.m_Lights[3].m_LightType = LightType::DirectionalLight;
+    m_Light->m_lightProps.m_Lights[1].m_LightType = LightType::PointLight;
+    m_Light->m_lightProps.m_Lights[2].m_LightType = LightType::PointLight;
+    m_Light->m_lightProps.m_Lights[3].m_LightType = LightType::PointLight;
 
 
     m_Light->m_lightProps.m_Lights[0].m_Status = LightStatus::Static_Shadow;
-    m_Light->m_lightProps.m_Lights[1].m_Status = LightStatus::Static_Shadow;
-    m_Light->m_lightProps.m_Lights[2].m_Status = LightStatus::Static_Shadow;
-    m_Light->m_lightProps.m_Lights[3].m_Status = LightStatus::Static_Shadow;
-
-
-    m_Light->m_shadowMapProps.m_MapWidth = 4096;
-    m_Light->m_shadowMapProps.m_MapHeight = 4096;
+    m_Light->m_lightProps.m_Lights[1].m_Status = LightStatus::Disable;
+    m_Light->m_lightProps.m_Lights[2].m_Status = LightStatus::Disable;
+    m_Light->m_lightProps.m_Lights[3].m_Status = LightStatus::Disable;
 
     m_Light->m_shadowMapProps.m_ShadowMaps[0].m_ShadowMapTopLeftX = 0.0f;
     m_Light->m_shadowMapProps.m_ShadowMaps[0].m_ShadowMapTopLeftY = 0.0f;
@@ -557,6 +555,7 @@ bool ApplicationClass::Render()
     m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 
+
     // s0
     m_Sampler->UseLinear(m_Direct3D->GetDeviceContext(), 0);
 
@@ -574,7 +573,7 @@ bool ApplicationClass::Render()
 
 
     m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(),
-        worldMatrix, baseViewMatrix, orthoMatrix, XMMatrixInverse(NULL, projectionMatrix), XMMatrixInverse(NULL, viewMatrix), false, false,
+        worldMatrix, baseViewMatrix, orthoMatrix, XMMatrixInverse(nullptr, projectionMatrix), XMMatrixInverse(nullptr, viewMatrix), false, false,
         m_GBuffers->GetDepthResourceView(), 
         m_GBuffers->GetShaderResourceView(0), m_GBuffers->GetShaderResourceView(1), m_GBuffers->GetShaderResourceView(2), m_GBuffers->GetShaderResourceView(3));
 
@@ -628,8 +627,8 @@ bool ApplicationClass::RenderGBuffer()
 
 
     XMFLOAT4 gAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    float gMetallic = 0.5;
-    float gRoughness = 0.5;
+    float gMetallic = 1.0f;
+    float gRoughness = 0.3f;
 
     // 알베도 맵 사용
     int gUseAlbedoMap = 1;
@@ -674,8 +673,8 @@ bool ApplicationClass::RenderGBuffer()
 
 
     gAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    gMetallic = 0.5;
-    gRoughness = 0.5;
+    gMetallic = 1.0f;
+    gRoughness = 0.3f;
 
     // 알베도 맵 사용
     gUseAlbedoMap = 1;
@@ -707,7 +706,7 @@ bool ApplicationClass::RenderGBuffer()
 
 bool ApplicationClass::RenderDepthMap()
 {
-    XMMATRIX worldMatrix, lightViewMatrix, lightProjectionMatrix;
+    XMMATRIX worldMatrix, lightViewProjectionMatrix;
 
     XMFLOAT3 Pos;
 
@@ -724,9 +723,8 @@ bool ApplicationClass::RenderDepthMap()
             m_Light->m_shadowMapProps.m_ShadowMaps[i].m_ShadowMapTextureRatio);
 
         m_Direct3D->GetWorldMatrix(worldMatrix);
-        lightViewMatrix = m_Light->m_shadowMapProps.m_ShadowMaps[i].m_lightViewMatrix;
-        lightProjectionMatrix = m_Light->m_shadowMapProps.m_ShadowMaps[i].m_lightProjectionMatrix;
 
+        lightViewProjectionMatrix = m_Light->m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection;
 
         m_Cube->GetPosition(Pos);
         worldMatrix = XMMatrixTranslation(Pos.x, Pos.y, Pos.z);
@@ -735,7 +733,7 @@ bool ApplicationClass::RenderDepthMap()
         // 깊이 셰이더로 큐브 모델을 렌더링합니다.
         m_Cube->Render(m_Direct3D->GetDeviceContext());
         bool result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_Cube->GetIndexCount(), worldMatrix,
-            lightViewMatrix, lightProjectionMatrix);
+            lightViewProjectionMatrix);
         if (!result)
         {
             return false;
@@ -751,7 +749,7 @@ bool ApplicationClass::RenderDepthMap()
         // 깊이 셰이더로 그라운드 모델을 렌더링합니다.
         m_Plane->Render(m_Direct3D->GetDeviceContext());
         result = m_DepthShader->Render(m_Direct3D->GetDeviceContext(), m_Plane->GetIndexCount(), worldMatrix,
-            lightViewMatrix, lightProjectionMatrix);
+            lightViewProjectionMatrix);
         if (!result)
         {
             return false;
