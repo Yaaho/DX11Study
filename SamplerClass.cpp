@@ -29,11 +29,11 @@ bool SamplerClass::Initialize(ID3D11Device* device)
     LinearSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     LinearSamplerDesc.MipLODBias = 0.0f;
     LinearSamplerDesc.MaxAnisotropy = 1;
-    LinearSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    LinearSamplerDesc.BorderColor[0] = 0;
-    LinearSamplerDesc.BorderColor[1] = 0;
-    LinearSamplerDesc.BorderColor[2] = 0;
-    LinearSamplerDesc.BorderColor[3] = 0;
+    LinearSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    LinearSamplerDesc.BorderColor[0] = 1.0f;
+    LinearSamplerDesc.BorderColor[1] = 1.0f;
+    LinearSamplerDesc.BorderColor[2] = 1.0f;
+    LinearSamplerDesc.BorderColor[3] = 1.0f;
     LinearSamplerDesc.MinLOD = 0;
     LinearSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
@@ -48,16 +48,16 @@ bool SamplerClass::Initialize(ID3D11Device* device)
     // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
     D3D11_SAMPLER_DESC PointSamplerDesc;
     PointSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-    PointSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    PointSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    PointSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    PointSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    PointSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    PointSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     PointSamplerDesc.MipLODBias = 0.0f;
     PointSamplerDesc.MaxAnisotropy = 1;
-    PointSamplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    PointSamplerDesc.BorderColor[0] = 0;
-    PointSamplerDesc.BorderColor[1] = 0;
-    PointSamplerDesc.BorderColor[2] = 0;
-    PointSamplerDesc.BorderColor[3] = 0;
+    PointSamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    PointSamplerDesc.BorderColor[0] = 1.0f;
+    PointSamplerDesc.BorderColor[1] = 1.0f;
+    PointSamplerDesc.BorderColor[2] = 1.0f;
+    PointSamplerDesc.BorderColor[3] = 1.0f;
     PointSamplerDesc.MinLOD = 0;
     PointSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 

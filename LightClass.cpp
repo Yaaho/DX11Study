@@ -93,17 +93,14 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 
 
 		// 빛이 directional light 이면 ortho
-		// 빛이 point light 이면 projection matrix 를 사용한다.
+		// 빛이 point light 이면 perspective Matrix 를 사용한다.
 		if (m_lightProps.m_Lights[i].m_LightType == LightType::PointLight)
 		{
 			m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, perspectiveMatrix);
 		}
 		else if (m_lightProps.m_Lights[i].m_LightType == LightType::DirectionalLight)
 		{
-			// orthoMatrix 가 그려지는 거리가 너무 멀어서 임시로 perspectiveMatrix 를 사용한다.
-			// m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, orthoMatrix);
-
-			m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, perspectiveMatrix);
+			m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixMultiply(viewMatrix, orthoMatrix);
 		}
 
 		m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection = XMMatrixTranspose(m_shadowMapProps.m_ShadowMaps[i].m_lightViewProjection);

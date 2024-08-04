@@ -82,27 +82,22 @@ float ShadowFactor(float4 worldPosition, int lightIndex)
     
     // 0 - 1 범위로 변경
     projCoords = (projCoords + 1) / 2.0;
-    // 좌표의 상하 반전
-    projCoords.y = -projCoords.y; 
     
+    // 상하 반전
+    projCoords.y = 1 - projCoords.y;
+
     // projCoords 가 이 광원에 해당하는 coord 를 가리키도록 함
-    projCoords *= m_ShadowMaps[lightIndex].shadowMapTextureRatio;
+    projCoords.x *= m_ShadowMaps[lightIndex].shadowMapTextureRatio;
+    projCoords.y *= m_ShadowMaps[lightIndex].shadowMapTextureRatio;
     
     projCoords.x += m_ShadowMaps[lightIndex].shadowMapTopLeftX;
     projCoords.y += m_ShadowMaps[lightIndex].shadowMapTopLeftY;
-    
-    
-    float epsilon = 0.01f;
-    float closeestDepth = ShadowMap.Sample(LinearSampler, projCoords.xy).r;
-    
-    float shadow = (closeestDepth < currentDepth - epsilon);
+ 
     
 
-    
-    /*
     float2 atlasSize = float2(1, 1) /
-    float2(mapWidth * m_ShadowMaps[lightIndex].shadowMapTextureRatio,
-    mapHeight * m_ShadowMaps[lightIndex].shadowMapTextureRatio);
+    float2(mapWidth / m_ShadowMaps[lightIndex].shadowMapTextureRatio,
+    mapHeight / m_ShadowMaps[lightIndex].shadowMapTextureRatio);
     
     float shadow = 0;
     float epsilon = 0.01f;
@@ -117,8 +112,6 @@ float ShadowFactor(float4 worldPosition, int lightIndex)
     }
     
     shadow /= 9;
-    */
-    
     
     return shadow;
 }

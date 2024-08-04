@@ -147,9 +147,9 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 
 
     m_Light->m_lightProps.m_Lights[0].m_Status = LightStatus::Static_Shadow;
-    m_Light->m_lightProps.m_Lights[1].m_Status = LightStatus::Disable;
-    m_Light->m_lightProps.m_Lights[2].m_Status = LightStatus::Disable;
-    m_Light->m_lightProps.m_Lights[3].m_Status = LightStatus::Disable;
+    m_Light->m_lightProps.m_Lights[1].m_Status = LightStatus::Enable;
+    m_Light->m_lightProps.m_Lights[2].m_Status = LightStatus::Enable;
+    m_Light->m_lightProps.m_Lights[3].m_Status = LightStatus::Enable;
 
     m_Light->m_shadowMapProps.m_ShadowMaps[0].m_ShadowMapTopLeftX = 0.0f;
     m_Light->m_shadowMapProps.m_ShadowMaps[0].m_ShadowMapTopLeftY = 0.0f;
@@ -673,8 +673,8 @@ bool ApplicationClass::RenderGBuffer()
 
 
     gAlbedo = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-    gMetallic = 1.0f;
-    gRoughness = 0.3f;
+    gMetallic = 0.0f;
+    gRoughness = 1.0f;
 
     // 알베도 맵 사용
     gUseAlbedoMap = 1;
