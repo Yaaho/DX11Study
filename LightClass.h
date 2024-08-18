@@ -27,6 +27,10 @@ struct Light
 	float m_QuadAttenuation = 0.032f;
 	float m_SpotAngle;
 
+	// 이 광원이 섀도우맵 인덱스의 몇번 부분을 차지하는지 index 변수를 넣어야 한다.
+	// direct light 라면 해당 인덱스의 섀도우맵 한개 차지
+	// point light 라면 인덱스의 시작부분부터 섀도우맵 여섯개 차지
+
 	int m_LightType = LightType::DirectionalLight;
 	int m_Status = LightStatus::Disable;
 	int lightpadding1 = 0;
@@ -57,7 +61,7 @@ struct ShadowMapProperties
 	float shadowMapProppadding1 = 0;
 	float shadowMapProppadding2 = 0;
 
-	ShadowMapMatrix m_ShadowMaps[MAX_LIGHTS];
+	ShadowMapMatrix m_ShadowMaps[10];
 };
 
 

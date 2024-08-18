@@ -15,13 +15,15 @@ class LightClass;
 class SamplerClass;
 class ModelClass;
 class OrthoWindowClass;
+class SkyboxClass;
+class TextureClass;
 class RenderTextureClass;
+class RenderTextureCubeClass;
 class DepthShaderClass;
 class GBuffersClass;
 class GBufferShaderClass;
 class DeferredShaderClass;
-
-class TextureShaderClass;
+class SkyboxShaderClass;
 
 
 class ApplicationClass
@@ -40,6 +42,8 @@ private:
     bool Render();
     bool RenderGBuffer();
     bool RenderDepthMap();
+    bool RenderEnvMap();
+    bool RenderSkybox();
 
 private:
     InputClass* m_Input = nullptr;
@@ -53,15 +57,26 @@ private:
 
     ModelClass* m_Cube = nullptr;
     ModelClass* m_Plane = nullptr;
-
+  
 
     OrthoWindowClass* m_FullScreenWindow = nullptr;
 
+    SkyboxClass* m_Skybox = nullptr;
+    TextureClass* m_SkyboxCubeMap = nullptr;
+
     RenderTextureClass* m_DepthMapTexture;
+
+    RenderTextureCubeClass* m_EnvironmentMap;
+    RenderTextureCubeClass* m_SpecularMap;
+    RenderTextureClass* m_BrdfLUT;
+
     DepthShaderClass* m_DepthShader;
 
     GBuffersClass* m_GBuffers = nullptr;
     GBufferShaderClass* m_GBufferShader = nullptr;
 
     DeferredShaderClass* m_DeferredShader = nullptr;
+
+
+    SkyboxShaderClass* m_SkyboxShader = nullptr;
 };

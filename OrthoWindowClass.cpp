@@ -77,7 +77,7 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 		return false;
 	}
 
-	// 정점 배열에 데이터를로드합니다.
+	// 정점 배열에 데이터를 로드합니다.
 	// 첫 번째 삼각형.
 	vertices[0].position = XMFLOAT3(left, top, 0.0f);  // 왼쪽 위
 	vertices[0].texture = XMFLOAT2(0.0f, 0.0f);

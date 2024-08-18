@@ -28,6 +28,11 @@ Texture2D Normals : register(t3);
 Texture2D AO : register(t5);
 
 
+TextureCube EnvMap : register(t6);
+TextureCube PrefilteredSpecMap : register(t7);
+Texture2D BrdfLUT : register(t8);
+
+
 
 float3 CalculateWorldFromDepth(float depth, float2 texCoord)
 {
@@ -100,6 +105,20 @@ float4 DeferredPixelShader(PixelInputType input) : SV_TARGET
     }
     
     float ambient = globalAmbient.rgb * albedo;
+    if (/*useEnvMap*/ false)
+    {
+        float3 kS = fresnelSchlickRoughness(saturate(surf.NdotV), F0, roughness);
+        float3 kD = 1.0 - kS;
+        kD *= 1.0 - metallic;
+        float3 irradiance = EnvMap.Sample(LinearSampler, surf.N).rgb;
+        float3 diffuse = irradiance * albedo;
+
+        float3 R = normalize(reflect(-surf.V, surf.N));
+        float3 prefilterdColour = PrefilteredSpecMap.SampleLevel(LinearSampler, R, roughness * 5.0).rgb;
+        float2 envBrdf = BrdfLUT.Sample(PointSampler, float2(saturate(surf.NdotV), roughness)).rg;
+        float3 specular = prefilterdColour * (kS * envBrdf.x + envBrdf.y);
+        ambient = (kD * diffuse + specular);
+    }
     
     
     float ao = useAO ? AO.Sample(PointSampler, input.tex).r : 1.0;

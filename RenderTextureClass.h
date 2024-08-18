@@ -12,7 +12,7 @@ public:
 
 	void SetRenderTarget(ID3D11DeviceContext*);
 	void ResetViewports(ID3D11DeviceContext*);
-	void SetViewports(ID3D11DeviceContext*, float TopLeftX, float TopLeftY, float TextureRatio);
+	void SetViewports(ID3D11DeviceContext*, float, float, float);
 	void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 

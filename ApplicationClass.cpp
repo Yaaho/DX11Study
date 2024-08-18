@@ -8,15 +8,15 @@
 #include "SamplerClass.h"
 #include "ModelClass.h"
 #include "OrthoWindowClass.h"
+#include "SkyboxClass.h"
+#include "TextureClass.h"
 #include "RenderTextureClass.h"
+#include "RenderTextureCubeClass.h"
 #include "DepthShaderClass.h"
 #include "GBuffersClass.h"
 #include "GBufferShaderClass.h"
 #include "DeferredShaderClass.h"
-
-#include "TextureShaderClass.h"
-
-
+#include "SkyboxShaderClass.h"
 #include "ApplicationClass.h"
 
 
@@ -135,7 +135,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
     m_Light->m_lightProps.m_Lights[3].m_Direction = XMFLOAT4(9.0f, -3.0f, 8.0f, 1.0f);
 
 
-    m_Light->m_lightProps.m_Lights[0].m_Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+    m_Light->m_lightProps.m_Lights[0].m_Color = XMFLOAT4(0.7f, 0.4f, 0.2f, 1.0f);
     m_Light->m_lightProps.m_Lights[1].m_Color = XMFLOAT4(0.4f, 0.9f, 0.6f, 1.0f);
     m_Light->m_lightProps.m_Lights[2].m_Color = XMFLOAT4(0.7f, 0.8f, 0.9f, 1.0f);
     m_Light->m_lightProps.m_Lights[3].m_Color = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
@@ -246,6 +246,31 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
+    m_Skybox = new SkyboxClass;
+    if (!m_Skybox)
+    {
+        return false;
+    }
+
+    result = m_Skybox->Initialize(m_Direct3D->GetDevice());
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the skybox object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_SkyboxCubeMap = new TextureClass;
+    if (!m_SkyboxCubeMap)
+    {
+        return false;
+    }
+
+    result = m_SkyboxCubeMap->Initialize(m_Direct3D->GetDevice(), L"skybox.dds");
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the skybox texture object.", L"Error", MB_OK);
+        return false;
+    }
 
     // 렌더링을 텍스처 오브젝트에 생성한다.
     m_DepthMapTexture = new RenderTextureClass;
@@ -258,6 +283,42 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
     if (!m_DepthMapTexture->Initialize(m_Direct3D->GetDevice(), 4096, 4096, SCREEN_DEPTH, SCREEN_NEAR))
     {
         MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_EnvironmentMap = new RenderTextureCubeClass;
+    if (!m_EnvironmentMap)
+    {
+        return false;
+    }
+
+    if (!m_EnvironmentMap->Initialize(m_Direct3D->GetDevice(), 512))
+    {
+        MessageBox(hwnd, L"Could not initialize the render environment Map object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_SpecularMap = new RenderTextureCubeClass;
+    if (!m_SpecularMap)
+    {
+        return false;
+    }
+
+    if (!m_SpecularMap->Initialize(m_Direct3D->GetDevice(), 512))
+    {
+        MessageBox(hwnd, L"Could not initialize the render specular map object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_BrdfLUT = new RenderTextureClass;
+    if (!m_BrdfLUT)
+    {
+        return false;
+    }
+
+    if (!m_BrdfLUT->Initialize(m_Direct3D->GetDevice(), 512, 512, SCREEN_DEPTH, SCREEN_NEAR))
+    {
+        MessageBox(hwnd, L"Could not initialize the render brdfLUT object.", L"Error", MB_OK);
         return false;
     }
 
@@ -319,12 +380,35 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
+    m_SkyboxShader = new SkyboxShaderClass;
+    if (!m_SkyboxShader)
+    {
+        return false;
+    }
+
+    result = m_SkyboxShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+    if (!result)
+    {
+        MessageBox(hwnd, L"Could not initialize the skybox shader object.", L"Error", MB_OK);
+        return false;
+    }
+
+    RenderEnvMap();
+
     return true;
 }
 
 
 void ApplicationClass::Shutdown()
 {
+    if (m_SkyboxShader)
+    {
+        m_SkyboxShader->Shutdown();
+        delete m_SkyboxShader;
+        m_SkyboxShader = 0;
+    }
+
+
     // 조명 쉐이더 객체를 해제합니다.
     if (m_DeferredShader)
     {
@@ -356,11 +440,46 @@ void ApplicationClass::Shutdown()
         m_DepthShader = 0;
     }
 
+    if (m_BrdfLUT)
+    {
+        m_BrdfLUT->Shutdown();
+        delete m_BrdfLUT;
+        m_BrdfLUT = 0;
+    }
+
+    if (m_SpecularMap)
+    {
+        m_SpecularMap->Shutdown();
+        delete m_SpecularMap;
+        m_SpecularMap = 0;
+    }
+
+    if (m_EnvironmentMap)
+    {
+        m_EnvironmentMap->Shutdown();
+        delete m_EnvironmentMap;
+        m_EnvironmentMap = 0;
+    }
+
     if (m_DepthMapTexture)
     {
         m_DepthMapTexture->Shutdown();
         delete m_DepthMapTexture;
         m_DepthMapTexture = 0;
+    }
+
+    if (m_SkyboxCubeMap)
+    {
+        m_SkyboxCubeMap->Shutdown();
+        delete m_SkyboxCubeMap;
+        m_SkyboxCubeMap = 0;
+    }
+
+    if (m_Skybox)
+    {
+        m_Skybox->Shutdown();
+        delete m_Skybox;
+        m_Skybox = 0;
     }
 
     // 전체 화면 ortho window 객체를 해제합니다.
@@ -468,11 +587,10 @@ bool ApplicationClass::Frame()
         m_Light->UpdateBuffer(m_Direct3D->GetDeviceContext());
     }
 
-    // 그래픽을 렌더링 합니다
+    // 그래픽을 렌더링 한다.
+    Render();
 
-    return Render();
-
-
+    return true;
 
     /*
     초당 프레임 수를 설정한다.
@@ -537,7 +655,7 @@ bool ApplicationClass::Render()
         return false;
     }
 
-
+    
     // 장면을 시작할 버퍼를 지운다.
     m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -572,14 +690,26 @@ bool ApplicationClass::Render()
     m_DepthMapTexture->UseShaderResourceView(m_Direct3D->GetDeviceContext(), 4);
 
 
+    m_EnvironmentMap->UseShaderResourceView(m_Direct3D->GetDeviceContext(), 6);
+    m_SpecularMap->UseShaderResourceView(m_Direct3D->GetDeviceContext(), 7);
+    m_BrdfLUT->UseShaderResourceView(m_Direct3D->GetDeviceContext(), 8);
+
+
     m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(),
-        worldMatrix, baseViewMatrix, orthoMatrix, XMMatrixInverse(nullptr, projectionMatrix), XMMatrixInverse(nullptr, viewMatrix), false, false,
+        worldMatrix, baseViewMatrix, orthoMatrix, XMMatrixInverse(nullptr, projectionMatrix), XMMatrixInverse(nullptr, viewMatrix), false, 1,
         m_GBuffers->GetDepthResourceView(), 
         m_GBuffers->GetShaderResourceView(0), m_GBuffers->GetShaderResourceView(1), m_GBuffers->GetShaderResourceView(2), m_GBuffers->GetShaderResourceView(3));
 
 
     // 모든 2D 렌더링이 완료되었으므로 Z 버퍼를 다시 켜십시오.
     m_Direct3D->TurnZBufferOn();
+
+
+
+
+
+
+
 
     // 렌더링 된 장면을 화면에 표시합니다.
     m_Direct3D->EndScene();
@@ -761,6 +891,137 @@ bool ApplicationClass::RenderDepthMap()
 
     // 뷰포트를 원본으로 다시 설정합니다.
     m_Direct3D->ResetViewport();
+
+    return true;
+}
+
+
+
+bool ApplicationClass::RenderEnvMap()
+{
+    XMVECTOR forward[6] =
+    {
+        { 1, 0, 0, 0 },
+        { -1, 0, 0, 0 },
+        { 0, 1, 0, 0 },
+        { 0, -1, 0, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 0, -1, 0 },
+    };
+
+    XMVECTOR up[6] =
+    {
+        { 0, 1, 0, 0 },
+        { 0, 1, 0, 0 },
+        { 0, 0, -1, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 1, 0,  0 },
+        { 0, 1, 0, 0 },
+    };
+
+    m_EnvironmentMap->SetViewports(m_Direct3D->GetDeviceContext());
+
+    for (int i = 0; i < 6; ++i)
+    {
+        m_EnvironmentMap->SetRenderTarget(m_Direct3D->GetDeviceContext(), i);
+
+        XMVECTOR m_EyePosition = XMVectorSet(0, 0, 0, 0);
+        XMVECTOR m_LookAt = forward[i];
+        XMVECTOR m_Up = up[i];
+
+        float nearZ = 0;
+        float farZ = 10;
+        float viewWidth = 2;
+        float viewHeight = 2;
+
+        m_Skybox->Render(m_Direct3D->GetDeviceContext());
+        m_SkyboxShader->RenderEnvMap(m_Direct3D->GetDeviceContext(), m_Skybox->GetIndexCount(),
+            XMMatrixIdentity(),
+            XMMatrixLookAtLH(m_EyePosition, m_LookAt, m_Up),
+            XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ),
+            m_SkyboxCubeMap->GetTexture());
+    }
+
+
+    int mapSize = 512;
+
+
+    for (int i = 0; i < 6; ++i)
+    {
+        float roughness = (float)i / 5.0;
+        m_SpecularMap->SetViewports(m_Direct3D->GetDeviceContext());
+
+        for (int j = 0; j < 6; ++j)
+        {
+            m_SpecularMap->SetRenderTarget(m_Direct3D->GetDeviceContext(), i * 6 + j);
+
+
+            XMVECTOR m_EyePosition = XMVectorSet(0, 0, 0, 0);
+            XMVECTOR m_LookAt = forward[j];
+            XMVECTOR m_Up = up[j];
+            float nearZ = 0;
+            float farZ = 10;
+            float viewWidth = 2;
+            float viewHeight = 2;
+
+            m_Skybox->Render(m_Direct3D->GetDeviceContext());
+            m_SkyboxShader->RenderEnvPreFilter(m_Direct3D->GetDeviceContext(), m_Skybox->GetIndexCount(),
+                XMMatrixIdentity(),
+                XMMatrixLookAtLH(m_EyePosition, m_LookAt, m_Up),
+                XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ), 
+                m_SkyboxCubeMap->GetTexture(), roughness);
+        }
+
+        mapSize /= 2;
+    }
+
+
+    D3D11_VIEWPORT viewport = { 0 };
+    viewport.Width = 512;
+    viewport.Height = 512;
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    m_Direct3D->GetDeviceContext()->RSSetViewports(1, &viewport);
+
+    m_BrdfLUT->SetRenderTarget(m_Direct3D->GetDeviceContext());
+    m_Direct3D->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    m_SkyboxShader->RenderBrdfLUT(m_Direct3D->GetDeviceContext());
+
+
+
+    // 렌더 버퍼가 아닌 원래의 백 버퍼로 렌더링 타겟을 다시 설정합니다.
+    m_Direct3D->SetBackBufferRenderTarget();
+
+    // 뷰포트를 원본으로 다시 설정합니다.
+    m_Direct3D->ResetViewport();
+
+
+    return true;
+}
+
+
+
+bool ApplicationClass::RenderSkybox()
+{
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+    XMMATRIX scaleMatrix = XMMatrixScaling(50.0f, 50.0f, 50.0f);
+
+    // d3d 객체에서 월드 행렬을 가져옵니다.
+    m_Direct3D->GetWorldMatrix(worldMatrix);
+    m_Camera->GetViewMatrix(viewMatrix);
+    m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+
+    XMFLOAT3 pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    m_Position->GetPosition(pos);
+    worldMatrix = XMMatrixMultiply(scaleMatrix, XMMatrixTranslation(pos.x, pos.y, pos.z));
+
+
+    m_Skybox->Render(m_Direct3D->GetDeviceContext());
+    m_SkyboxShader->RenderSkybox(m_Direct3D->GetDeviceContext(), m_Skybox->GetIndexCount(), 
+        worldMatrix, viewMatrix, projectionMatrix, m_SkyboxCubeMap->GetTexture());
 
     return true;
 }
