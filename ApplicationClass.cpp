@@ -230,22 +230,6 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 
     m_Plane->SetPosition(XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-
-    // 전체 화면 ortho window 객체를 생성합니다.
-    m_FullScreenWindow = new OrthoWindowClass;
-    if (!m_FullScreenWindow)
-    {
-        return false;
-    }
-
-    // 전체 화면 ortho window 객체를 초기화 합니다.
-    result = m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
-    if (!result)
-    {
-        MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
-        return false;
-    }
-
     m_Skybox = new SkyboxClass;
     if (!m_Skybox)
     {
@@ -265,7 +249,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
-    result = m_SkyboxCubeMap->Initialize(m_Direct3D->GetDevice(), L"skybox.dds");
+    result = m_SkyboxCubeMap->Initialize(m_Direct3D->GetDevice(), L"sky.dds");
     if (!result)
     {
         MessageBox(hwnd, L"Could not initialize the skybox texture object.", L"Error", MB_OK);
@@ -393,6 +377,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
         return false;
     }
 
+
     RenderEnvMap();
 
     return true;
@@ -480,14 +465,6 @@ void ApplicationClass::Shutdown()
         m_Skybox->Shutdown();
         delete m_Skybox;
         m_Skybox = 0;
-    }
-
-    // 전체 화면 ortho window 객체를 해제합니다.
-    if (m_FullScreenWindow)
-    {
-        m_FullScreenWindow->Shutdown();
-        delete m_FullScreenWindow;
-        m_FullScreenWindow = 0;
     }
 
     if (m_Plane)
@@ -669,10 +646,6 @@ bool ApplicationClass::Render()
     // 모든 2D 렌더링을 시작하려면 Z 버퍼를 끕니다.
     m_Direct3D->TurnZBufferOff();
 
-    // 그래픽 파이프 라인에 전체 화면 직교 윈도우 버텍스와 인덱스 버퍼를 배치하여 그리기를 준비합니다.
-    m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
-
-
 
     // s0
     m_Sampler->UseLinear(m_Direct3D->GetDeviceContext(), 0);
@@ -695,8 +668,9 @@ bool ApplicationClass::Render()
     m_BrdfLUT->UseShaderResourceView(m_Direct3D->GetDeviceContext(), 8);
 
 
-    m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(),
-        worldMatrix, baseViewMatrix, orthoMatrix, XMMatrixInverse(nullptr, projectionMatrix), XMMatrixInverse(nullptr, viewMatrix), false, 1,
+    m_Direct3D->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+    m_DeferredShader->Render(m_Direct3D->GetDeviceContext(), 
+        XMMatrixInverse(nullptr, projectionMatrix), XMMatrixInverse(nullptr, viewMatrix), false, 1,
         m_GBuffers->GetDepthResourceView(), 
         m_GBuffers->GetShaderResourceView(0), m_GBuffers->GetShaderResourceView(1), m_GBuffers->GetShaderResourceView(2), m_GBuffers->GetShaderResourceView(3));
 
@@ -704,17 +678,12 @@ bool ApplicationClass::Render()
     // 모든 2D 렌더링이 완료되었으므로 Z 버퍼를 다시 켜십시오.
     m_Direct3D->TurnZBufferOn();
 
+    m_Direct3D->SetBackBufferRenderTargetWithStencil(m_GBuffers->GetDepthStencilView());
 
-
-
-
-
-
+    RenderSkybox();
 
     // 렌더링 된 장면을 화면에 표시합니다.
     m_Direct3D->EndScene();
-
-
 
     return true;
 }
@@ -779,11 +748,6 @@ bool ApplicationClass::RenderGBuffer()
 
 
 
-
-
-
-
-
     // 회전값으로 월드 행렬을 회전하여 큐브가 회전하도록 합니다.
     m_Direct3D->GetWorldMatrix(worldMatrix);
 
@@ -812,7 +776,7 @@ bool ApplicationClass::RenderGBuffer()
     gUseAoMap = 0;
     gUseEmmisive = 0;
     // 노말 맵 사용
-    gNormalState = 1;
+    gNormalState = 0;
     gConvertToLinear = 0;
 
 
@@ -886,7 +850,7 @@ bool ApplicationClass::RenderDepthMap()
         }
     }
 
-    // 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+    // 렌더링 대상을 원래의 백 버퍼로 다시 설정한다.
     m_Direct3D->SetBackBufferRenderTarget();
 
     // 뷰포트를 원본으로 다시 설정합니다.
@@ -976,20 +940,14 @@ bool ApplicationClass::RenderEnvMap()
     }
 
 
-    D3D11_VIEWPORT viewport = { 0 };
-    viewport.Width = 512;
-    viewport.Height = 512;
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    m_Direct3D->GetDeviceContext()->RSSetViewports(1, &viewport);
-
     m_BrdfLUT->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+    m_Direct3D->TurnZBufferOff();
+
     m_Direct3D->GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     m_SkyboxShader->RenderBrdfLUT(m_Direct3D->GetDeviceContext());
 
-
+    m_Direct3D->TurnZBufferOn();
 
     // 렌더 버퍼가 아닌 원래의 백 버퍼로 렌더링 타겟을 다시 설정합니다.
     m_Direct3D->SetBackBufferRenderTarget();

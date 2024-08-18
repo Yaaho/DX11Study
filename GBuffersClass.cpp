@@ -260,13 +260,18 @@ void GBuffersClass::ClearRenderTargets(ID3D11DeviceContext* deviceContext, float
 }
 
 
-ID3D11ShaderResourceView* GBuffersClass::GetDepthResourceView()
+ID3D11DepthStencilView* GBuffersClass::GetDepthStencilView()
 {
-    return m_depthResourceView;
+    return m_depthStencilView;
 }
 
 
 ID3D11ShaderResourceView* GBuffersClass::GetShaderResourceView(int view)
 {
     return m_shaderResourceViewArray[view];
+}
+
+ID3D11ShaderResourceView* GBuffersClass::GetDepthResourceView()
+{
+    return m_depthResourceView;
 }

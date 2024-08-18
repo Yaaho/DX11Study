@@ -535,6 +535,11 @@ void D3DClass::SetBackBufferRenderTarget()
 	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }
 
+void D3DClass::SetBackBufferRenderTargetWithStencil(ID3D11DepthStencilView* stencil)
+{
+	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, stencil);
+}
+
 
 void D3DClass::ResetViewport()
 {

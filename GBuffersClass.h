@@ -15,6 +15,7 @@ public:
 	void SetRenderTargets(ID3D11DeviceContext*);
 	void ClearRenderTargets(ID3D11DeviceContext*, float, float, float, float);
 
+	ID3D11DepthStencilView* GetDepthStencilView();
 	ID3D11ShaderResourceView* GetShaderResourceView(int);
 	ID3D11ShaderResourceView* GetDepthResourceView();
 

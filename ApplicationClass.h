@@ -57,9 +57,6 @@ private:
 
     ModelClass* m_Cube = nullptr;
     ModelClass* m_Plane = nullptr;
-  
-
-    OrthoWindowClass* m_FullScreenWindow = nullptr;
 
     SkyboxClass* m_Skybox = nullptr;
     TextureClass* m_SkyboxCubeMap = nullptr;

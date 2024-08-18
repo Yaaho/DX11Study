@@ -24,6 +24,7 @@ public:
 
 	ID3D11DepthStencilView* GetDepthStencilView();
 	void SetBackBufferRenderTarget();
+	void SetBackBufferRenderTargetWithStencil(ID3D11DepthStencilView*);
 	void ResetViewport();
 
 	void TurnZBufferOn();

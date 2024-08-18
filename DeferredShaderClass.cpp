@@ -20,7 +20,7 @@ DeferredShaderClass::~DeferredShaderClass()
 bool DeferredShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
     // 정점 및 픽셀 쉐이더를 초기화합니다.
-    return InitializeShader(device, hwnd, L"DeferredVS.HLSL", L"DeferredPS.HLSL");
+    return InitializeShader(device, hwnd, L"FullscreenVS.HLSL", L"DeferredPS.HLSL");
 }
 
 
@@ -31,16 +31,14 @@ void DeferredShaderClass::Shutdown()
 }
 
 
-bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
-    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext,
     XMMATRIX inverseProjection, XMMATRIX inverseView, int useAO, int useEnvMap,
     ID3D11ShaderResourceView* DepthTexture, 
     ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
     ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO)
 {
     // 렌더링에 사용할 셰이더 매개 변수를 설정합니다.
-    if (!SetShaderParameters(deviceContext, 
-        worldMatrix, viewMatrix, projectionMatrix,
+    if (!SetShaderParameters(deviceContext,
         inverseProjection, inverseView, useAO, useEnvMap,
         DepthTexture, Diffuse, MetalRough,
         Normals, AO))
@@ -49,7 +47,7 @@ bool DeferredShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCo
     }
 
     // 설정된 버퍼를 셰이더로 렌더링한다.
-    RenderShader(deviceContext, indexCount);
+    RenderShader(deviceContext);
 
     return true;
 }
@@ -62,7 +60,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     // 버텍스 쉐이더 코드를 컴파일한다.
     ID3D10Blob* vertexShaderBuffer = nullptr;
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "DeferredVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+    result = D3DCompileFromFile(vsFilename, NULL, NULL, "FullscreenVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
         &vertexShaderBuffer, &errorMessage);
     if (FAILED(result))
     {
@@ -119,7 +117,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     // 정점 입력 레이아웃 구조체를 설정합니다.
     // 이 설정은 ModelClass와 셰이더의 VertexType 구조와 일치해야합니다.
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[1];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -127,14 +125,6 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
     polygonLayout[0].AlignedByteOffset = 0;
     polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[0].InstanceDataStepRate = 0;
-
-    polygonLayout[1].SemanticName = "TEXCOORD";
-    polygonLayout[1].SemanticIndex = 0;
-    polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-    polygonLayout[1].InputSlot = 0;
-    polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[1].InstanceDataStepRate = 0;
 
     // 레이아웃의 요소 수를 가져옵니다.
     UINT numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -153,23 +143,6 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     pixelShaderBuffer->Release();
     pixelShaderBuffer = 0;
-
-    // 정점 셰이더에 있는 행렬 상수 버퍼의 구조체를 작성합니다.
-    D3D11_BUFFER_DESC matrixBufferDesc;
-    matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-    matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-    matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    matrixBufferDesc.MiscFlags = 0;
-    matrixBufferDesc.StructureByteStride = 0;
-
-    // 상수 버퍼 포인터를 만들어 이 클래스에서 정점 셰이더 상수 버퍼에 접근할 수 있게 합니다.
-    result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-    if (FAILED(result))
-    {
-        return false;
-    }
-
 
     D3D11_BUFFER_DESC deferredBufferDesc;
     deferredBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -196,14 +169,6 @@ void DeferredShaderClass::ShutdownShader()
     {
         m_deferredBuffer->Release();
         m_deferredBuffer = 0;
-    }
-
-
-    // 행렬 상수 버퍼를 해제합니다.
-    if (m_matrixBuffer)
-    {
-        m_matrixBuffer->Release();
-        m_matrixBuffer = 0;
     }
 
     // 레이아웃을 해제합니다.
@@ -242,17 +207,11 @@ void DeferredShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
     MessageBox(hwnd, L"Error compiling shader.", shaderFilename, MB_OK);
 }
 
-bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
-    XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, 
+bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext,
     XMMATRIX inverseProjection, XMMATRIX inverseView, int useAO, int useEnvMap,
     ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
     ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO)
 {
-    // 행렬을 transpose하여 셰이더에서 사용할 수 있게 합니다
-    worldMatrix = XMMatrixTranspose(worldMatrix);
-    viewMatrix = XMMatrixTranspose(viewMatrix);
-    projectionMatrix = XMMatrixTranspose(projectionMatrix);
-
     // 왜 얘는 inverse 를 안해야 정상 작동할까
     // inverseProjection = XMMatrixTranspose(inverseProjection);
     // inverseView = XMMatrixTranspose(inverseView);
@@ -260,50 +219,28 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 
     // 상수 버퍼의 내용을 쓸 수 있도록 잠급니다.
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-    {
-        return false;
-    }
-
-    // 상수 버퍼의 데이터에 대한 포인터를 가져옵니다.
-    MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
-
-    // 상수 버퍼에 행렬을 복사합니다.
-    dataPtr->world = worldMatrix;
-    dataPtr->view = viewMatrix;
-    dataPtr->projection = projectionMatrix;
-
-    // 상수 버퍼의 잠금을 풉니다.
-    deviceContext->Unmap(m_matrixBuffer, 0);
-
-    // 정점 셰이더에서의 상수 버퍼의 위치를 설정합니다.
-    unsigned int bufferNumber = 0;
-
-    // 마지막으로 정점 셰이더의 상수 버퍼를 바뀐 값으로 바꿉니다.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-
-
 
     if (FAILED(deviceContext->Map(m_deferredBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
     {
         return false;
     }
 
-    DeferredCBufferType* dataPtr2 = (DeferredCBufferType*)mappedResource.pData;
+    DeferredCBufferType* dataPtr = (DeferredCBufferType*)mappedResource.pData;
 
-    dataPtr2->inverseProjection = inverseProjection;
-    dataPtr2->inverseView = inverseView;
-    dataPtr2->useAO = useAO;
-    dataPtr2->useEnvMap = useEnvMap;
-    dataPtr2->deferredCBufferpadding1 = 0;
-    dataPtr2->deferredCBufferpadding2 = 0;
+    dataPtr->inverseProjection = inverseProjection;
+    dataPtr->inverseView = inverseView;
+    dataPtr->useAO = useAO;
+    dataPtr->useEnvMap = useEnvMap;
+    dataPtr->deferredCBufferpadding1 = 0;
+    dataPtr->deferredCBufferpadding2 = 0;
 
     deviceContext->Unmap(m_deferredBuffer, 0);
 
+    // 정점 셰이더에서의 상수 버퍼의 위치를 설정합니다.
+    unsigned int bufferNumber = 0;
     bufferNumber = 3;
 
     deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_deferredBuffer);
-
 
     deviceContext->PSSetShaderResources(0, 1, &DepthTexture);
     deviceContext->PSSetShaderResources(1, 1, &Diffuse);
@@ -316,7 +253,7 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 }
 
 
-void DeferredShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void DeferredShaderClass::RenderShader(ID3D11DeviceContext* deviceContext)
 {
     // 정점 입력 레이아웃을 설정합니다.
     deviceContext->IASetInputLayout(m_layout);
@@ -326,5 +263,5 @@ void DeferredShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int i
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // 삼각형을 그립니다.
-    deviceContext->DrawIndexed(indexCount, 0, 0);
+    deviceContext->Draw(4, 0);
 }
