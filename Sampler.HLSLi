@@ -1,7 +1,8 @@
 #ifndef SAMPLER_COMMON
 #define SAMPLER_COMMON
 
-sampler LinearSampler : register(s0);
-sampler PointSampler : register(s1);
+SamplerState LinearSampler : register(s0);
+SamplerState PointSampler : register(s1);
+SamplerComparisonState CompSampler : register(s2);
 
 #endif

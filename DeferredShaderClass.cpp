@@ -80,7 +80,7 @@ bool DeferredShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, cons
 
     // 픽셀 쉐이더 코드를 컴파일한다.
     ID3D10Blob* pixelShaderBuffer = nullptr;
-    // 세이더 파일 내에 include 가 있으면 D3D_COMPILE_STANDARD_FILE_INCLUDE 를 사용해야 한다.
+    // 세이더 파일 내에 include 가 있으므로 D3D_COMPILE_STANDARD_FILE_INCLUDE 를 사용해야 한다.
     result = D3DCompileFromFile(psFilename, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "DeferredPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
         &pixelShaderBuffer, &errorMessage);
     if (FAILED(result))
@@ -212,11 +212,6 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     ID3D11ShaderResourceView* DepthTexture, ID3D11ShaderResourceView* Diffuse, ID3D11ShaderResourceView* MetalRough,
     ID3D11ShaderResourceView* Normals, ID3D11ShaderResourceView* AO)
 {
-    // 왜 얘는 inverse 를 안해야 정상 작동할까
-    // inverseProjection = XMMatrixTranspose(inverseProjection);
-    // inverseView = XMMatrixTranspose(inverseView);
-
-
     // 상수 버퍼의 내용을 쓸 수 있도록 잠급니다.
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -226,7 +221,6 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
     }
 
     DeferredCBufferType* dataPtr = (DeferredCBufferType*)mappedResource.pData;
-
     dataPtr->inverseProjection = inverseProjection;
     dataPtr->inverseView = inverseView;
     dataPtr->useAO = useAO;
@@ -236,7 +230,7 @@ bool DeferredShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 
     deviceContext->Unmap(m_deferredBuffer, 0);
 
-    // 정점 셰이더에서의 상수 버퍼의 위치를 설정합니다.
+    // 픽셀 셰이더에서의 상수 버퍼의 위치를 설정합니다.
     unsigned int bufferNumber = 0;
     bufferNumber = 3;
 

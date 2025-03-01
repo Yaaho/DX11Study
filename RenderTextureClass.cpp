@@ -16,7 +16,7 @@ RenderTextureClass::~RenderTextureClass()
 }
 
 
-bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth, float screenNear)
+bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight)
 {
 	// 렌더 타겟 텍스처 설명을 초기화합니다.
 	D3D11_TEXTURE2D_DESC textureDesc;
@@ -24,9 +24,6 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	m_textureWidth = textureWidth;
 	m_textureHeight = textureHeight;
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
-
-	m_screenDepth = screenDepth;
-	m_screenNear = screenNear;
 
 	// 렌더 타겟 텍스처 설명을 설정합니다.
 	textureDesc.Width = textureWidth;
@@ -122,13 +119,6 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
 
-	// Setup the projection matrix.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(((float)XM_PI / 4.0f), ((float)textureWidth / (float)textureHeight), screenNear, screenDepth);
-
-	// Create an orthographic projection matrix for 2D rendering.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)textureWidth, (float)textureHeight, screenNear, screenDepth);
-
-
 
 	return true;
 }
@@ -181,12 +171,6 @@ void RenderTextureClass::ResetViewports(ID3D11DeviceContext* deviceContext)
 {
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &m_viewport);
-
-	// Setup the projection matrix.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(((float)XM_PI / 4.0f), ((float)m_textureWidth / (float)m_textureHeight), m_screenNear, m_screenDepth);
-
-	// Create an orthographic projection matrix for 2D rendering.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)m_textureWidth, (float)m_textureHeight, m_screenNear, m_screenDepth);
 }
 
 
@@ -204,15 +188,6 @@ void RenderTextureClass::SetViewports(ID3D11DeviceContext* deviceContext, float 
 
 	// Set the viewport.
 	deviceContext->RSSetViewports(1, &newViewport);
-	
-
-	// Setup the projection matrix.
-	// 화면 비율만 구하면 되기 때문에 Ratio 변수는 넣지 않는다.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(((float)XM_PI / 4.0f), (float)m_textureWidth / (float)m_textureHeight, m_screenNear, m_screenDepth);
-
-	// Create an orthographic projection matrix for 2D rendering.
-	// 화면 비율만 구하면 되기 때문에 Radio 변수는 넣지 않는다.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)m_textureWidth, (float)m_textureHeight, m_screenNear, m_screenDepth);
 }
 
 
@@ -236,22 +211,16 @@ ID3D11ShaderResourceView* RenderTextureClass::GetShaderResourceView()
 }
 
 
-void RenderTextureClass::UseShaderResourceView(ID3D11DeviceContext* deviceContext, int textureSlot)
+void RenderTextureClass::UsePSShaderResourceView(ID3D11DeviceContext* deviceContext, int textureSlot)
 {
 	deviceContext->PSSetShaderResources(textureSlot, 1, &m_shaderResourceView);
 }
 
-
-void RenderTextureClass::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+void RenderTextureClass::UseCSShaderResourceView(ID3D11DeviceContext* deviceContext, int textureSlot)
 {
-	projectionMatrix = m_projectionMatrix;
+	deviceContext->CSSetShaderResources(textureSlot, 1, &m_shaderResourceView);
 }
 
-
-void RenderTextureClass::GetOrthoMatrix(XMMATRIX& orthoMatrix)
-{
-	orthoMatrix = m_orthoMatrix;
-}
 
 
 int RenderTextureClass::GetTextureWidth()

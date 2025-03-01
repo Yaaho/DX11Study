@@ -22,7 +22,7 @@ bool SkyboxClass::Initialize(ID3D11Device* device)
 
 void SkyboxClass::Shutdown()
 {
-	// ¹öÅØ½º ¹× ÀÎµ¦½º ¹öÆÛ¸¦ Á¾·áÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	ShutdownBuffers();
 }
 
@@ -41,14 +41,14 @@ bool SkyboxClass::InitializeBuffers(ID3D11Device* device)
 	m_vertexCount = 24;
 	m_indexCount = 36;
 
-	// Á¤Á¡ ¹è¿­À» ¸¸µç´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	VertexType* vertices = new VertexType[m_vertexCount];
 	if (!vertices)
 	{
 		return false;
 	}
 
-	// ÀÎµ¦½º ¹è¿­À» ¸¸µì´Ï´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	unsigned long* indices = new unsigned long[m_indexCount];
 	if (!indices)
 	{
@@ -129,7 +129,7 @@ bool SkyboxClass::InitializeBuffers(ID3D11Device* device)
 	indices[35] = 23;
 
 
-	// Á¤Àû Á¤Á¡ ¹öÆÛÀÇ ±¸Á¶Ã¼¸¦ ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
@@ -138,20 +138,20 @@ bool SkyboxClass::InitializeBuffers(ID3D11Device* device)
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	// subresource ±¸Á¶¿¡ Á¤Á¡ µ¥ÀÌÅÍ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ¸¦ Á¦°øÇÕ´Ï´Ù.
+	// subresource ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = vertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	// ÀÌÁ¦ Á¤Á¡ ¹öÆÛ¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer)))
 	{
 		return false;
 	}
 
 
-	// Á¤Àû ÀÎµ¦½º ¹öÆÛÀÇ ±¸Á¶Ã¼¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	D3D11_BUFFER_DESC indexBufferDesc;
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
@@ -160,19 +160,19 @@ bool SkyboxClass::InitializeBuffers(ID3D11Device* device)
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
 
-	// ÇÏÀ§ ¸®¼Ò½º ±¸Á¶¿¡ ÀÎµ¦½º µ¥ÀÌÅÍ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ¸¦ Á¦°øÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	D3D11_SUBRESOURCE_DATA indexData;
 	indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	// ÀÎµ¦½º ¹öÆÛ¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer)))
 	{
 		return false;
 	}
 
-	// ÀÌÁ¦ ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ°¡ »ý¼ºµÇ°í·Îµå µÈ ¹è¿­À» ÇØÁ¦ÇÏ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Îµï¿½ ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï½Ê½Ã¿ï¿½.
 	delete[] vertices;
 	vertices = 0;
 
@@ -185,14 +185,14 @@ bool SkyboxClass::InitializeBuffers(ID3D11Device* device)
 
 void SkyboxClass::ShutdownBuffers()
 {
-	// ÀÎµ¦½º ¹öÆÛ¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (m_indexBuffer)
 	{
 		m_indexBuffer->Release();
 		m_indexBuffer = 0;
 	}
 
-	// ¹öÅØ½º ¹öÆÛ¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_vertexBuffer)
 	{
 		m_vertexBuffer->Release();
@@ -203,16 +203,16 @@ void SkyboxClass::ShutdownBuffers()
 
 void SkyboxClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
-	// Á¤Á¡ ¹öÆÛ º¸Æø ¹× ¿ÀÇÁ¼ÂÀ» ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	unsigned int stride = sizeof(VertexType);
 	unsigned int offset = 0;
 
-	// ·»´õ¸µ ÇÒ ¼ö ÀÖµµ·Ï ÀÔ·Â ¾î¼Àºí·¯¿¡¼­ Á¤Á¡ ¹öÆÛ¸¦ È°¼ºÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ È°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
-	// ·»´õ¸µ ÇÒ ¼ö ÀÖµµ·Ï ÀÔ·Â ¾î¼Àºí·¯¿¡¼­ ÀÎµ¦½º ¹öÆÛ¸¦ È°¼ºÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ È°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// ÀÌ ²ÀÁöÁ¡ ¹öÆÛ¿¡¼­ ·»´õ¸µµÇ¾î¾ßÇÏ´Â ÇÁ¸®¹ÌÆ¼ºê À¯ÇüÀ» ¼³Á¤ÇÕ´Ï´Ù.ÀÌ °æ¿ì¿¡´Â »ï°¢ÇüÀÔ´Ï´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï°¢ï¿½ï¿½ï¿½Ô´Ï´ï¿½.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

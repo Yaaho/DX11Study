@@ -37,14 +37,14 @@ GraphicsClass::~GraphicsClass()
 
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
-	// Direct3D °´Ã¼ »ý¼º
+	// Direct3D ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	m_Direct3D = (D3DClass*)_aligned_malloc(sizeof(D3DClass), 16);
 	if (!m_Direct3D)
 	{
 		return false;
 	}
 
-	// Direct3D °´Ã¼ ÃÊ±âÈ­
+	// Direct3D ï¿½ï¿½Ã¼ ï¿½Ê±ï¿½È­
 	if (!m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, 
 		FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
 	{
@@ -52,28 +52,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// ¼ÎÀÌ´õ °ü¸®ÀÚ °´Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_ShaderManager = new ShaderManagerClass;
 	if (!m_ShaderManager)
 	{
 		return false;
 	}
 
-	// ¼ÎÀÌ´õ °ü¸®ÀÚ °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_ShaderManager->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// m_Camera °´Ã¼ »ý¼º
+	// m_Camera ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	m_Camera = new CameraClass;
 	if (!m_Camera)
 	{
 		return false;
 	}
 
-	// Ä«¸Þ¶óÀÇ ÃÊ±â À§Ä¡¿Í È¸ÀüÀ» ¼³Á¤ÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->SetPosition(XMFLOAT3(0.0f, 0.0f, -5.0f));
 	m_Camera->Render();
 
@@ -81,14 +81,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	XMMATRIX baseViewMatrix;
 	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 
-	// m_Text °´Ã¼ »ý¼º
+	// m_Text ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	m_Text = new TextClass;
 	if (!m_Text)
 	{
 		return false;
 	}
 
-	// m_Text °´Ã¼ ÃÊ±âÈ­
+	// m_Text ï¿½ï¿½Ã¼ ï¿½Ê±ï¿½È­
 	if (!m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight,
 		baseViewMatrix))
 	{
@@ -98,7 +98,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 	/*
-	// Å¥ºê ¸ðµ¨ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÕ´Ï´Ù.
+	// Å¥ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_CubeModel = new ModelClass;
 	if (!m_CubeModel)
 	{
@@ -112,14 +112,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	*/
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ °´Ã¼¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureShader = new TextureShaderClass;
 	if (!m_TextureShader)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ °´Ã¼¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	if (!m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
@@ -127,7 +127,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// ºñÆ® ¸Ê °´Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Bitmap = new BitmapClass;
 	if (!m_Bitmap)
 	{
@@ -135,7 +135,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	/*
-	// ºñÆ® ¸Ê °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_Bitmap->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, L"data/test.dds",
 		L"data/glowmap.dds", 256, 32))
 	{
@@ -144,28 +144,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 	*/
 
-	// ¼öÆò ºí·¯ ½¦ÀÌ´õ °´Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_HorizontalBlurShader = new HorizontalBlurShaderClass;
 	if (!m_HorizontalBlurShader)
 	{
 		return false;
 	}
 
-	// ¼öÆò ºí·¯ ½¦ÀÌ´õ °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_HorizontalBlurShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the horizontal blur shader object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ¼öÁ÷ ºí·¯ ¼ÎÀÌ´õ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_VerticalBlurShader = new VerticalBlurShaderClass;
 	if (!m_VerticalBlurShader)
 	{
 		return false;
 	}
 
-	// ¼öÁ÷ ºí·¯ ½¦ÀÌ´õ °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_VerticalBlurShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the vertical blur shader object.", L"Error", MB_OK);
@@ -173,28 +173,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// ±Û·Î¿ì ¸Ê ¼ÎÀÌ´õ °³Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_GlowMapShader = new GlowMapShaderClass;
 	if (!m_GlowMapShader)
 	{
 		return false;
 	}
 
-	// ±Û·Î¿ì ¸Ê ½¦ÀÌ´õ °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_GlowMapShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the glow map shader object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ±Û·Î¿ì ½¦ÀÌ´õ °´Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_GlowShader = new GlowShaderClass;
 	if (!m_GlowShader)
 	{
 		return false;
 	}
 
-	// ±Û·Î¿ì ½¦ÀÌ´õ °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_GlowShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the glow shader object.", L"Error", MB_OK);
@@ -202,89 +202,86 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// ·»´õ¸µ ÅØ½ºÃ³ °´Ã¼¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_RenderTexture = new RenderTextureClass;
 	if (!m_RenderTexture)
 	{
 		return false;
 	}
 
-	// ·»´õ¸µ ÅØ½ºÃ³ °´Ã¼¸¦ ÃÊ±âÈ­ÇÑ´Ù.
-	if (!m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR))
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
+	if (!m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight))
 	{
 		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ´Ù¿î »ùÇÃ ·»´õ¸µÀ» ÅØ½ºÃ³ ¿ÀºêÁ§Æ®¿¡ »ý¼ºÇÑ´Ù.
+	// ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_DownSampleTexure = new RenderTextureClass;
 	if (!m_DownSampleTexure)
 	{
 		return false;
 	}
 
-	// ´Ù¿î »ùÇÃ ·»´õ¸¦ ÅØ½ºÃ³ ¿ÀºêÁ§Æ®·Î ÃÊ±âÈ­ÇÑ´Ù.
-	if (!m_DownSampleTexure->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2),
-		SCREEN_DEPTH, SCREEN_NEAR))
+	// ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
+	if (!m_DownSampleTexure->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2)))
 	{
 		MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ÅØ½ºÃ³ °´Ã¼¿¡ ¼öÆò ºí·¯ ·»´õ¸µÀ» ¸¸µì´Ï´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_HorizontalBlurTexture = new RenderTextureClass;
 	if (!m_HorizontalBlurTexture)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃ³ °´Ã¼¿¡ ¼öÆò ºí·¯ ·»´õ¸µÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
-	if (!m_HorizontalBlurTexture->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2),
-		SCREEN_DEPTH, SCREEN_NEAR))
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
+	if (!m_HorizontalBlurTexture->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2)))
 	{
 		MessageBox(hwnd, L"Could not initialize the horizontal blur render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
-	// ÅØ½ºÃ³ ¿ÀºêÁ§Æ®¿¡ ¼öÁ÷ ºí·¯ ·»´õ¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_VerticalBlurTexture = new RenderTextureClass;
 	if (!m_VerticalBlurTexture)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃ³ ¿ÀºêÁ§Æ®¿¡ ¼öÁ÷ ºí·¯ ·»´õ¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
-	if (!m_VerticalBlurTexture->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2),
-		SCREEN_DEPTH, SCREEN_NEAR))
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
+	if (!m_VerticalBlurTexture->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2)))
 	{
 		MessageBox(hwnd, L"Could not initialize the vertical blur render to texture object.", L"Error", MB_OK);
 		return false;
 	}
 
 
-	// ÆäÀÌµå¿¡ ¾²ÀÌ´Â ·»´õ ÅØ½ºÃÄ °´Ã¼¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½Ìµå¿¡ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_FadeRenderTexture = new RenderTextureClass;
 	if (!m_FadeRenderTexture)
 	{
 		return false;
 	}
 
-	// ÆäÀÌµå¿¡ ¾²ÀÌ´Â ·»´õ ÅØ½ºÃÄ °´Ã¼¸¦ ÃÊ±âÈ­ÇÑ´Ù.
-	if (!m_FadeRenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR))
+	// ï¿½ï¿½ï¿½Ìµå¿¡ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
+	if (!m_FadeRenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight))
 	{
 		return false;
 	}
 
 
 
-	// ÀüÃ¼ È­¸é ortho window °´Ã¼¸¦ »ý¼ºÇÕ´Ï´Ù.
+	// ï¿½ï¿½Ã¼ È­ï¿½ï¿½ ortho window ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_FullScreenWindow = new OrthoWindowClass;
 	if (!m_FullScreenWindow)
 	{
 		return false;
 	}
 
-	// ÀüÃ¼ È­¸é ortho window °´Ã¼¸¦ ÃÊ±âÈ­ ÇÕ´Ï´Ù.
+	// ï¿½ï¿½Ã¼ È­ï¿½ï¿½ ortho window ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½Õ´Ï´ï¿½.
 	if (!m_FullScreenWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight))
 	{
 		MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
@@ -292,14 +289,14 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 
-	// ÀÛÀº ortho À©µµ¿ì °´Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_SmallWindow = new OrthoWindowClass;
 	if (!m_SmallWindow)
 	{
 		return false;
 	}
 
-	// ÀÛÀº ortho À©µµ¿ì °´Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_SmallWindow->Initialize(m_Direct3D->GetDevice(), (screenWidth / 2), (screenHeight / 2)))
 	{
 		MessageBox(hwnd, L"Could not initialize the small ortho window object.", L"Error", MB_OK);
@@ -311,26 +308,26 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 
-	// ÆäÀÌµå ÀÎ Å¸ÀÓÀ» 3000 ¹Ð¸® ÃÊ·Î ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ 3000 ï¿½Ð¸ï¿½ ï¿½Ê·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_fadeInTime = 3000.0f;
 
-	// ´©Àû µÈ ½Ã°£À» 0 ¹Ð¸® ÃÊ·Î ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ 0 ï¿½Ð¸ï¿½ ï¿½Ê·ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	m_accumulatedTime = 0;
 
-	// ÆäÀÌµå ¹éºÐÀ²À» Ã³À½¿¡ 0À¸·Î ÃÊ±âÈ­ÇÏ¿© Àå¸éÀÌ °Ë°Ô Ç¥½ÃµË´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë°ï¿½ Ç¥ï¿½ÃµË´Ï´ï¿½.
 	m_fadePercentage = 0;
 
-	// È¿°ú°¡ »ç¶óÁöµµ·Ï ¼³Á¤ÇÕ´Ï´Ù.
+	// È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_fadeDone = false;
 
-	// ÆäÀÌµå ¼ÎÀÌ´õ °³Ã¼¸¦ ¸¸µì´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_FadeShader = new FadeShaderClass;
 	if (!m_FadeShader)
 	{
 		return false;
 	}
 
-	// ÆäÀÌµå ¼ÎÀÌ´õ °³Ã¼¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Õ´Ï´ï¿½.
 	if (!m_FadeShader->Initialize(m_Direct3D->GetDevice(), hwnd))
 	{
 		MessageBox(hwnd, L"Could not initialize the fade shader object.", L"Error", MB_OK);
@@ -350,7 +347,7 @@ void GraphicsClass::Shutdown()
 		m_FadeShader = 0;
 	}
 
-	// ÀÛÀº ortho À©µµ¿ì °´Ã¼¸¦ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	if (m_SmallWindow)
 	{
 		m_SmallWindow->Shutdown();
@@ -365,7 +362,7 @@ void GraphicsClass::Shutdown()
 		m_FullScreenWindow = 0;
 	}
 
-	// ·»´õ ÅÃ½ºÃÄ °´Ã¼ ¹ÝÈ¯
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½È¯
 	if (m_FadeRenderTexture)
 	{
 		m_FadeRenderTexture->Shutdown();
@@ -374,7 +371,7 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// ¼öÁ÷ ºí·¯ ·»´õ¸¦ ÅØ½ºÃ³ °´Ã¼¿¡ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	if (m_VerticalBlurTexture)
 	{
 		m_VerticalBlurTexture->Shutdown();
@@ -382,7 +379,7 @@ void GraphicsClass::Shutdown()
 		m_VerticalBlurTexture = 0;
 	}
 
-	// ¼öÆò ºí·¯ ·»´õ¸¦ ÅØ½ºÃ³ °´Ã¼¿¡ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	if (m_HorizontalBlurTexture)
 	{
 		m_HorizontalBlurTexture->Shutdown();
@@ -392,7 +389,7 @@ void GraphicsClass::Shutdown()
 
 
 
-	// ´Ù¿î »ùÇÃ ·»´õ¸¦ ÅØ½ºÃÄ °´Ã¼·Î ¸±¸®ÁîÇÑ´Ù.
+	// ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_DownSampleTexure)
 	{
 		m_DownSampleTexure->Shutdown();
@@ -402,7 +399,7 @@ void GraphicsClass::Shutdown()
 
 
 
-	// ·»´õ¸¦ ÅØ½ºÃÄ °´Ã¼·Î ¸±¸®ÁîÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_RenderTexture)
 	{
 		m_RenderTexture->Shutdown();
@@ -412,7 +409,7 @@ void GraphicsClass::Shutdown()
 
 
 
-	// ±Û·Î¿ì ½¦ÀÌ´õ °´Ã¼¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (m_GlowShader)
 	{
 		m_GlowShader->Shutdown();
@@ -420,7 +417,7 @@ void GraphicsClass::Shutdown()
 		m_GlowShader = 0;
 	}
 
-	// ±Û·Î¿ì ¸Ê ¼ÎÀÌ´õ °´Ã¼¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (m_GlowMapShader)
 	{
 		m_GlowMapShader->Shutdown();
@@ -429,7 +426,7 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// ¼öÁ÷ ºí·¯ ½¦ÀÌ´õ °´Ã¼¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_VerticalBlurShader)
 	{
 		m_VerticalBlurShader->Shutdown();
@@ -438,7 +435,7 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// ¼öÆò ºí·¯ ½¦ÀÌ´õ °´Ã¼¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (m_HorizontalBlurShader)
 	{
 		m_HorizontalBlurShader->Shutdown();
@@ -447,7 +444,7 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// ºñÆ® ¸Ê °´Ã¼¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (m_Bitmap)
 	{
 		m_Bitmap->Shutdown();
@@ -456,7 +453,7 @@ void GraphicsClass::Shutdown()
 	}
 
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ °´Ã¼¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_TextureShader)
 	{
 		m_TextureShader->Shutdown();
@@ -464,7 +461,7 @@ void GraphicsClass::Shutdown()
 		m_TextureShader = 0;
 	}
 
-	// m_Text °´Ã¼ ¹ÝÈ¯
+	// m_Text ï¿½ï¿½Ã¼ ï¿½ï¿½È¯
 	if (m_Text)
 	{
 		m_Text->Shutdown();
@@ -472,14 +469,14 @@ void GraphicsClass::Shutdown()
 		m_Text = 0;
 	}
 
-	// m_Camera °´Ã¼ ¹ÝÈ¯
+	// m_Camera ï¿½ï¿½Ã¼ ï¿½ï¿½È¯
 	if (m_Camera)
 	{
 		delete m_Camera;
 		m_Camera = 0;
 	}
 
-	// Direct3D °´Ã¼ ¹ÝÈ¯
+	// Direct3D ï¿½ï¿½Ã¼ ï¿½ï¿½È¯
 	if (m_Direct3D)
 	{
 		m_Direct3D->Shutdown();
@@ -492,27 +489,27 @@ bool GraphicsClass::Frame(float frameTime, float posX, float posY, float posZ, f
 {
 	if (!m_fadeDone)
 	{
-		// ´©Àû µÈ ½Ã°£À» ¿©ºÐÀÇ ÇÁ·¹ÀÓ ½Ã°£ Ãß°¡·Î ¾÷µ¥ÀÌÆ®ÇÏ½Ê½Ã¿À.
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Ï½Ê½Ã¿ï¿½.
 		m_accumulatedTime += frameTime;
 
-		// ½Ã°£ÀÌ °¥¼ö·Ï °¢ ÇÁ·¹ÀÓÀ» Åë°úÇÏ´Â ½Ã°£¸¸Å­ ÆäÀÌµå ¼ö°¡ Áõ°¡ÇÕ´Ï´Ù.
+		// ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		if (m_accumulatedTime < m_fadeInTime)
 		{
-			// ´©Àû µÈ ½Ã°£À» ±âÁØÀ¸·Î È­¸éÀÌ Èñ¹ÌÇØÁú ºñÀ²À» °è»êÇÕ´Ï´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 			m_fadePercentage = m_accumulatedTime / m_fadeInTime;
 		}
 		else
 		{
-			// ÆäÀÌµå ÀÎ Å¸ÀÓÀÌ ¿Ï·áµÇ¸é ÆäÀÌµå È¿°ú¸¦ ²ô°í Àå¸éÀ» Á¤»óÀûÀ¸·Î ·»´õ¸µÇÕ´Ï´Ù.
+			// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 			m_fadeDone = true;
 
-			// ¹éºÐÀ²À» 100 %·Î ¼³Á¤ÇÕ´Ï´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 100 %ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 			m_fadePercentage = 1.0f;
 		}
 	}
 
 
-	// Ä«¸Þ¶ó À§Ä¡¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->SetPosition(XMFLOAT3(posX, posY, posZ));
 	m_Camera->SetRotation(XMFLOAT3(rotX, rotY, rotZ));
 
@@ -520,13 +517,13 @@ bool GraphicsClass::Frame(float frameTime, float posX, float posY, float posZ, f
 
 
 	/*
-	// ÃÊ´ç ÇÁ·¹ÀÓ ¼ö¸¦ ¼³Á¤ÇÑ´Ù.
+	// ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (!m_Text->SetFps(fps, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
 	}
 
-	// cpu »ç¿ëÀ» ¼³Á¤ÇÑ´Ù.
+	// cpu ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (!m_Text->SetCpu(cpu, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
@@ -546,13 +543,13 @@ bool GraphicsClass::Render()
 	/*
 	if (m_fadeDone)
 	{
-		// ÆäÀÌµå ÀÎÀÌ ¿Ï·áµÇ¸é ¹é ¹öÆÛ¸¦ »ç¿ëÇÏ¿© Àå¸éÀ» Á¤»óÀûÀ¸·Î ·»´õ¸µÇÕ´Ï´Ù.
+		// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		RenderScene();
 		m_Direct3D->EndScene();
 	}
 	else
 	{
-		// ÆäÀÌµå ÀÎÀÌ ¿Ï·áµÇÁö ¾ÊÀº °æ¿ì Àå¸éÀ» ÅØ½ºÃ³·Î ·»´õ¸µÇÏ°í ÅØ½ºÃ³¸¦ ÆäÀÌµå ÀÎÇÕ´Ï´Ù.
+		// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		RenderToFadeTexture();
 
 		RenderFadingScene();
@@ -574,42 +571,42 @@ bool GraphicsClass::Render()
 
 bool GraphicsClass::RenderScene()
 {
-	// ±Û·Î¿ì ¸ÊÀ» ·»´õ¸µ ÅØ½ºÃ³¿¡ ¸ÕÀú ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	bool result = RenderGlowMapToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// ´ÙÀ½À¸·Î ·»´õ ÅØ½ºÃ³¸¦ ÀÛÀº Å©±âÀÇ ÅØ½ºÃ³·Î »ùÇÃ¸µÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½Õ´Ï´ï¿½.
 	result = DownSampleTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// ´Ù¿î »ùÇÃ¸µ µÈ ·»´õ¸µ ÅØ½ºÃ³¿¡ ¼öÆò ºí·¯¸¦ ¼öÇàÇÕ´Ï´Ù.
+	// ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	result = RenderHorizontalBlurToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// ÀÌÁ¦ ¼öÆò Èå¸² ·»´õ ÅØ½ºÃ³¿¡¼­ ¼öÁ÷ Èå¸² È¿°ú¸¦ ¼öÇàÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½å¸² ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½å¸² È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	result = RenderVerticalBlurToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// ÀÏ¹Ý UI ¿ä¼Ò¸¦ ÀüÃ¼ È­¸é ÅØ½ºÃ³·Î ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½Ï¹ï¿½ UI ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½Ã¼ È­ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	result = RenderUIElementsToTexture();
 	if (!result)
 	{
 		return false;
 	}
 
-	// UI ¿ä¼Ò¿Í ºû³ª´Â UI ¿ä¼Ò¸¦ °áÇÕÇÑ ÃÖÁ¾ Àå¸éÀ» ·»´õ¸µÇÕ´Ï´Ù.
+	// UI ï¿½ï¿½Ò¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UI ï¿½ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	RenderGlowScene();
 
 
@@ -622,43 +619,43 @@ bool GraphicsClass::RenderGlowMapToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó ¹× d3d °´Ã¼¿¡¼­ ¿ùµå, ºä ¹× Åõ¿µ Çà·ÄÀ» °¡Á®¿É´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ºñÆ® ¸Ê ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ¹èÄ¡ÇÏ¿© ±×¸®±â¸¦ ÁØºñÇÕ´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ï¿ï¿½ ï¿½×¸ï¿½ï¿½â¸¦ ï¿½Øºï¿½ï¿½Õ´Ï´ï¿½.
 	if (!m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 100, 100))
 	{
 		return false;
 	}
 
 	/*
-	// ±Û·Î¿ì ¸Ê ¼ÎÀÌ´õ¸¦ »ç¿ëÇÏ¿© ºñÆ® ¸ÊÀ» ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½Û·Î¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_GlowMapShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix,
 		orthoMatrix, m_Bitmap->GetTexture(), m_Bitmap->GetGlowMap());
 	*/
 
 
-	//¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	//ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	// ºäÆ÷Æ®¸¦ ¿øº»À¸·Î ´Ù½Ã ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->ResetViewport();
 
 	return true;
@@ -669,42 +666,44 @@ bool GraphicsClass::DownSampleTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_DownSampleTexure->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_DownSampleTexure->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 1.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó¿Í d3d °´Ã¼·ÎºÎÅÍ ¿ùµå¿Í ºä ¸ÅÆ®¸¯½º¸¦ ¾ò´Â´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â´ï¿½.
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
-	// Áú°¨ÀÌ Å©±â°¡ ÀÛ±â ¶§¹®¿¡ ·»´õ¸µ¿¡¼­ ÅØ½ºÃ³·Î ortho Çà·ÄÀ» °¡Á®¿É´Ï´Ù.
-	m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½â°¡ ï¿½Û±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
+	// m_DownSampleTexure->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// µå·ÎÀ×À» ÁØºñÇÏ±â À§ÇØ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ÀÛÀº ortho window ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho window ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_SmallWindow->Render(m_Direct3D->GetDeviceContext());
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ¸¦ »ç¿ëÇÏ¿© ÀÛÀº ortho Ã¢À» ·»´õ¸µÇÏ°í ¾ÀÀÇ ÅØ½ºÃ³¸¦ ÅØ½ºÃ³ ¸®¼Ò½º·Î ·»´õ¸µÇÕ´Ï´Ù.
+	/*
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho Ã¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (!m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix, viewMatrix,
 		orthoMatrix, m_RenderTexture->GetShaderResourceView()))
 	{
 		return false;
 	}
+	*/
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	// ºäÆ÷Æ®¸¦ ¿øº»À¸·Î ´Ù½Ã ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->ResetViewport();
 
 	return true;
@@ -715,45 +714,47 @@ bool GraphicsClass::RenderHorizontalBlurToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_HorizontalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_HorizontalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó¿Í d3d °´Ã¼·ÎºÎÅÍ ¿ùµå¿Í ºä ¸ÅÆ®¸¯½º¸¦ ¾ò´Â´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â´ï¿½.
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
-	// ÅØ½ºÃÄ°¡ ´Ù¸¥ Â÷¿øÀ» °¡Áö¹Ç·Î ·»´õ¸µ¿¡¼­ ¿À½î (ortho) Çà·ÄÀ» ÅØ½ºÃ³·Î °¡Á®¿É´Ï´Ù.
-	m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
+	// ï¿½Ø½ï¿½ï¿½Ä°ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ortho) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
+	// m_HorizontalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ¼öÆò ºí·¯ ½¦ÀÌ´õ¿¡¼­ »ç¿ëµÉ float¿¡ È­¸é ÆøÀ» ÀúÀåÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ floatï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	float screenSizeX = (float)m_HorizontalBlurTexture->GetTextureWidth();
 
-	// µå·ÎÀ×À» ÁØºñÇÏ±â À§ÇØ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ÀÛÀº ortho window ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho window ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_SmallWindow->Render(m_Direct3D->GetDeviceContext());
 
-	// horizontal blur shader¿Í down sampled render¸¦ »ç¿ëÇÏ¿© ÀÛÀº ortho À©µµ¿ì¸¦ ÅØ½ºÃ³ ¸®¼Ò½º·Î ·»´õ¸µÇÕ´Ï´Ù.    
+	/* 
+	// horizontal blur shaderï¿½ï¿½ down sampled renderï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ì¸¦ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.    
 	if (!m_HorizontalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix,
 		viewMatrix, orthoMatrix, m_DownSampleTexure->GetShaderResourceView(), screenSizeX))
 	{
 		return false;
 	}
+	*/
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	// ºäÆ÷Æ®¸¦ ¿øº»À¸·Î ´Ù½Ã ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->ResetViewport();
 
 	return true;
@@ -764,45 +765,47 @@ bool GraphicsClass::RenderVerticalBlurToTexture()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_VerticalBlurTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_VerticalBlurTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó¿Í d3d °´Ã¼·ÎºÎÅÍ ¿ùµå¿Í ºä ¸ÅÆ®¸¯½º¸¦ ¾ò´Â´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â´ï¿½.
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
-	// ÅØ½ºÃÄ°¡ ´Ù¸¥ Â÷¿øÀ» °¡Áö¹Ç·Î ·»´õ¸µ¿¡¼­ ¿À½î (ortho) Çà·ÄÀ» ÅØ½ºÃ³·Î °¡Á®¿É´Ï´Ù.
-	m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
+	// ï¿½Ø½ï¿½ï¿½Ä°ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ortho) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
+	// m_VerticalBlurTexture->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ¼öÁ÷ ºí·¯ ¼ÎÀÌ´õ¿¡¼­ »ç¿ëµÇ´Â ºÎµ¿ ¼Ò¼öÁ¡¿¡ È­¸é ³ôÀÌ¸¦ ÀúÀåÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Îµï¿½ ï¿½Ò¼ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	float screenSizeY = (float)m_VerticalBlurTexture->GetTextureHeight();
 
-	// µå·ÎÀ×À» ÁØºñÇÏ±â À§ÇØ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ÀÛÀº ortho window ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ³õ½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho window ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_SmallWindow->Render(m_Direct3D->GetDeviceContext());
 
-	// ¼öÁ÷ ºí·¯ ½¦ÀÌ´õ¿Í ¼öÆò ºí·¯ ¸µÀ» »ç¿ëÇÏ¿© ÀÛÀº ortho À©µµ¿ì¸¦ ÅØ½ºÃ³ ¸®¼Ò½º·Î ·»´õÇÕ´Ï´Ù.
+	/*
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ortho ï¿½ï¿½ï¿½ï¿½ï¿½ì¸¦ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (!m_VerticalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_SmallWindow->GetIndexCount(), worldMatrix,
 		viewMatrix, orthoMatrix, m_HorizontalBlurTexture->GetShaderResourceView(), screenSizeY))
 	{
 		return false;
 	}
+	*/
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	// ºäÆ÷Æ®¸¦ ¿øº»À¸·Î ´Ù½Ã ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->ResetViewport();
 
 	return true;
@@ -815,31 +818,31 @@ bool GraphicsClass::RenderUIElementsToTexture()
 	bool result;
 
 
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó ¹× d3d °´Ã¼¿¡¼­ ¿ùµå, ºä ¹× ¿À½î (ortho) Çà·ÄÀ» °¡Á®¿É´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ortho) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ºñÆ® ¸Ê ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ¹èÄ¡ÇÏ¿© ±×¸®±â¸¦ ÁØºñÇÕ´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ï¿ï¿½ ï¿½×¸ï¿½ï¿½â¸¦ ï¿½Øºï¿½ï¿½Õ´Ï´ï¿½.
 	result = m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 100, 100);
 	if (!result)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ¸¦ »ç¿ëÇÏ¿© ºñÆ® ¸ÊÀ» ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix,
 		orthoMatrix, m_Bitmap->GetTexture());
 	if (!result)
@@ -847,13 +850,13 @@ bool GraphicsClass::RenderUIElementsToTexture()
 		return false;
 	}
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
-	// ºäÆ÷Æ®¸¦ ¿øº»À¸·Î ´Ù½Ã ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->ResetViewport();
 
 	return true;
@@ -864,31 +867,31 @@ bool GraphicsClass::RenderGlowScene()
 {
 	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
 
-	// Àå¸éÀ» ½ÃÀÛÇÒ ¹öÆÛ¸¦ Áö¿î´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	m_Direct3D->BeginScene(1.0f, 0.0f, 0.0f, 0.0f);
 
-	// Ä«¸Þ¶óÀÇ À§Ä¡¿¡ µû¶ó ºä Çà·ÄÀ» »ý¼ºÇÕ´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Camera->Render();
 
-	// Ä«¸Þ¶ó ¹× d3d °´Ã¼¿¡¼­ ¿ùµå, ºä ¹× ¿À½î (ortho) Çà·ÄÀ» °¡Á®¿É´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ortho) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
 	m_Camera->GetBaseViewMatrix(viewMatrix);
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ÀüÃ¼ È­¸é Á÷±³ À©µµ¿ì ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ¹èÄ¡ÇÏ¿© ±×¸®±â¸¦ ÁØºñÇÕ´Ï´Ù.
+	// ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ã¼ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½Ä¡ï¿½Ï¿ï¿½ ï¿½×¸ï¿½ï¿½â¸¦ ï¿½Øºï¿½ï¿½Õ´Ï´ï¿½.
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
-	// ÅØ½ºÃ³ ½¦ÀÌ´õ¸¦ »ç¿ëÇÏ¿© ÀüÃ¼ È­¸é ortho Ã¢À» ·»´õ¸µÇÏ°í ÅØ½ºÃ³ ¸®¼Ò½º¿¡ ÀüÃ¼ È­¸é Å©±â·Î Èå¸®°Ô ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½Ã¼ È­ï¿½ï¿½ ortho Ã¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½Ø½ï¿½Ã³ ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ È­ï¿½ï¿½ Å©ï¿½ï¿½ï¿½ ï¿½å¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_GlowShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, viewMatrix,
 		orthoMatrix, m_RenderTexture->GetShaderResourceView(), m_VerticalBlurTexture->GetShaderResourceView(), 3.0f);
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ µÈ Àå¸éÀ» È­¸é¿¡ Ç¥½ÃÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½é¿¡ Ç¥ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->EndScene();
 
 	return true;
@@ -937,15 +940,15 @@ bool GraphicsClass::RenderGlowScene()
 
 bool GraphicsClass::RenderToFadeTexture()
 {
-	// ·»´õ¸µ ´ë»óÀ» ·»´õ¸µ¿¡ ¸Â°Ô ¼³Á¤ÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_FadeRenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 
-	// ·»´õ¸µÀ» ÅØ½ºÃ³¿¡ Áö ¿ó´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ï´ï¿½.
 	m_FadeRenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	bool Result = RenderScene();
 
-	// ·»´õ¸µ ´ë»óÀ» ¿ø·¡ÀÇ ¹é ¹öÆÛ·Î ´Ù½Ã ¼³Á¤ÇÏ°í ·»´õ¸µ¿¡ ´ëÇÑ ·»´õ¸µÀ» ´õ ÀÌ»ó ´Ù½Ã ¼³Á¤ÇÏÁö ¾Ê½À´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->SetBackBufferRenderTarget();
 
 	return Result;
@@ -957,21 +960,21 @@ bool GraphicsClass::RenderFadingScene()
 	XMMATRIX worldMatrix, baseViewMatrix, orthoMatrix;
 	bool result;
 
-	// Àå¸éÀ» ½ÃÀÛÇÒ ¹öÆÛ¸¦ Áö¿î´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// Ä«¸Þ¶ó ¹× d3d °´Ã¼¿¡¼­ ¿ùµå, ºä ¹× ¿À½î (ortho) Çà·ÄÀ» °¡Á®¿É´Ï´Ù.
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ d3d ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ortho) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½É´Ï´ï¿½.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetBaseViewMatrix(baseViewMatrix);
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
-	// ¸ðµç 2D ·»´õ¸µÀ» ½ÃÀÛÇÏ·Á¸é Z ¹öÆÛ¸¦ ²ü´Ï´Ù.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½.
 	m_Direct3D->TurnZBufferOff();
 
-	// ºñÆ® ¸Ê ¹öÅØ½º¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ¹èÄ¡ÇÏ¿© ±×¸®±â¸¦ ÁØºñÇÕ´Ï´Ù.
+	// ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½Ä¡ï¿½Ï¿ï¿½ ï¿½×¸ï¿½ï¿½â¸¦ ï¿½Øºï¿½ï¿½Õ´Ï´ï¿½.
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
-	// ÆäÀÌµå ¼ÎÀÌ´õ¸¦ »ç¿ëÇÏ¿© ºñÆ® ¸ÊÀ» ·»´õ¸µÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	result = m_FadeShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), worldMatrix, baseViewMatrix, orthoMatrix,
 		m_FadeRenderTexture->GetShaderResourceView(), m_fadePercentage);
 	if (!result)
@@ -979,10 +982,10 @@ bool GraphicsClass::RenderFadingScene()
 		return false;
 	}
 
-	// ¸ðµç 2D ·»´õ¸µÀÌ ¿Ï·áµÇ¾úÀ¸¹Ç·Î Z ¹öÆÛ¸¦ ´Ù½Ã ÄÑ½Ê½Ã¿À.
+	// ï¿½ï¿½ï¿½ 2D ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ Z ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ù½ï¿½ ï¿½Ñ½Ê½Ã¿ï¿½.
 	m_Direct3D->TurnZBufferOn();
 
-	// ·»´õ¸µ µÈ Àå¸éÀ» È­¸é¿¡ Ç¥½ÃÇÕ´Ï´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½é¿¡ Ç¥ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	m_Direct3D->EndScene();
 
 	return true;
@@ -996,23 +999,23 @@ bool GraphicsClass::RenderText(int renderCount)
 	m_Direct3D->GetOrthoMatrix(orthoMatrix);
 
 	/*
-	// ÀÌ ÇÁ·¹ÀÓ¿¡¼­ ½ÇÁ¦·Î ·»´õ¸µ µÈ ¸ðµ¨ÀÇ ¼ö¸¦ ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (!m_Text->SetRenderCount(renderCount, m_Direct3D->GetDeviceContext()))
 	{
 		return false;
 	}
 	*/
 
-	// ÅØ½ºÆ®¸¦ ·»´õ¸µÇÏ±â Àü¿¡ ¾ËÆÄ ºí·»µùÀ» ÄÒ´Ù.
+	// ï¿½Ø½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½.
 	m_Direct3D->EnableAlphaBlending();
 
-	// ÅØ½ºÆ® ¹®ÀÚ¿­À» ·»´õ¸µ ÇÑ´Ù.
+	// ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ´ï¿½.
 	if (!m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix))
 	{
 		return false;
 	}
 
-	// ÅØ½ºÆ®¸¦ ·»´õ¸µ ÇÑ ÈÄ ¾ËÆÄ ºí·»µùÀ» ÇØÁ¦ÇÑ´Ù.
+	// ï¿½Ø½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_Direct3D->DisableAlphaBlending();
 
 	m_Direct3D->EndScene();

@@ -3,7 +3,6 @@
 class DeferredShaderClass
 {
 private:
-
     struct DeferredCBufferType
     {
         XMMATRIX inverseProjection;

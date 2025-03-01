@@ -75,24 +75,18 @@ float ShadowFactor(float4 worldPosition, int lightIndex)
         return 0;
     }
     
-        
-    // 텍스쳐 샘플러의 WARP 설정이 잘못됐나?
-    // 부호 때문에 projCoords.y 에 shadowMapTopLeftY 좌표를 더한것도 잘못됐나?
-    // 그런거같다 이대로면 projCoords 는 위가 -1 아래가 0이다.
-    
     // 0 - 1 범위로 변경
-    projCoords = (projCoords + 1) / 2.0;
+    projCoords = projCoords * 0.5 + 0.5;
     
     // 상하 반전
     projCoords.y = 1 - projCoords.y;
 
-    // projCoords 가 이 광원에 해당하는 coord 를 가리키도록 함
+    // projCoords 가 섀도 맵 아틀러스에서 이 광원에 해당하는 coord 를 가리키도록 함
     projCoords.x *= m_ShadowMaps[lightIndex].shadowMapTextureRatio;
     projCoords.y *= m_ShadowMaps[lightIndex].shadowMapTextureRatio;
     
     projCoords.x += m_ShadowMaps[lightIndex].shadowMapTopLeftX;
     projCoords.y += m_ShadowMaps[lightIndex].shadowMapTopLeftY;
- 
     
 
     float2 atlasSize = float2(1, 1) /
@@ -100,19 +94,23 @@ float ShadowFactor(float4 worldPosition, int lightIndex)
     mapHeight / m_ShadowMaps[lightIndex].shadowMapTextureRatio);
     
     float shadow = 0;
-    float epsilon = 0.01f;
+    float epsilon = 0.001f;
 
     for (int x = -1; x < 2; ++x)
     {
         for (int y = -1; y < 2; ++y)
         {
-            float closeestDepth = ShadowMap.Sample(LinearSampler, projCoords.xy + float2(x, y) * atlasSize).r;
-            shadow += (closeestDepth < currentDepth - epsilon);
+            // shadow += 1 - ShadowMap.SampleCmp(CompSampler, projCoords.xy + float2(x, y) * atlasSize, currentDepth - epsilon).r;
+
+            
+            float closestDepth = ShadowMap.Sample(LinearSampler, projCoords.xy + float2(x, y) * atlasSize).r;
+            shadow += (closestDepth < currentDepth - epsilon);
         }
     }
     
     shadow /= 9;
     
+    // 그림자가 있으면 1 없으면 0 리턴됨
     return shadow;
 }
 

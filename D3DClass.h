@@ -32,6 +32,7 @@ public:
 
 	void EnableAlphaBlending();
 	void DisableAlphaBlending();
+	void EnableVolumetricFogAlphaDrawPassBlendingState();
 
 private:
 	bool m_vsync_enabled = false;
@@ -56,6 +57,7 @@ private:
 	ID3D11DepthStencilState* m_depthDisabledStencilState = nullptr;
 	ID3D11BlendState* m_alphaEnableBlendingState = nullptr;
 	ID3D11BlendState* m_alphaDisableBlendingState = nullptr;
+	ID3D11BlendState* m_volumetricFogDrawPassBlendingState = nullptr;
 
 	D3D11_VIEWPORT m_viewport;
 };

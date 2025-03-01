@@ -7,7 +7,7 @@ public:
 	RenderTextureClass(const RenderTextureClass&);
 	~RenderTextureClass();
 
-	bool Initialize(ID3D11Device*, int, int, float, float);
+	bool Initialize(ID3D11Device*, int, int);
 	void Shutdown();
 
 	void SetRenderTarget(ID3D11DeviceContext*);
@@ -16,10 +16,8 @@ public:
 	void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
 
-	void UseShaderResourceView(ID3D11DeviceContext*, int);
-
-	void GetProjectionMatrix(XMMATRIX&);
-	void GetOrthoMatrix(XMMATRIX&);
+	void UsePSShaderResourceView(ID3D11DeviceContext*, int);
+	void UseCSShaderResourceView(ID3D11DeviceContext*, int);
 
 	int GetTextureWidth();
 	int GetTextureHeight();
@@ -33,6 +31,4 @@ private:
 	ID3D11Texture2D* m_depthStencilBuffer;
 	ID3D11DepthStencilView* m_depthStencilView;
 	D3D11_VIEWPORT m_viewport;
-	XMMATRIX m_projectionMatrix;
-	XMMATRIX m_orthoMatrix;
 };

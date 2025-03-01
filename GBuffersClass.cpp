@@ -24,8 +24,7 @@ GBuffersClass::~GBuffersClass()
 
 }
 
-bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight, float screenDepth,
-    float screenNear)
+bool GBuffersClass::Initialize(ID3D11Device* device, int textureWidth, int textureHeight)
 {
     HRESULT result = S_OK;
 
@@ -275,3 +274,10 @@ ID3D11ShaderResourceView* GBuffersClass::GetDepthResourceView()
 {
     return m_depthResourceView;
 }
+
+
+void GBuffersClass::UsePSShaderResourceView(ID3D11DeviceContext* deviceContext, int resourcenumber, int slot)
+{
+    deviceContext->PSSetShaderResources(slot, 1, &m_shaderResourceViewArray[resourcenumber]);
+}
+

@@ -20,16 +20,16 @@ ModelClass::~ModelClass()
 
 bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, float scale)
 {
-	// ¸ðµ¨ µ¥ÀÌÅÍ¸¦ ·ÎµåÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Îµï¿½ï¿½Ñ´ï¿½.
 	if (!LoadModel(modelFilename))
 	{
 		return false;
 	}
 
-	// ¸ðµ¨ÀÇ ¹ý¼±, Á¢¼± ¹× ÀÌÇ× º¤ÅÍ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	CalculateModelVectors();
 
-	// Á¤Á¡ ¹× ÀÎµ¦½º ¹öÆÛ¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	if (!InitializeBuffers(device, scale))
 	{
 		return false;
@@ -40,19 +40,19 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, float sca
 
 void ModelClass::Shutdown()
 {
-	// ¸ðµ¨ ÅØ½ºÃÄ¸¦ ¹ÝÈ¯ÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½Ä¸ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 	ReleaseTexture();
 
-	// ¹öÅØ½º ¹× ÀÎµ¦½º ¹öÆÛ¸¦ Á¾·áÇÑ´Ù.
+	// ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	ShutdownBuffers();
 
-	// ¸ðµ¨ µ¥ÀÌÅÍ ¹ÝÈ¯
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
 	ReleaseModel();
 }
 
 void ModelClass::Render(ID3D11DeviceContext* deviceContext)
 {
-	// ±×¸®±â¸¦ ÁØºñÇÏ±â À§ÇØ ±×·¡ÇÈ ÆÄÀÌÇÁ ¶óÀÎ¿¡ ²ÀÁöÁ¡°ú ÀÎµ¦½º ¹öÆÛ¸¦ ³õ´Â´Ù.
+	// ï¿½×¸ï¿½ï¿½â¸¦ ï¿½Øºï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Â´ï¿½.
 	RenderBuffers(deviceContext);
 }
 
@@ -91,21 +91,21 @@ void ModelClass::GetPosition(XMFLOAT3& pos)
 
 bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 {
-	// Á¤Á¡ ¹è¿­À» ¸¸µç´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	VertexType* vertices = new VertexType[m_vertexCount];
 	if (!vertices)
 	{
 		return false;
 	}
 	
-	// ÀÎµ¦½º ¹è¿­À» ¸¸µç´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	unsigned long* indices = new unsigned long[m_indexCount];
 	if (!indices)
 	{
 		return false;
 	}
 
-	// Á¤Á¡ ¹è¿­°ú ÀÎµ¦½º ¹è¿­À» µ¥ÀÌÅÍ·Î ÀÐ¾î¿Â´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ ï¿½Ð¾ï¿½Â´ï¿½.
 	for (int i = 0; i < m_vertexCount; i++)
 	{
 		vertices[i].position = XMFLOAT3(m_model[i].x * scale, m_model[i].y * scale, m_model[i].z * scale);
@@ -117,7 +117,7 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 		indices[i] = i;
 	}
 
-	// Á¤Àû Á¤Á¡ ¹öÆÛÀÇ ±¸Á¶Ã¼¸¦ ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
@@ -126,19 +126,19 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
-	// subresource ±¸Á¶¿¡ Á¤Á¡ µ¥ÀÌÅÍ¿¡ ´ëÇÑ Æ÷ÀÎÅÍ¸¦ Á¦°øÇÑ´Ù.
+	// subresource ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = vertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	// Á¤Á¡ ¹öÆÛ¸¦ ¸¸µç´Ù
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer)))
 	{
 		return false;
 	}
 
-	// Á¤Àû ÀÎµ¦½º ¹öÆÛÀÇ ±¸Á¶Ã¼¸¦ ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	D3D11_BUFFER_DESC indexBufferDesc;
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
@@ -147,19 +147,19 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
 
-	// ÀÎµ¦½º µ¥ÀÌÅÍ¸¦ °¡¸®Å°´Â º¸Á¶ ¸®¼Ò½º ±¸Á¶Ã¼¸¦ ÀÛ¼ºÇÑ´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Å°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ò½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Û¼ï¿½ï¿½Ñ´ï¿½.
 	D3D11_SUBRESOURCE_DATA indexData;
 	indexData.pSysMem = indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	// ÀÎµ¦½º ¹öÆÛ¸¦ »ý¼ºÇÕ´Ï´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer)))
 	{
 		return false;
 	}
 
-	// »ý¼ºµÇ°í °ªÀÌ ÇÒ´çµÈ Á¤Á¡ ¹öÆÛ¿Í ÀÎµ¦½º ¹öÆÛ¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	delete[] vertices;
 	vertices = 0;
 
@@ -171,14 +171,14 @@ bool ModelClass::InitializeBuffers(ID3D11Device* device, float scale)
 
 void ModelClass::ShutdownBuffers()
 {
-	// ÀÎµ¦½º ¹öÆÛ¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_indexBuffer)
 	{
 		m_indexBuffer->Release();
 		m_indexBuffer = 0;
 	}
 
-	// Á¤Á¡ ¹öÆÛ¸¦ ÇØÁ¦ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_vertexBuffer)
 	{
 		m_vertexBuffer->Release();
@@ -188,7 +188,7 @@ void ModelClass::ShutdownBuffers()
 
 void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 {
-	// Á¤Á¡ ¹öÆÛÀÇ ´ÜÀ§¿Í ¿ÀÇÁ¼ÂÀ» ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	unsigned int stride;
 	unsigned int offset;
 
@@ -196,84 +196,84 @@ void ModelClass::RenderBuffers(ID3D11DeviceContext* deviceContext)
 	stride = sizeof(VertexType);
 	offset = 0;
 
-	// ·»´õ¸µ ÇÒ ¼ö ÀÖµµ·Ï ÀÔ·Â ¾î¼Àºí·¯¿¡¼­ Á¤Á¡ ¹öÆÛ¸¦ È°¼ºÀ¸·Î ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ È°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
 
-	// ·»´õ¸µ ÇÒ ¼ö ÀÖµµ·Ï ÀÔ·Â ¾î¼Àºí·¯¿¡¼­ ÀÎµ¦½º ¹öÆÛ¸¦ È°¼ºÀ¸·Î ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½Ô·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ È°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	// Á¤Á¡ ¹öÆÛ·Î ±×¸± ±âº»ÇüÀ» ¼³Á¤ÇÑ´Ù. ¿©±â¼­´Â »ï°¢ÇüÀ¸·Î ¼³Á¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û·ï¿½ ï¿½×¸ï¿½ ï¿½âº»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½. ï¿½ï¿½ï¿½â¼­ï¿½ï¿½ ï¿½ï°¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1)
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureArray = new TextureArrayClass;
 	if (!m_TextureArray)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	return m_TextureArray->Initialize(device, filename1);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2)
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureArray = new TextureArrayClass;
 	if (!m_TextureArray)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	return m_TextureArray->Initialize(device, filename1, filename2);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3)
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureArray = new TextureArrayClass;
 	if (!m_TextureArray)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	return m_TextureArray->Initialize(device, filename1, filename2, filename3);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4)
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureArray = new TextureArrayClass;
 	if (!m_TextureArray)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	return m_TextureArray->Initialize(device, filename1, filename2, filename3, filename4);
 }
 
 bool ModelClass::LoadTextures(ID3D11Device* device, const WCHAR* filename1, const WCHAR* filename2, const WCHAR* filename3, const WCHAR* filename4, const WCHAR* filename5)
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_TextureArray = new TextureArrayClass;
 	if (!m_TextureArray)
 	{
 		return false;
 	}
 
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	return m_TextureArray->Initialize(device, filename1, filename2, filename3, filename4, filename5);
 }
 
 void ModelClass::ReleaseTexture()
 {
-	// ÅØ½ºÃÄ ¿ÀºêÁ§Æ®¸¦ ¸±¸®ÁîÇÑ´Ù.
+	// ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (m_TextureArray)
 	{
 		m_TextureArray->Shutdown();
@@ -284,17 +284,17 @@ void ModelClass::ReleaseTexture()
 
 bool ModelClass::LoadModel(const char* filename)
 {
-	// ¸ðµ¨ ÆÄÀÏÀ» ¿¬´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	ifstream fin;
 	fin.open(filename);
 
-	// ÆÄÀÏÀ» ¿­ ¼ö ¾øÀ¸¸é Á¾·áÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (fin.fail())
 	{
 		return false;
 	}
 
-	// ¹öÅØ½º Ä«¿îÆ®ÀÇ °ª±îÁö ÀÐ´Â´Ù.
+	// ï¿½ï¿½ï¿½Ø½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
 	char input = 0;
 	fin.get(input);
 	while (input != ':')
@@ -302,20 +302,20 @@ bool ModelClass::LoadModel(const char* filename)
 		fin.get(input);
 	}
 
-	// ¹öÅØ½º Ä«¿îÆ®¸¦ ÀÐ´Â´Ù
+	// ï¿½ï¿½ï¿½Ø½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ð´Â´ï¿½
 	fin >> m_vertexCount;
 
-	// ÀÎµ¦½ºÀÇ ¼ö¸¦ Á¤Á¡ ¼ö¿Í °°°Ô ¼³Á¤ÇÑ´Ù.
+	// ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_indexCount = m_vertexCount;
 
-	// ÀÐ¾îµéÀÎ Á¤Á¡ °³¼ö¸¦ »ç¿ëÇÏ¿© ¸ðµ¨À» ¸¸µç´Ù.
+	// ï¿½Ð¾ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	m_model = new ModelType[m_vertexCount];
 	if (!m_model)
 	{
 		return false;
 	}
 
-	// µ¥ÀÌÅÍÀÇ ½ÃÀÛ ºÎºÐ±îÁö ÀÐ´Â´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ÎºÐ±ï¿½ï¿½ï¿½ ï¿½Ð´Â´ï¿½.
 	fin.get(input);
 	while (input != ':')
 	{
@@ -324,7 +324,7 @@ bool ModelClass::LoadModel(const char* filename)
 	fin.get(input);
 	fin.get(input);
 
-	// ¹öÅØ½º µ¥ÀÌÅÍ¸¦ ÀÐ´Â´Ù.
+	// ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Ð´Â´ï¿½.
 	for (int i = 0; i < m_vertexCount; i++)
 	{
 		fin >> m_model[i].x >> m_model[i].y >> m_model[i].z;
@@ -332,7 +332,7 @@ bool ModelClass::LoadModel(const char* filename)
 		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
 	}
 
-	// ¸ðµ¨ ÆÄÀÏÀ» ´Ý´Â´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý´Â´ï¿½.
 	fin.close();
 
 	return true;
@@ -354,16 +354,16 @@ void ModelClass::CalculateModelVectors()
 	VectorType tangent, binormal, normal;
 
 
-	// ¸ðµ¨ÀÇ ¸é ¼ö¸¦ °è»êÇÑ´Ù
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½
 	int faceCount = m_vertexCount / 3;
 
-	// ¸ðµ¨ µ¥ÀÌÅÍ¿¡ ´ëÇÑ ÀÎµ¦½º¸¦ ÃÊ±âÈ­ÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½Ñ´ï¿½.
 	int index = 0;
 
-	// ¸ðµç ¸éÀ» »ìÆìº¸°í Á¢¼±, Á¾¹ý¼±, ¹ý¼± º¤ÅÍ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ìº¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	for (int i = 0; i < faceCount; i++)
 	{
-		// ¸ðµ¨¿¡¼­ ÇÑ ¸é¿¡ ´ëÇÑ ¼¼ °³ÀÇ Á¤Á¡À» °¡Á®¿Â´Ù.
+		// ï¿½ðµ¨¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½é¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Â´ï¿½.
 		vertex1.x = m_model[index].x;
 		vertex1.y = m_model[index].y;
 		vertex1.z = m_model[index].z;
@@ -394,13 +394,13 @@ void ModelClass::CalculateModelVectors()
 		vertex3.nz = m_model[index].nz;
 		index++;
 
-		// Ç¥¸éÀÇ ÅºÁ¨Æ®(Á¢¼±)¿Í ¹ÙÀÌ³ë¸Ö(Á¾¹ý¼±)À» °è»êÇÑ´Ù.
+		// Ç¥ï¿½ï¿½ï¿½ï¿½ Åºï¿½ï¿½Æ®(ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½Ì³ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		CalculateTangentBinormal(vertex1, vertex2, vertex3, tangent, binormal);
 
-		// ÅºÁ¨Æ®¿Í ¹ÙÀÌ³ë¸ÖÀ» ÀÌ¿ëÇÏ¿© »õ ¹ý¼±À» °è»êÇÑ´Ù.
+		// Åºï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¿ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		CalculateNormal(tangent, binormal, normal);
 
-		// ¸ðµ¨ ±¸Á¶Ã¼¿¡ ¸éÀÇ ¹ý¼±, Á¢¼± ¹× ¹ÙÀÌ ³ë¸ÖÀ» ÀúÀåÇÕ´Ï´Ù.
+		// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 		m_model[index - 1].nx = normal.x;
 		m_model[index - 1].ny = normal.y;
 		m_model[index - 1].nz = normal.z;
@@ -440,7 +440,7 @@ void ModelClass::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType
 	float vector1[3], vector2[3];
 	float tuVector[2], tvVector[2];
 
-	// ÇöÀç Ç¥¸éÀÇ µÎ º¤ÅÍ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	vector1[0] = vertex2.x - vertex1.x;
 	vector1[1] = vertex2.y - vertex1.y;
 	vector1[2] = vertex2.z - vertex1.z;
@@ -449,17 +449,17 @@ void ModelClass::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType
 	vector2[1] = vertex3.y - vertex1.y;
 	vector2[2] = vertex3.z - vertex1.z;
 
-	// tu ¹× tv ÅØ½ºÃÄ °ø°£ º¤ÅÍ¸¦ °è»êÇÑ´Ù.
+	// tu ï¿½ï¿½ tv ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	tuVector[0] = vertex2.tu - vertex1.tu;
 	tvVector[0] = vertex2.tv - vertex1.tv;
 
 	tuVector[1] = vertex3.tu - vertex1.tu;
 	tvVector[1] = vertex3.tv - vertex1.tv;
 
-	// ÅºÁ¨Æ® / ¹ÙÀÌ³ë¸Ö ¹æÁ¤½ÄÀÇ ºÐ¸ð¸¦ °è»êÇÑ´Ù.
+	// Åºï¿½ï¿½Æ® / ï¿½ï¿½ï¿½Ì³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	float den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
 
-	// ¿ÜÀûÀ» °è»êÇÏ°í °è¼ö¸¦ °öÇÏ¿© ÅºÁ¨Æ®¿Í Á¾¹ý¼±À» ¾ò´Â´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ Åºï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Â´ï¿½.
 	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
 	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
 	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
@@ -468,18 +468,18 @@ void ModelClass::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType
 	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
 	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
 
-	// ÀÌ Á¢¼±ÀÇ ±æÀÌ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	float length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
 
-	// Á¢¼±À» ³ë¸»¶óÀÌÁî ÇÑ ´ÙÀ½ ÀúÀåÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ë¸»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	tangent.x = tangent.x / length;
 	tangent.y = tangent.y / length;
 	tangent.z = tangent.z / length;
 
-	// ÀÌ Á¾¹ý¼±ÀÇ ±æÀÌ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	length = sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
 
-	// Á¾¹ý¼±À» ³ë¸»¶óÀÌÁî ÇÑ ´ÙÀ½ ÀúÀåÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ë¸»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	binormal.x = binormal.x / length;
 	binormal.y = binormal.y / length;
 	binormal.z = binormal.z / length;
@@ -488,15 +488,15 @@ void ModelClass::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType
 
 void ModelClass::CalculateNormal(VectorType tangent, VectorType binormal, VectorType& normal)
 {
-	// ¹ý¼± º¤ÅÍ¸¦ ÁÙ ¼ö ÀÖ´Â Á¢¼±°ú binormal ÀÇ ¿ÜÀûÀ» °è»êÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ binormal ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	normal.x = (tangent.y * binormal.z) - (tangent.z * binormal.y);
 	normal.y = (tangent.z * binormal.x) - (tangent.x * binormal.z);
 	normal.z = (tangent.x * binormal.y) - (tangent.y * binormal.x);
 
-	// ¹ý¼±ÀÇ ±æÀÌ¸¦ °è»êÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	float length = sqrt((normal.x * normal.x) + (normal.y * normal.y) + (normal.z * normal.z));
 
-	// ¹ý¼±À» Ç¥ÁØÈ­ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½ï¿½È­ï¿½Ñ´ï¿½.
 	normal.x = normal.x / length;
 	normal.y = normal.y / length;
 	normal.z = normal.z / length;

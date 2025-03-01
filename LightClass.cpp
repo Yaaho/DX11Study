@@ -68,7 +68,7 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 	float fieldOfView = (float)XM_PI / 2.0f;
 	float screenAspect = 1.0f;
 
-	XMMATRIX orthoMatrix = XMMatrixOrthographicLH(20.0f, 20.0f, m_screenNear, m_screenDepth);
+	XMMATRIX orthoMatrix = XMMatrixOrthographicLH(200.0, 200.0f, m_screenNear, m_screenDepth);
 	XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, m_screenNear, m_screenDepth);
 	
 
@@ -110,17 +110,26 @@ void LightClass::UpdateBuffer(ID3D11DeviceContext* deviceContext)
 	deviceContext->UpdateSubresource(m_shadowMapBuffer, 0, nullptr, &m_shadowMapProps, 0, 0);
 }
 
-void LightClass::UseLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBufferslot)
+void LightClass::UsePSLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBufferslot)
 {
 	// ¶óÀÌÆ® ¹öÆÛ´Â ÇÈ¼¿ ¼ÎÀÌ´õ b1 ½½·Ô
 	deviceContext->PSSetConstantBuffers(lightsBufferslot, 1, &m_lightsBuffer);
 }
 
-
-void LightClass::UseShadowMapBuffer(ID3D11DeviceContext* deviceContext, int ShadowMapBufferslot)
+void LightClass::UsePSShadowMapBuffer(ID3D11DeviceContext* deviceContext, int ShadowMapBufferslot)
 {
 	// ¼Îµµ¿ì ¸Ê ¹öÆÛ´Â ÇÈ¼¿ ¼ÎÀÌ´õ b2 ½½·Ô
 	deviceContext->PSSetConstantBuffers(ShadowMapBufferslot, 1, &m_shadowMapBuffer);
+}
+
+void LightClass::UseCSLightBuffer(ID3D11DeviceContext* deviceContext, int lightsBufferslot)
+{
+	deviceContext->CSSetConstantBuffers(lightsBufferslot, 1, &m_lightsBuffer);
+}
+
+void LightClass::UseCSShadowMapBuffer(ID3D11DeviceContext* deviceContext, int ShadowMapBufferslot)
+{
+	deviceContext->CSSetConstantBuffers(ShadowMapBufferslot, 1, &m_shadowMapBuffer);
 }
 
 

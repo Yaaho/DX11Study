@@ -33,7 +33,6 @@ TextureCube PrefilteredSpecMap : register(t7);
 Texture2D BrdfLUT : register(t8);
 
 
-
 float3 CalculateWorldFromDepth(float depth, float2 texCoord)
 {
     // 0, 1 범위의 texCoord 를 -1, 1 범위로 변경하고, 상하 반전하여 clip space 좌표로 만듦.
@@ -51,9 +50,11 @@ float3 CalculateWorldFromDepth(float depth, float2 texCoord)
     
     // viewSpace 좌표에 inverseView 를 곱하여 world space 좌표로 변경
     float4 worldSpace = mul(inverseView, viewSpace);
+    
+    worldSpace.xyz /= worldSpace.w;
+    
     return worldSpace.xyz;
 }
-
 
 
 float4 DeferredPixelShader(PixelInputType input) : SV_TARGET

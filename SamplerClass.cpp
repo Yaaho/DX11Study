@@ -21,7 +21,7 @@ bool SamplerClass::Initialize(ID3D11Device* device)
 {
     HRESULT result;
 
-    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
+    // 텍스처 샘플러 상태 구조체를 설정합니다.
     D3D11_SAMPLER_DESC LinearSamplerDesc;
     LinearSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     LinearSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -45,7 +45,7 @@ bool SamplerClass::Initialize(ID3D11Device* device)
     }
 
 
-    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
+    // 텍스처 샘플러 상태 구조체를 설정합니다.
     D3D11_SAMPLER_DESC PointSamplerDesc;
     PointSamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     PointSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -68,12 +68,42 @@ bool SamplerClass::Initialize(ID3D11Device* device)
         return false;
     }
 
+
+    // 랩 텍스처 샘플러 상태 구조체를 설정합니다.
+    D3D11_SAMPLER_DESC CompSamplerDesc;
+    CompSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+    CompSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    CompSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    CompSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    CompSamplerDesc.MipLODBias = 0.0f;
+    CompSamplerDesc.MaxAnisotropy = 0;
+    CompSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+    CompSamplerDesc.BorderColor[0] = 1.0f;
+    CompSamplerDesc.BorderColor[1] = 1.0f;
+    CompSamplerDesc.BorderColor[2] = 1.0f;
+    CompSamplerDesc.BorderColor[3] = 1.0f;
+    CompSamplerDesc.MinLOD = 0;
+    CompSamplerDesc.MaxLOD = 0;
+
+    //텍스처 샘플러 상태를 만듭니다.
+    result = device->CreateSamplerState(&CompSamplerDesc, &m_ComparisonSamplerState);
+    if (FAILED(result))
+    {
+        return false;
+    }
+
     return true;
 }
 
 
 void SamplerClass::Shutdown()
 {
+    if (m_ComparisonSamplerState)
+    {
+        m_ComparisonSamplerState->Release();
+        m_ComparisonSamplerState = 0;
+    }
+
     if (m_LinearSamplerState)
     {
         m_LinearSamplerState->Release();
@@ -89,15 +119,41 @@ void SamplerClass::Shutdown()
 
 
 
-void SamplerClass::UseLinear(ID3D11DeviceContext* deviceContext, int slot)
+void SamplerClass::UsePSLinear(ID3D11DeviceContext* deviceContext, int slot)
 {
     // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
     deviceContext->PSSetSamplers(slot, 1, &m_LinearSamplerState);
 }
 
+void SamplerClass::UseCSLinear(ID3D11DeviceContext* deviceContext, int slot)
+{
+    // 컴퓨트 쉐이더에서 샘플러 상태를 설정합니다.
+    deviceContext->CSSetSamplers(slot, 1, &m_LinearSamplerState);
+}
 
-void SamplerClass::UsePoint(ID3D11DeviceContext* deviceContext, int slot)
+
+
+void SamplerClass::UsePSPoint(ID3D11DeviceContext* deviceContext, int slot)
 {
     // 픽셀 쉐이더에서 샘플러 상태를 설정합니다.
     deviceContext->PSSetSamplers(slot, 1, &m_PointSamplerState);
+}
+
+void SamplerClass::UseCSPoint(ID3D11DeviceContext* deviceContext, int slot)
+{
+    // 컴퓨트 쉐이더에서 샘플러 상태를 설정합니다.
+    deviceContext->CSSetSamplers(slot, 1, &m_PointSamplerState);
+}
+
+
+
+void SamplerClass::UsePSComp(ID3D11DeviceContext* deviceContext, int slot)
+{
+    deviceContext->PSSetSamplers(slot, 1, &m_ComparisonSamplerState);
+}
+
+
+void SamplerClass::UseCSComp(ID3D11DeviceContext* deviceContext, int slot)
+{
+    deviceContext->CSSetSamplers(slot, 1, &m_ComparisonSamplerState);
 }

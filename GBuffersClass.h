@@ -9,7 +9,7 @@ public:
 	GBuffersClass(const GBuffersClass&);
 	~GBuffersClass();
 
-	bool Initialize(ID3D11Device*, int, int, float, float);
+	bool Initialize(ID3D11Device*, int, int);
 	void Shutdown();
 
 	void SetRenderTargets(ID3D11DeviceContext*);
@@ -18,6 +18,8 @@ public:
 	ID3D11DepthStencilView* GetDepthStencilView();
 	ID3D11ShaderResourceView* GetShaderResourceView(int);
 	ID3D11ShaderResourceView* GetDepthResourceView();
+
+	void UsePSShaderResourceView(ID3D11DeviceContext*, int, int);
 
 private:
 	int m_textureWidth = 0;

@@ -76,8 +76,11 @@ public:
 	void UpdateBuffer(ID3D11DeviceContext*);
 
 
-	void UseLightBuffer(ID3D11DeviceContext*, int);
-	void UseShadowMapBuffer(ID3D11DeviceContext*, int);
+	void UsePSLightBuffer(ID3D11DeviceContext*, int);
+	void UsePSShadowMapBuffer(ID3D11DeviceContext*, int);
+
+	void UseCSLightBuffer(ID3D11DeviceContext*, int);
+	void UseCSShadowMapBuffer(ID3D11DeviceContext*, int);
 
 
 	void Shutdown();

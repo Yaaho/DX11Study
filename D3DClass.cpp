@@ -91,7 +91,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	// 비디오카드 메모리 용량 단위를 메가바이트 단위로 저장한다.
 	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
-	// 비디오카드의 이름을 저장한다
+	// 비디오카드의 이름을 저장한다6
 	size_t stringLength = 0;
 	if (wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128) != 0)
 	{
@@ -320,7 +320,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
 
-	// 이제 2D 렌더링을위한 Z 버퍼를 끄는 두 번째 깊이 스텐실 상태를 만든다. 
+	// 이제 2D 렌더링을 위한 Z 버퍼를 끄는 두 번째 깊이 스텐실 상태를 만든다. 
 	// DepthEnable을 false로 설정하고 다른 모든 매개 변수는 다른 깊이 스텐실 상태와 동일하다.
 	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
 	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
@@ -360,18 +360,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-
-	/*
-	// 기존 블렌드 상태
-	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
-	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
-	*/
+	
 
 	// 블렌드 상태를 생성한다.
 	if (FAILED(m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState)))
@@ -384,6 +373,23 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// 블렌드 상태를 생성한다.
 	if (FAILED(m_device->CreateBlendState(&blendStateDescription, &m_alphaDisableBlendingState)))
+	{
+		return false;
+	}
+
+
+	// volumetricFog 를 그릴때 사용되는 알파블렌드 상태를 설정한다.
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+
+	// 블렌드 상태를 생성한다.
+	if (FAILED(m_device->CreateBlendState(&blendStateDescription, &m_volumetricFogDrawPassBlendingState)))
 	{
 		return false;
 	}
@@ -577,4 +583,19 @@ void D3DClass::DisableAlphaBlending()
 	// Turn off the alpha blending.
 	m_deviceContext->OMSetBlendState(m_alphaDisableBlendingState, blendFactor, 0xffffffff);
 }
+
+void D3DClass::EnableVolumetricFogAlphaDrawPassBlendingState()
+{
+	// Setup the blend factor.
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	// Turn off the alpha blending.
+	m_deviceContext->OMSetBlendState(m_volumetricFogDrawPassBlendingState, blendFactor, 0xffffffff);
+}
+
+
+
+
+
+
 

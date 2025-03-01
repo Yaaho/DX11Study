@@ -165,6 +165,18 @@
     <ClInclude Include="RenderTextureCubeClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="RenderTexture3DClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LightInjectionShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RaymarchShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumetricLightShaderClass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -308,6 +320,18 @@
     <ClCompile Include="RenderTextureCubeClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="RenderTexture3DClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LightInjectionShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="RaymarchShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumetricLightShaderClass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SpecMapVS.HLSL" />
@@ -352,6 +376,10 @@
     <FxCompile Include="IntegrateBRDFPS.HLSL" />
     <FxCompile Include="IrradianceMapPS.HLSL" />
     <FxCompile Include="FullscreenVS.HLSL" />
+    <FxCompile Include="LightInjectionCS.HLSL" />
+    <FxCompile Include="RaymarchCS.HLSL" />
+    <FxCompile Include="VolumetricLightPS.HLSL" />
+    <FxCompile Include="VolumetricLightVS.HLSL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="data\seafloor.dds" />
@@ -415,5 +443,6 @@
     <None Include="Sampler.HLSLi" />
     <None Include="Lighting.HLSLi" />
     <None Include="BRDF.HLSLi" />
+    <None Include="Common.HLSLi" />
   </ItemGroup>
 </Project>

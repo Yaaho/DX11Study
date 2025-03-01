@@ -157,6 +157,7 @@
     <ClInclude Include="ModelListClass.h" />
     <ClInclude Include="OrthoWindowClass.h" />
     <ClInclude Include="PositionClass.h" />
+    <ClInclude Include="RenderTexture3DClass.h" />
     <ClInclude Include="RenderTextureClass.h" />
     <ClInclude Include="RenderTextureCubeClass.h" />
     <ClInclude Include="SamplerClass.h" />
@@ -176,6 +177,9 @@
     <ClInclude Include="TransparentDepthShaderClass.h" />
     <ClInclude Include="VerticalBlurShaderClass.h" />
     <ClInclude Include="ViewPointClass.h" />
+    <ClInclude Include="LightInjectionShaderClass.h" />
+    <ClInclude Include="RaymarchShaderClass.h" />
+    <ClInclude Include="VolumetricLightShaderClass.h" />
     <ClInclude Include="WaterShaderClass.h" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +212,7 @@
     <ClCompile Include="ModelListClass.cpp" />
     <ClCompile Include="OrthoWindowClass.cpp" />
     <ClCompile Include="PositionClass.cpp" />
+    <ClCompile Include="RenderTexture3DClass.cpp" />
     <ClCompile Include="RenderTextureClass.cpp" />
     <ClCompile Include="RenderTextureCubeClass.cpp" />
     <ClCompile Include="SamplerClass.cpp" />
@@ -225,6 +230,9 @@
     <ClCompile Include="TransparentDepthShaderClass.cpp" />
     <ClCompile Include="VerticalBlurShaderClass.cpp" />
     <ClCompile Include="ViewPointClass.cpp" />
+    <ClCompile Include="LightInjectionShaderClass.cpp" />
+    <ClCompile Include="RaymarchShaderClass.cpp" />
+    <ClCompile Include="VolumetricLightShaderClass.cpp" />
     <ClCompile Include="WaterShaderClass.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -606,6 +614,14 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="LightInjectionCS.HLSL">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="RaymarchCS.HLSL">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="ShadowPS.HLSL">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ShadowPixelShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -788,6 +804,11 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="VolumetricLightPS.HLSL">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VolumetricLightPixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="WaterPS.HLSL">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WaterPixelShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -876,9 +897,31 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="BRDF.HLSLi" />
+    <None Include="Common.HLSLi" />
     <None Include="Lighting.HLSLi" />
     <None Include="Sampler.HLSLi" />
     <None Include="Shading.HLSLi" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data\LDR_LLL1_0.dds" />
+    <Content Include="data\LDR_LLL1_1.dds" />
+    <Content Include="data\LDR_LLL1_10.dds" />
+    <Content Include="data\LDR_LLL1_11.dds" />
+    <Content Include="data\LDR_LLL1_12.dds" />
+    <Content Include="data\LDR_LLL1_13.dds" />
+    <Content Include="data\LDR_LLL1_14.dds" />
+    <Content Include="data\LDR_LLL1_15.dds" />
+    <Content Include="data\LDR_LLL1_2.dds" />
+    <Content Include="data\LDR_LLL1_3.dds" />
+    <Content Include="data\LDR_LLL1_4.dds" />
+    <Content Include="data\LDR_LLL1_5.dds" />
+    <Content Include="data\LDR_LLL1_6.dds" />
+    <Content Include="data\LDR_LLL1_7.dds" />
+    <Content Include="data\LDR_LLL1_8.dds" />
+    <Content Include="data\LDR_LLL1_9.dds" />
+    <Content Include="data\sky.dds" />
+    <Content Include="data\skybox.dds" />
+    <Content Include="Common.HLSLi" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
