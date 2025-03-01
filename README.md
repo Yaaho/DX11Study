@@ -14,11 +14,15 @@ PBR
 
 섀도 맵 아틀라스
 
+볼류매트릭 라이트
+
 
 ![스크린샷 2024-08-19 133124](https://github.com/user-attachments/assets/fb617fa3-6719-4c07-8c8e-3582a4dd242c)
 
 ![스크린샷 2024-08-19 133141](https://github.com/user-attachments/assets/9d687972-5d5a-404c-af0f-5f04223c95e2)
 
 ![스크린샷 2024-08-19 132948](https://github.com/user-attachments/assets/64a38a64-fa15-4593-9e5b-71093ac4411d)
+
+![Image](https://github.com/user-attachments/assets/841a674f-5b0f-4c6f-9372-71967f667d30)
 
 
